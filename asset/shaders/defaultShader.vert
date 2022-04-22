@@ -12,8 +12,8 @@ uniform mat4 NSCamera;
 
 void main()
 {
-    gl_Position.xyz = (NSCamera * vec4(vertexPosition, 1.0)).xyz;
-    gl_Position.w = 1.f;
+    gl_Position = (NSCamera * vec4(vertexPosition, 1.0));
+    //gl_Position.w = 1.f;
 
     fragmentColor = vertexColor;
     fragmentPosition = vertexPosition.xyz;
