@@ -21,6 +21,7 @@ namespace NS3D {
         glDeleteTextures(1, &dudvMapTexID);
         glDeleteTextures(1, &normalMapTexID);
         delete shader;
+        delete quad;
     }
 
     void WaterRenderer::render(const std::vector<const WaterTile*>& water, const Light* sun)

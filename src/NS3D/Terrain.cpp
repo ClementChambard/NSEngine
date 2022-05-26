@@ -40,7 +40,7 @@ namespace NS3D {
                 texCoords[vertexPointer*2 + 1] = (float)i/((float)VERTEX_COUNT-1);
                 vertexPointer++;
             }
-        
+
         unsigned int pointer = 0;
         for (int gz = 0; gz < VERTEX_COUNT-1; gz++)
             for (int gx = 0; gx < VERTEX_COUNT-1; gx++)
@@ -57,13 +57,12 @@ namespace NS3D {
                 indices[pointer++] = br;
             }
 
-
         return Loader3D::loadToVAO(positions, count*3, texCoords, count*2, normals, count*3, indices, 6*(VERTEX_COUNT-1)*(VERTEX_COUNT-1));
     }
 
     float Terrain::getHeight(int x, int y, unsigned char* buff, int w, int h, int nr_channels)
     {
-        if (x < 0 || x >= h || z < 0 || z >= h) return 0;
+        if (x <= 0 || x >= h-1 || z <= 0 || z >= h-1) return 0;
         unsigned char r = buff[(x*w+y)*nr_channels];
         unsigned char g = buff[(x*w+y)*nr_channels+1];
         unsigned char b = buff[(x*w+y)*nr_channels+2];
@@ -82,7 +81,7 @@ namespace NS3D {
 
     float Terrain::getHeightAt(float x, float z)
     {
-        float xx = x - this->x;   
+        float xx = x - this->x;
         float zz = z - this->z;
         float gridSquareSize = SIZE / ((float)VERTEX_COUNT-1);
         int gridX = (int) floor(xx/gridSquareSize);

@@ -26,6 +26,11 @@ namespace NSEngine {
         return stbi_load(filename, &w, &h, &nr_channels, 0);
     }
 
+    void ImageLoader::freeImageBuffer(uint8_t* buffer)
+    {
+        stbi_image_free(buffer);
+    }
+
     void ImageLoader::textureParameters(GLTexture tex, std::vector<GLenum> params, std::vector<GLint> options)
     {
         glBindTexture(GL_TEXTURE_2D, tex.id);
@@ -59,6 +64,7 @@ namespace NSEngine {
 
         glBindTexture(GL_TEXTURE_2D, 0);
 
+        stbi_image_free(data);
         return texture;
     }
 
@@ -80,9 +86,11 @@ namespace NSEngine {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
         glBindTexture(GL_TEXTURE_2D, 0);
+        stbi_image_free(data);
+
         int w, h;
         if (std::string(filename2) != "")
-        {   
+        {
             data = stbi_load(filename2, &w, &h, &nrChannels, 0);
 
             glGenTextures(1, &(texture.id2));
@@ -96,9 +104,11 @@ namespace NSEngine {
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
             glBindTexture(GL_TEXTURE_2D, 0);
+
+            stbi_image_free(data);
         }
         if (std::string(filename3) != "")
-        {   
+        {
             data = stbi_load(filename3, &w, &h, &nrChannels, 0);
 
             glGenTextures(1, &(texture.id3));
@@ -112,9 +122,11 @@ namespace NSEngine {
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
             glBindTexture(GL_TEXTURE_2D, 0);
+
+            stbi_image_free(data);
         }
         if (std::string(filename4) != "")
-        {   
+        {
             data = stbi_load(filename4, &w, &h, &nrChannels, 0);
 
             glGenTextures(1, &(texture.id4));
@@ -128,6 +140,8 @@ namespace NSEngine {
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
             glBindTexture(GL_TEXTURE_2D, 0);
+
+            stbi_image_free(data);
         }
         return texture;
     }
@@ -150,9 +164,12 @@ namespace NSEngine {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
         glBindTexture(GL_TEXTURE_2D, 0);
+
+        stbi_image_free(data);
+
         int w, h;
         if (lengths.size()>1)
-        {   
+        {
             data = stbi_load_from_memory(&(buffer[lengths[0]]), lengths[1], &w, &h, &nrChannels, 0);
 
             glGenTextures(1, &(texture.id2));
@@ -166,9 +183,11 @@ namespace NSEngine {
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
             glBindTexture(GL_TEXTURE_2D, 0);
+
+            stbi_image_free(data);
         }
         if (lengths.size() > 2)
-        {   
+        {
             data = stbi_load_from_memory(&(buffer[lengths[1]]), lengths[2], &w, &h, &nrChannels, 0);
 
             glGenTextures(1, &(texture.id3));
@@ -182,9 +201,11 @@ namespace NSEngine {
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
             glBindTexture(GL_TEXTURE_2D, 0);
+
+            stbi_image_free(data);
         }
         if (lengths.size() > 3)
-        {   
+        {
             data = stbi_load_from_memory(&(buffer[lengths[2]]), lengths[3], &w, &h, &nrChannels, 0);
 
             glGenTextures(1, &(texture.id4));
@@ -198,6 +219,8 @@ namespace NSEngine {
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
             glBindTexture(GL_TEXTURE_2D, 0);
+
+            stbi_image_free(data);
         }
         return texture;
     }

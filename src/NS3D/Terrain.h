@@ -13,7 +13,7 @@ namespace NS3D {
             Terrain(int gridX, int gridZ, TerrainTexture* tex, GLuint BMTexID, std::string heightmapImage) :
                 texture(tex), x(gridX * SIZE), z(gridZ * SIZE),
                 model(generateTerrain(heightmapImage)), blendMapTexID(BMTexID) {}
-            ~Terrain() { delete model; }
+            ~Terrain() { delete model; delete[] heights; }
 
             float getX() const { return x; }
             float getZ() const { return z; }

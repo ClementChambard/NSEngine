@@ -1,0 +1,10 @@
+#+TITLE: README
+#+AUTHOR: Clement Chambard
+
+* NSEngine
+
+Team Nano's Game Engine
+
+Made by Clement Chambard
+
+** TODO better cmake
