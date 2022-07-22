@@ -51,7 +51,7 @@ namespace NSEngine {
     /** draw_rectangle[color](pos1, pos2, [colors], outline)
      *
      * draws a 2D axis aligned rectangle from pos1 to pos2 [with colors colors]
-     * outline : if enabled, draws only the outline of the rectangle. disabled by default
+     * \param outline: if enabled, draws only the outline of the rectangle. disabled by default
      */
     extern void draw_rectangle(float x1, float y1, float x2, float y2, bool outline = false);
     extern void draw_rectangle_color(float x1, float y1, float x2, float y2, Color ctl, Color ctr, Color cbr, Color cbl, bool outline = false);
@@ -59,7 +59,7 @@ namespace NSEngine {
     /** draw_quad[color,2d](pos1, pos2, pos3, pos4 [colors], outline)
      *
      * draws a quad with points at pos[1-4] [with colors colors]
-     * outline : if enabled, draws only the outline of the quad. disabled by default
+     * \param outline: if enabled, draws only the outline of the quad. disabled by default
      * 2d : the z component is forced to 0
      */
     extern void draw_quad(glm::vec3 tl, glm::vec3 tr, glm::vec3 br, glm::vec3 bl, bool outline = false);
@@ -77,7 +77,7 @@ namespace NSEngine {
     /** draw_circle[arc,color,textured](center, radius, [radius2, angle1, angle2], [colors, textureData], outline)
      *
      * draws a circle or circle arc from center center and radius radius [for circle arc : use radius2 and angle range]
-     * outline : if enabled, draws only the outline of the circle. disabled by default
+     * \param outline: if enabled, draws only the outline of the circle. disabled by default
      * textureData : Id of texture + u value of texture coords (assumes vertical tiling) and repetition of texture along the arc
      */
     extern void draw_circle(int x, int y, float r, bool outline = false);
@@ -101,8 +101,8 @@ namespace NSEngine {
     /** draw_AA_box(pos1, pos2, color, outline)
      * 
      * draws a 3d axis aligned box from pos1 to pos2 with color color
-     * outline : if enabled, draws only the outline of the box. disabled by default
-     * shade   : if enabled, shades the sides for pseudo lighting effect
+     * \param outline: if enabled, draws only the outline of the box. disabled by default
+     * \param shade:   if enabled, shades the sides for pseudo lighting effect
      */
     extern void draw_AA_box(glm::vec3 p1, glm::vec3 p2, Color c, bool outline = false, bool shade = true);
 

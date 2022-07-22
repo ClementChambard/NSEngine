@@ -29,6 +29,8 @@ namespace NSEngine {
 
                     GLuint getOutputTexture() const { if (fbo != nullptr) return fbo->getColorTexture(); return 0; }
 
+                    FrameBuffer* getFbo() const { return fbo; }
+
 
                 private:
                     FrameBuffer* fbo = nullptr;

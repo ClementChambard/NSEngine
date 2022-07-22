@@ -16,7 +16,12 @@ namespace NSEngine {
             GraphicsLayer(graphicsLayerType t, int id) : type(t), id(id) { layerBatch = new SpriteBatch(); layerBatch->Init(); }
             ~GraphicsLayer();
 
-            void LoadTileMap(int tilesetID, int width, std::vector<int> data) { if (type != GLT_TILES) {warning("trying to add tilemap to a non-tile graphics layer"); return;} tmap = new Tilemap(id); tmap->Load(tilesetID, width, data); info("tilemap added to graphics layer " + std::to_string(id));}
+            void LoadTileMap(int tilesetID, int width, std::vector<int> data) {
+                if (type != GLT_TILES) { warning("trying to add tilemap to a non-tile graphics layer"); return; }
+                tmap = new Tilemap(id);
+                tmap->Load(tilesetID, width, data);
+                info("tilemap added to graphics layer", id);
+            }
 
             void EditTileMap(int x, int y, int tile) { tmap->ChangeTile(x, y, tile); }
 

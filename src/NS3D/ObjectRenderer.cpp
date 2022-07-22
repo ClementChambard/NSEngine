@@ -15,14 +15,42 @@ namespace NS3D {
             prepareTexturedModel(model.first);
             for (auto object : model.second)
             {
-                prepareInstance(object);          
+                prepareInstance(object);
+
                 glDrawElements(GL_TRIANGLES, model.first->getRawModel()->getVertexCount(),
                         GL_UNSIGNED_INT, 0);
+
             }
             unbindTexturedModel();
         }
 
         shader->stop();
+
+    }
+
+    void ObjectRenderer::renderOutlined(const Object3D *obj)
+    {
+        oshader->start();
+        oshader->SetProjectionMatrix(NSEngine::activeCamera3D()->getProjection());
+        oshader->SetViewMatrix(NSEngine::activeCamera3D()->getView());
+        oshader->SetColor({1,0.6,0.1});
+        glLineWidth(3);
+        glCullFace(GL_FRONT);
+        glPolygonMode(GL_BACK, GL_LINE);
+
+        glBindVertexArray(obj->getModel()->getRawModel()->getVaoID());
+        glEnableVertexAttribArray(0);
+        oshader->SetModelMatrix(obj->getMatrix());
+        glDrawElements(GL_TRIANGLES, obj->getModel()->getRawModel()->getVertexCount(),
+                GL_UNSIGNED_INT, 0);
+
+        glDisableVertexAttribArray(0);
+        glBindVertexArray(0);
+
+        glLineWidth(1);
+        glCullFace(GL_BACK);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        oshader->stop();
     }
 
     void ObjectRenderer::prepareTexturedModel(const TexturedModel* model)

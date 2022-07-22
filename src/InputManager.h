@@ -53,12 +53,14 @@ namespace NSEngine {
         void Show() const { SDL_ShowCursor(SDL_TRUE); }
         void SetPos(int x, int y);
         void SetPos(const glm::vec2& p) { SetPos(p.x, p.y); }
+        void SetCursor(int i);
         bool IsOffScreen();
         glm::vec2 pos;
         glm::vec2 guiPos;
         glm::vec2 posDiff;
         bool scrollUp = false;
         bool scrollDown = false;
+        std::vector<SDL_Cursor*> cursors;
     };
 
     struct GamepadStruct {
@@ -71,6 +73,7 @@ namespace NSEngine {
         bool Released(unsigned int button) const { return buttons[button].released; }
         int16_t AxisValue(int axis) const { return this->axis[axis]; }
         SDL_Joystick* joystick;
+        SDL_GameController* controller;
         std::vector<keydata> buttons;
         std::vector<int16_t> axis;
     };
@@ -83,7 +86,6 @@ namespace Inputs {
     inline NSEngine::KeyboardStruct Keyboard() { return NSEngine::InputManager::keyboard; }
     inline NSEngine::MouseStruct Mouse() { return NSEngine::InputManager::mouse; }
     inline NSEngine::GamepadStruct Gamepad(int i) { return NSEngine::GamepadStruct::gamepads[i]; }
-
 }
 
 #endif

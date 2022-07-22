@@ -19,7 +19,7 @@ namespace NS3D {
             void render(NSEngine::FrameBuffer* fbo = nullptr);
 
             void processTerrain(const Terrain* terrain);
-            void processObject(const Object3D* object);
+            void processObject(const Object3D* object, bool outlined = false);
             void processWaterTile(const WaterTile* water);
             void processLight(const Light* l);
 
@@ -35,6 +35,7 @@ namespace NS3D {
             glm::vec3 skyCol = glm::vec3(0,0,0);
 
             std::map<const TexturedModel*, std::vector<const Object3D*>> objectsToRender;
+            const Object3D* outlinedObject = nullptr;
             std::vector<const Terrain*> terrainsToRender;
             std::vector<const WaterTile*> waterToRender;
             std::vector<const Light*> lights;

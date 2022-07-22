@@ -35,7 +35,7 @@ class NSlist {
         }
         NSlistNode<T>* get_node(int i)
         {
-            if (i >= size || i < 0) { NSEngine::error("Index out of bounds for indice " + std::to_string(i)); return nullptr; }
+            if (i >= size || i < 0) { NSEngine::error("Index out of bounds for indice", i); return nullptr; }
 
             NSlistNode<T>* n = front->next;
             for (int j = 0; j < i; j++)
@@ -53,7 +53,7 @@ class NSlist {
                 if (n->id == id && n != back) return n;
                 n = n->next;
             }
-            NSEngine::warning("undefined ID " + std::to_string(id));
+            NSEngine::warning("undefined ID :", id);
             return nullptr;
         }
 

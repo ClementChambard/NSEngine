@@ -55,7 +55,10 @@ namespace NSEngine {
 
     void Window::setDisplayMode(int modeID)
     {
-        if (modeID >= modes.size()) return;
+        if (modeID >= modes.size()) {
+            error("Invalid display mode", modeID);
+            return;
+        }
         SDL_SetWindowSize(engineData::window, modes[modeID].width, modes[modeID].height);
         engineData::displayRatio = (float)engineData::gameWidth/(float)modes[modeID].width;
         glViewport(0,0,modes[modeID].width, modes[modeID].height);
@@ -66,7 +69,7 @@ namespace NSEngine {
     void Window::nextDisplaymode()
     {
         static int m = 0;
-        m = (m+1)%3;
+        m = (m+1)%modes.size();
         setDisplayMode(m);
     }
 

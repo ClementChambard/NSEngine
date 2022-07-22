@@ -41,13 +41,15 @@ namespace NS3D {
         skyCol = color;
     }
 
-    void Renderer3D::processObject(const Object3D* object)
+    void Renderer3D::processObject(const Object3D* object, bool outlined)
     {
         TexturedModel* m = object->getModel();
         if (objectsToRender.find(m) == objectsToRender.end())
             objectsToRender.insert({m,{object}});
         else
             objectsToRender.at(m).push_back(object);
+
+        if (outlined) outlinedObject = object;
     }
 
     void Renderer3D::processTerrain(const Terrain* terrain)
@@ -107,6 +109,7 @@ namespace NS3D {
         if (fbo != nullptr) fbo->bind();
         prepare();
         objRenderer->render(objectsToRender, lights);
+        if (outlinedObject) objRenderer->renderOutlined(outlinedObject);
         terRenderer->render(terrainsToRender, lights);
         skyRenderer->render();
         watRenderer->render(waterToRender,lights.size()>0?lights[0]:nullptr);
@@ -115,6 +118,7 @@ namespace NS3D {
         terrainsToRender.clear();
         objectsToRender.clear();
         lights.clear();
+        outlinedObject = nullptr;
     }
 
 }

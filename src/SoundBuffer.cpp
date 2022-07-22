@@ -18,21 +18,21 @@ namespace NSEngine {
         ALsizei num_bytes;
 
         sndfile = sf_open(filename, SFM_READ, &sfinfo);
-        if (!sndfile) { error("Could not open audio in " + std::string(filename) + " : " + std::string(sf_strerror(sndfile))); return 0; }
+        if (!sndfile) { error("Could not open audio in", filename, ":", sf_strerror(sndfile)); return 0; }
         if (sfinfo.frames < 1 || sfinfo.frames > (sf_count_t)(INT32_MAX / sizeof(short)) / sfinfo.channels)
-        { error("Bad sample count in " + std::string(filename) + " : " + std::to_string(sfinfo.frames)); sf_close(sndfile); return 0; }
+        { error("Bad sample count in", filename, ":", sfinfo.frames); sf_close(sndfile); return 0; }
         format = AL_NONE;
         if (sfinfo.channels == 1) format = AL_FORMAT_MONO16;
         else if (sfinfo.channels == 2) format = AL_FORMAT_STEREO16;
         else if (sfinfo.channels == 3)
             if (sf_command(sndfile, SFC_WAVEX_GET_AMBISONIC, NULL, 0) == SF_AMBISONIC_B_FORMAT) format = AL_FORMAT_BFORMAT2D_16;
         if (!format)
-        { error("Unsupperted channel count : " + std::to_string(sfinfo.channels)); sf_close(sndfile); return 0; }
+        { error("Unsupperted channel count :", sfinfo.channels); sf_close(sndfile); return 0; }
 
         membuff = static_cast<short*>(malloc((size_t)(sfinfo.frames * sfinfo.channels) * sizeof(short)));
         num_frames = sf_readf_short(sndfile, membuff, sfinfo.frames);
         if (num_frames < 1)
-        { free(membuff); sf_close(sndfile); error("Failed to read samples in " + std::string(filename) + " : " + std::to_string(num_frames)); return 0; }
+        { free(membuff); sf_close(sndfile); error("Failed to read samples in", filename, ":", num_frames); return 0; }
         num_bytes = (ALsizei)(num_frames * sfinfo.channels) * (ALsizei)sizeof(short);
 
         buffer = 0;
@@ -44,7 +44,7 @@ namespace NSEngine {
         err = alGetError();
         if (err != AL_NO_ERROR)
         {
-            error("OpenAL Error : " + std::string(alGetString(err)));
+            error("OpenAL Error :", alGetString(err));
             if (buffer && alIsBuffer(buffer)) alDeleteBuffers(1, &buffer);
             return 0;
         }

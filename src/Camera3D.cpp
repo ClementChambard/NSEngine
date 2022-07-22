@@ -250,5 +250,16 @@ namespace NSEngine {
         cameraMatrix = persp * viewMatrix;
     }
 
+    glm::vec3 Camera3D::getCameraSpace(glm::vec3 const& pos) const
+    {
+        glm::vec4 pos4 = viewMatrix * glm::vec4(pos, 1.f);
+        return glm::vec3(pos4) / pos4.w;
+    }
+
+    glm::vec3 Camera3D::getScreenSpace(glm::vec3 const& pos) const
+    {
+        glm::vec4 pos4 = cameraMatrix * glm::vec4(pos, 1.f);
+        return glm::vec3(pos4) / pos4.w;
+    }
 
 }

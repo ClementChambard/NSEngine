@@ -20,7 +20,7 @@ namespace NSEngine {
         if (f.fail()) return false;
         f.write(reinterpret_cast<const char*>(&bs[0]), bs.size());
         f.close();
-        info("Writing " + std::to_string(bs.size()) + " bytes to file : " + file);
+        info("Writing", bs.size(), "bytes to file :", file);
         return true;
     }
 

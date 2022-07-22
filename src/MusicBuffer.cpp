@@ -10,14 +10,14 @@ namespace NSEngine {
         alGenBuffers(NUM_BUFFERS, Buffers);
         std::size_t frame_size;
         SndFile = sf_open(filename, SFM_READ, &SfInfo);
-        if (!SndFile) error("Could not open music file : " + std::string(filename));
+        if (!SndFile) error("Could not open music file :", filename);
         if (SfInfo.channels==1) Format = AL_FORMAT_MONO16;
         else if (SfInfo.channels==2) Format = AL_FORMAT_STEREO16;
         else if (SfInfo.channels==3) {
             if (sf_command(SndFile, SFC_WAVEX_GET_AMBISONIC, NULL, 0)==SF_AMBISONIC_B_FORMAT) Format = AL_FORMAT_BFORMAT2D_16; }
         else if (SfInfo.channels==4) {
             if (sf_command(SndFile, SFC_WAVEX_GET_AMBISONIC, NULL, 0)==SF_AMBISONIC_B_FORMAT) Format = AL_FORMAT_BFORMAT3D_16; }
-        if (!Format) { sf_close(SndFile); SndFile=nullptr; error("Unsupported channel count from file "+std::string(filename));}
+        if (!Format) { sf_close(SndFile); SndFile=nullptr; error("Unsupported channel count from file", filename);}
         frame_size=((size_t)BUFFER_SAMPLES*(size_t)SfInfo.channels) * sizeof(short);
         Membuff = static_cast<short*>(malloc(frame_size));
     }

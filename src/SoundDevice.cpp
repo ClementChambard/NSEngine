@@ -26,7 +26,7 @@ namespace NSEngine {
             name = alcGetString(device, ALC_ALL_DEVICES_SPECIFIER);
         if (!name || alcGetError(device) != ALC_NO_ERROR)
             name = alcGetString(device, ALC_DEVICE_SPECIFIER);
-        info("Opened sound device : " + std::string(name));
+        info("Opened sound device :", name);
     }
 
     void SoundDevice::Delete() 

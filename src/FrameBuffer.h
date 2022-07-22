@@ -19,6 +19,8 @@ namespace NSEngine {
             void resolveToFBO(FrameBuffer* fbo);
             void resolveToScreen();
 
+            void resize(unsigned int width, unsigned int height);
+
             GLuint getColorTexture() const { return colorTextureID; }
             GLuint getDepthTexture() const { return depthTextureID; }
 

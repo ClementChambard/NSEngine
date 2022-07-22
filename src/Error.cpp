@@ -6,11 +6,12 @@
 
 namespace NSEngine {
 
-    int loglevel = 0;
+    MessagePrintLevel loglevel = MessagePrintLevel::LV_INFO;
 
+    /*
     void fatalError(std::string errorString) 
     {
-        if (loglevel < 4)
+        if (loglevel >= MessagePrintLevel::LV_FATAL)
             std::cout << "[FATAL ERROR] : " << errorString << std::endl;
         Quit();
         exit(EXIT_FAILURE);
@@ -18,21 +19,28 @@ namespace NSEngine {
 
     void error(std::string errorString)
     {
-        if (loglevel < 3)
+        if (loglevel >= MessagePrintLevel::LV_ERROR)
             std::cout << "[ERROR] : " << errorString << std::endl;
     }
 
     void warning(std::string warningString)
     {
-        if (loglevel < 2)
+        if (loglevel >= MessagePrintLevel::LV_WARN)
             std::cout << "[WARNING] : " << warningString << std::endl;
     }
 
     void info(std::string infoString)
     {
-        if (loglevel < 1)
+        if (loglevel >= MessagePrintLevel::LV_INFO)
             std::cout << "[INFO] : " << infoString << std::endl;
-    }
+    }*/
 
-    void setPrintLevel(int lvl) { loglevel = lvl; }
+    void setPrintLevel(MessagePrintLevel lvl) { loglevel = lvl; }
+    MessagePrintLevel getPrintLevel() { return loglevel; }
+
+    void FatalErrorQuit()
+    {
+        Quit();
+        exit(EXIT_FAILURE);
+    }
 }

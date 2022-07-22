@@ -50,19 +50,24 @@ namespace NSEngine {
         if (engineData::event.type == SDL_JOYBUTTONDOWN || engineData::event.type == SDL_JOYBUTTONUP)
         {
             Uint8 j = engineData::event.jbutton.which;
-            Uint8 button = engineData::event.jbutton.button;
-            Uint8 state = engineData::event.jbutton.state;
-
-            if (state == SDL_PRESSED) GamepadStruct::gamepads[j].buttons[button].Press();
-            else if (state == SDL_RELEASED) GamepadStruct::gamepads[j].buttons[button].Release();
-            toUpdate.push_back(&(GamepadStruct::gamepads[j].buttons[button]));
+            if (!GamepadStruct::gamepads[j].controller)
+            {
+                Uint8 button = engineData::event.jbutton.button;
+                Uint8 state = engineData::event.jbutton.state;
+                //std::cout << (int)j << " : " << (int)button << " -> " << (int)state << "\n";
+                if (state == SDL_PRESSED) GamepadStruct::gamepads[j].buttons[button].Press();
+                else if (state == SDL_RELEASED) GamepadStruct::gamepads[j].buttons[button].Release();
+                toUpdate.push_back(&(GamepadStruct::gamepads[j].buttons[button]));
+            }
         }
         if (engineData::event.type == SDL_JOYAXISMOTION)
         {
             Uint8 j = engineData::event.jaxis.which;
-            Uint8 axis = engineData::event.jaxis.axis;
-            Sint16 val = engineData::event.jaxis.value;
-            GamepadStruct::gamepads[j].axis[axis] = val;
+            if (!GamepadStruct::gamepads[j].controller) {
+                Uint8 axis = engineData::event.jaxis.axis;
+                Sint16 val = engineData::event.jaxis.value;
+                GamepadStruct::gamepads[j].axis[axis] = val;
+            }
         }
         if (engineData::event.type == SDL_MOUSEWHEEL)
         {
@@ -132,6 +137,26 @@ namespace NSEngine {
         return abs(guiPos.x) >= engineData::gameWidth/2 || abs(guiPos.y) >= engineData::gameHeight/2;
     }
 
+    void MouseStruct::SetCursor(int i)
+    {
+        if (cursors.empty())
+        {
+            cursors.push_back(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW));
+            cursors.push_back(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_IBEAM));
+            cursors.push_back(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_WAIT));
+            cursors.push_back(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_CROSSHAIR));
+            cursors.push_back(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_WAITARROW));
+            cursors.push_back(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENWSE));
+            cursors.push_back(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENESW));
+            cursors.push_back(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZEWE));
+            cursors.push_back(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENS));
+            cursors.push_back(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZEALL));
+            cursors.push_back(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_NO));
+            cursors.push_back(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND));
+        }
+        if (i >= 0 && i < cursors.size()) SDL_SetCursor(cursors[i]);
+    }
+
     int GamepadStruct::Number()
     {
         return GamepadStruct::gamepads.size();
@@ -140,21 +165,30 @@ namespace NSEngine {
     void GamepadStruct::Clear()
     {
         for (int i = 0; i < gamepads.size(); i++)
+        {
             SDL_JoystickClose(gamepads[i].joystick);
+            if (gamepads[i].controller) SDL_GameControllerClose(gamepads[i].controller);
+        }
         gamepads.clear();
     }
 }
 
 void Inputs::InitGamepads()
 {
+    SDL_GameControllerAddMappingsFromFile("assets/engine/gamecontrollerdb.txt");
     NSEngine::GamepadStruct::Clear();
     int numJoystick = SDL_NumJoysticks();
     for (int i = 0; i < numJoystick; i++)
     {
-        NSEngine::info("opened joystick");
         SDL_Joystick* j = SDL_JoystickOpen(i);
+        SDL_GameController* c = nullptr;
+        if (SDL_IsGameController(i)) {
+               c = SDL_GameControllerOpen(i);
+               NSEngine::info("opened controller : ", SDL_GameControllerName(c));
+        } else NSEngine::info("opened joystick");
         NSEngine::GamepadStruct::gamepads.push_back(NSEngine::GamepadStruct());
         NSEngine::GamepadStruct::gamepads.back().joystick = j;
+        NSEngine::GamepadStruct::gamepads.back().controller = c;
         NSEngine::GamepadStruct::gamepads.back().buttons.resize(SDL_JoystickNumButtons(j));
         NSEngine::GamepadStruct::gamepads.back().axis.resize(SDL_JoystickNumAxes(j));
     }

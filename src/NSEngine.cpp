@@ -6,6 +6,7 @@
 #include "SpriteBatch.h"
 #include "Timing.h"
 #include "vertex.h"
+#include "LoadingScreen.h"
 #include <cmath>
 #include <glm/fwd.hpp>
 
@@ -14,7 +15,7 @@ namespace NSEngine {
     FpsLimiter* engineData::fps = nullptr;
     Camera2D* engineData::cam2d = nullptr;
     Camera3D* engineData::cam3d = nullptr;
-    char engineData::gameflags;
+    uint32_t engineData::gameflags;
     Window* engineData::NSWindow = nullptr;
     SDL_Window* engineData::window;
     SDL_Event engineData::event;
@@ -27,7 +28,7 @@ namespace NSEngine {
 
     void Init()
     {
-        if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) != 0) fatalError("Failed to initialize SDL");
+        if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER) != 0) fatalError("Failed to initialize SDL");
 
         SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
         engineData::gameflags = 0b00000001;
@@ -104,12 +105,12 @@ namespace NSEngine {
     void setMaxFps(int fps)
     {
         engineData::fps->setMaxFps(fps);
-        info("max FPS set to " + std::to_string(fps));
+        info("max FPS set to", fps);
     }
 
     void toggleDebugInfo()
     {
-        info(std::string("debug info : ") + (engineData::gameflags & 0b00000010 ?"OFF":"ON"));
+        info("debug info :", engineData::gameflags & 0b00000010 ?"OFF":"ON");
         engineData::gameflags ^= 0b00000010;
     }
 
@@ -143,13 +144,13 @@ namespace NSEngine {
 
     void toggleFBF()
     {
-        info(std::string("frame by frame : ") + (engineData::gameflags & 0b00001000 ?"OFF":"ON"));
+        info("frame by frame :", engineData::gameflags & 0b00001000 ? "OFF" : "ON");
         engineData::gameflags ^= 0b00001000;
     }
 
     void toggle3DCameraControl()
     {
-        info(std::string("debug camera control : ") + (engineData::gameflags & 0b00010000 ? "OFF":"ON"));
+        info("debug camera control :", engineData::gameflags & 0b00010000 ? "OFF" : "ON");
         engineData::gameflags ^= 0b00010000;
     }
 
@@ -162,7 +163,7 @@ namespace NSEngine {
     {
         if (mode == 0) engineData::cam2d = new Camera2D(width, height);
         if (mode == 1) engineData::cam3d = new Camera3D(width,height);
-        info("created new camera of type " + std::to_string(mode));
+        info("created new camera of type", mode);
     }
 
     Camera2D* activeCamera()
@@ -221,7 +222,7 @@ namespace NSEngine {
         l->depthTest = depthTest;
         l->blendmode = blendmode;
         engineData::layers.push_back(l);
-        info("added new graphics layer " + std::to_string(id) + " of type " + std::to_string(type) + std::to_string(l->is_static) + std::to_string(l->depthTest) + std::to_string(l->blendmode));
+        info("added new graphics layer", id, "of type", std::to_string(type) + std::to_string(l->is_static) + std::to_string(l->depthTest) + std::to_string(l->blendmode));
         return id;
     }
 

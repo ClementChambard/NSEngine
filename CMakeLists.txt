@@ -20,9 +20,11 @@ target_link_libraries(NSEngine PUBLIC
                        ${OPENGL_gl_LIBRARY}
                        ${GLEW_LIBRARIES}
                        -lSDL2
+                       -lSDL2_image
                        -lSDL2_ttf
                        -lopenal
                        -lsndfile
+                       -pthread
                      )
 
 target_include_directories(NSEngine INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/src")

@@ -3,7 +3,7 @@
 
 namespace NSEngine {
 
-    FrameBuffer::FrameBuffer(unsigned int width, unsigned int height, type db) 
+    FrameBuffer::FrameBuffer(unsigned int width, unsigned int height, type db)
     {
         this->width = width;
         this->height = height;
@@ -92,7 +92,7 @@ namespace NSEngine {
         glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, colorTextureID, 0);
     }
 
-    void FrameBuffer::createDepthTextureAttachment() 
+    void FrameBuffer::createDepthTextureAttachment()
     {
         glGenTextures(1, &depthTextureID);
         glBindTexture(GL_TEXTURE_2D, depthTextureID);
@@ -120,4 +120,14 @@ namespace NSEngine {
             glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH_COMPONENT24, width, height);
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBufferID);
     }
+
+    void FrameBuffer::resize(unsigned int width, unsigned int height)
+    {
+        this->width = width;
+        this->height = height;
+        glBindTexture(GL_TEXTURE_2D, colorTextureID);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+
 }

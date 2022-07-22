@@ -48,6 +48,9 @@ namespace NSEngine {
             glm::mat4 getCamStatic() const;
             glm::mat4 getCamGui() const;
 
+            glm::vec3 getCameraSpace(glm::vec3 const& pos) const;
+            glm::vec3 getScreenSpace(glm::vec3 const& pos) const;
+
         private:
             float moveSpeed = 2.f, mouseSpeed = 0.01f;
             unsigned int scr_w = 0, scr_h = 0;

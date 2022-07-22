@@ -59,7 +59,7 @@ namespace NSEngine {
     */
     class engineData {
         public:
-            static char gameflags;
+            static uint32_t gameflags;
             static FpsLimiter* fps;
             static Camera2D* cam2d;
             static Camera3D* cam3d;
