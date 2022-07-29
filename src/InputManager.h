@@ -6,6 +6,7 @@
 #include "Keys.h"
 #include <glm/glm.hpp>
 #include <SDL2/SDL.h>
+#include "EventProcessor.h"
 
 namespace NSEngine {
 
@@ -27,6 +28,7 @@ namespace NSEngine {
             static bool KeyDown(unsigned int key);
             static bool KeyPressed(unsigned int key);
             static bool KeyReleased(unsigned int key);
+            static void SetAsEventProcessor();
 
             static KeyboardStruct keyboard;
             static MouseStruct mouse;
@@ -34,6 +36,13 @@ namespace NSEngine {
         private:
             static std::unordered_map<unsigned int, keydata> keyMap;
             static std::vector<keydata*> toUpdate;
+            class _EventProcessor : public EventProcessor {
+                public: void ProcessEvent(SDL_Event* e, bool& noKeyboard, bool& noMouse) override;
+                friend class InputManager;
+            };
+            static bool usingProcessor;
+            static _EventProcessor* processor;
+            friend class _EventProcessor;
     };
 
     struct KeyboardStruct {

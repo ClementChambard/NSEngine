@@ -9,6 +9,8 @@ namespace NSEngine {
     std::vector<GamepadStruct> GamepadStruct::gamepads;
     KeyboardStruct InputManager::keyboard;
     MouseStruct InputManager::mouse;
+    bool InputManager::usingProcessor = false;
+    InputManager::_EventProcessor* InputManager::processor = new InputManager::_EventProcessor();
 
     void InputManager::UpdateKeys()
     {
@@ -37,48 +39,64 @@ namespace NSEngine {
 
     void InputManager::CheckEvents()
     {
-        if (engineData::event.type == SDL_KEYDOWN)
+        bool FALSEBOOL = false;
+        if (!usingProcessor) processor->ProcessEvent(&engineData::event, FALSEBOOL, FALSEBOOL);
+    }
+
+    void InputManager::SetAsEventProcessor()
+    {
+        usingProcessor = true;
+        engineData::eventProcessors.push_back(processor);
+    }
+
+    void InputManager::_EventProcessor::ProcessEvent(SDL_Event* e, bool& noKeyboard, bool& noMouse)
+    {
+        if (e->type == SDL_KEYDOWN)
         {
-            keyMap[engineData::event.key.keysym.sym].Press();
-            toUpdate.push_back(&(keyMap[engineData::event.key.keysym.sym]));
+            if (noKeyboard) return;
+            keyMap[e->key.keysym.sym].Press();
+            toUpdate.push_back(&(keyMap[e->key.keysym.sym]));
         }
-        if (engineData::event.type == SDL_KEYUP)
+        if (e->type == SDL_KEYUP)
         {
-            keyMap[engineData::event.key.keysym.sym].Release();
-            toUpdate.push_back(&(keyMap[engineData::event.key.keysym.sym]));
+            if (noKeyboard) return;
+            keyMap[e->key.keysym.sym].Release();
+            toUpdate.push_back(&(keyMap[e->key.keysym.sym]));
         }
-        if (engineData::event.type == SDL_JOYBUTTONDOWN || engineData::event.type == SDL_JOYBUTTONUP)
+        if (e->type == SDL_JOYBUTTONDOWN || e->type == SDL_JOYBUTTONUP)
         {
-            Uint8 j = engineData::event.jbutton.which;
+            Uint8 j = e->jbutton.which;
             if (!GamepadStruct::gamepads[j].controller)
             {
-                Uint8 button = engineData::event.jbutton.button;
-                Uint8 state = engineData::event.jbutton.state;
+                Uint8 button = e->jbutton.button;
+                Uint8 state = e->jbutton.state;
                 //std::cout << (int)j << " : " << (int)button << " -> " << (int)state << "\n";
                 if (state == SDL_PRESSED) GamepadStruct::gamepads[j].buttons[button].Press();
                 else if (state == SDL_RELEASED) GamepadStruct::gamepads[j].buttons[button].Release();
                 toUpdate.push_back(&(GamepadStruct::gamepads[j].buttons[button]));
             }
         }
-        if (engineData::event.type == SDL_JOYAXISMOTION)
+        if (e->type == SDL_JOYAXISMOTION)
         {
-            Uint8 j = engineData::event.jaxis.which;
+            Uint8 j = e->jaxis.which;
             if (!GamepadStruct::gamepads[j].controller) {
-                Uint8 axis = engineData::event.jaxis.axis;
-                Sint16 val = engineData::event.jaxis.value;
+                Uint8 axis = e->jaxis.axis;
+                Sint16 val = e->jaxis.value;
                 GamepadStruct::gamepads[j].axis[axis] = val;
             }
         }
-        if (engineData::event.type == SDL_MOUSEWHEEL)
+        if (e->type == SDL_MOUSEWHEEL)
         {
-            if (engineData::event.wheel.y > 0) mouse.scrollUp = true;
-            else if (engineData::event.wheel.y < 0) mouse.scrollDown = true;
+            if (noMouse) return;
+            if (e->wheel.y > 0) mouse.scrollUp = true;
+            else if (e->wheel.y < 0) mouse.scrollDown = true;
         }
-        if (engineData::event.type == SDL_MOUSEMOTION)
+        if (e->type == SDL_MOUSEMOTION)
         {
+            if (noMouse) return;
             glm::vec2 newpos = {
-                engineData::event.motion.x*engineData::displayRatio - engineData::gameWidth/2, 
-                -engineData::event.motion.y*engineData::displayRatio + engineData::gameHeight/2
+                e->motion.x*engineData::displayRatio - engineData::gameWidth/2,
+                -e->motion.y*engineData::displayRatio + engineData::gameHeight/2
             };
             mouse.posDiff = newpos - mouse.guiPos;
             mouse.guiPos = newpos;
@@ -86,23 +104,25 @@ namespace NSEngine {
                 mouse.pos = mouse.guiPos*NSEngine::activeCamera()->getScale() + glm::vec2(NSEngine::activeCamera()->getPosition().x, NSEngine::activeCamera()->getPosition().y);
             else mouse.pos = mouse.guiPos;
         }
-        if (engineData::event.type == SDL_MOUSEBUTTONDOWN)
+        if (e->type == SDL_MOUSEBUTTONDOWN)
         {
-            keyMap[engineData::event.button.button] = {
+            if (noMouse) return;
+            keyMap[e->button.button] = {
                 1, 
-                !keyMap[engineData::event.button.button].down, 
-                keyMap[engineData::event.button.button].released
+                !keyMap[e->button.button].down,
+                keyMap[e->button.button].released
             };
-            toUpdate.push_back(&(keyMap[engineData::event.button.button]));
+            toUpdate.push_back(&(keyMap[e->button.button]));
         }
-        if (engineData::event.type == SDL_MOUSEBUTTONUP)
+        if (e->type == SDL_MOUSEBUTTONUP)
         {
-            keyMap[engineData::event.button.button] = {
+            if (noMouse) return;
+            keyMap[e->button.button] = {
                 0, 
-                keyMap[engineData::event.button.button].pressed, 
-                keyMap[engineData::event.button.button].down
+                keyMap[e->button.button].pressed,
+                keyMap[e->button.button].down
             };
-            toUpdate.push_back(&(keyMap[engineData::event.button.button]));
+            toUpdate.push_back(&(keyMap[e->button.button]));
         }
     }
 

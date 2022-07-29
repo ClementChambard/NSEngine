@@ -73,7 +73,6 @@ namespace NSEngine {
             AnimShader* baseShader;
      
         private:
-            SDL_GLContext context;
             std::vector<NS_DisplayMode> modes;
     };
 

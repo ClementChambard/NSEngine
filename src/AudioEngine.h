@@ -1,3 +1,6 @@
+#ifndef AUDIOENGINE_H_
+#define AUDIOENGINE_H_
+
 #include "SoundDevice.h"
 #include "SoundBuffer.h"
 #include "SoundSource.h"
@@ -31,3 +34,5 @@ namespace NSEngine
 
 
 }
+
+#endif // AUDIOENGINE_H_

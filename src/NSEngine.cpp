@@ -17,6 +17,7 @@ namespace NSEngine {
     Camera3D* engineData::cam3d = nullptr;
     uint32_t engineData::gameflags;
     Window* engineData::NSWindow = nullptr;
+    SDL_GLContext engineData::context;
     SDL_Window* engineData::window;
     SDL_Event engineData::event;
     std::vector<GraphicsLayer*> engineData::layers;
@@ -25,6 +26,7 @@ namespace NSEngine {
     float engineData::displayRatio = 1;
     int engineData::displaymode = 0;
     int engineData::debugLayer;
+    std::vector<EventProcessor*> engineData::eventProcessors;
 
     void Init()
     {
@@ -257,7 +259,6 @@ namespace NSEngine {
         InputManager::UpdateKeys();
 
         //events
-
         while(SDL_PollEvent(&engineData::event))
         {
             switch (engineData::event.type)
@@ -269,6 +270,13 @@ namespace NSEngine {
                     break;
             }
             InputManager::CheckEvents();
+
+            bool noMouse = false;
+            bool noKeyboard = false;
+            for (auto e : engineData::eventProcessors)
+            {
+                e->ProcessEvent(&engineData::event, noKeyboard, noMouse);
+            }
         }
         if (Inputs::Keyboard().Pressed(NSK_f1)) NSEngine::toggleDebugInfo();
         if (Inputs::Keyboard().Pressed(NSK_f2)) NSEngine::toggleWireframe();

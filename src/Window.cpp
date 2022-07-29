@@ -23,8 +23,8 @@ namespace NSEngine {
         engineData::window = SDL_CreateWindow(name, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, windowFlags);
         if (engineData::window == nullptr) fatalError("Failed to create window");
 
-        context = SDL_GL_CreateContext(engineData::window);
-        if (context == nullptr) fatalError("Failed to create GL context");
+        engineData::context = SDL_GL_CreateContext(engineData::window);
+        if (engineData::context == nullptr) fatalError("Failed to create GL context");
 
         GLenum Error = glewInit();
         if (Error != GLEW_OK) fatalError("Failed to initialize GLEW");
@@ -43,7 +43,7 @@ namespace NSEngine {
 
     void Window::destroy() 
     {
-        SDL_GL_DeleteContext(context);
+        SDL_GL_DeleteContext(engineData::context);
         SDL_DestroyWindow(engineData::window);
     }
 

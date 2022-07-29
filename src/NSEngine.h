@@ -1,5 +1,3 @@
-#pragma once
-
 #include <SDL2/SDL.h>
 
 #define NS_USE_ALL
@@ -9,6 +7,7 @@
 #define NS_USE_INTERPOLATOR
 #define NS_USE_AUDIO
 #define NS_USE_ANIMS
+#define NS_USE_EVENTPROCESSOR
 #endif
 
 #include "Assets.h"
@@ -25,6 +24,7 @@
 #include "vertex.h"
 #include "GraphicsLayer.h"
 #include "LayerRenderer.h"
+#include "EventProcessor.h"
 
 #ifdef NS_USE_TASKS
 #include "taskSchedule.h"
@@ -65,6 +65,7 @@ namespace NSEngine {
             static Camera3D* cam3d;
             static SDL_Event event;
             static SDL_Window* window;
+            static SDL_GLContext context;
             static Window* NSWindow;
             static std::vector<GraphicsLayer*> layers;
             static int targetLayer;
@@ -73,6 +74,7 @@ namespace NSEngine {
             static float displayRatio;
             static int displaymode;
             static int debugLayer;
+            static std::vector<EventProcessor*> eventProcessors;
     };
 
    /**
