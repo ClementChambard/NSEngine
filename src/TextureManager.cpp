@@ -14,7 +14,7 @@ namespace NSEngine {
 
     int TextureManager::RegisterTexture(const char* name, const char* name2, const char* name3, const char* name4)
     {
-        for (int i = 0; i < textures.size(); i++) if (textures[i].name == name) return i;
+     //   for (int i = 0; i < textures.size(); i++) if (textures[i].name == name) return i;
         if (textures.size() == 0)
         {
             textures.push_back({0,0,0});

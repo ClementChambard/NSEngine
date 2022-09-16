@@ -18,6 +18,19 @@ namespace NSEngine {
         while (!done) {}
     }
 
+    void blackLoadScreen(std::atomic_bool& run, std::atomic_bool& done)
+    {
+        SDL_Renderer* sdlrenderer = SDL_CreateRenderer(NSEngine::engineData::window, -1, 0);
+        SDL_SetRenderDrawColor(sdlrenderer, 0, 0, 0, 255);
+        SDL_RenderClear(sdlrenderer);
+        SDL_RenderPresent(sdlrenderer);
+        while (run);
+        SDL_RenderClear(sdlrenderer);
+        SDL_RenderPresent(sdlrenderer);
+        SDL_Delay(100);
+        SDL_DestroyRenderer(sdlrenderer);
+        done = true;
+    }
     void nsLoadScreen(std::atomic_bool& run, std::atomic_bool& done)
     {
         IMG_Init(IMG_INIT_PNG);

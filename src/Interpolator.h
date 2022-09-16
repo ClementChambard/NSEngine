@@ -1,6 +1,7 @@
 #ifndef INTERPOLATOR
 #define INTERPOLATOR
 
+#include <cstdint>
 #include <iostream>
 #include "NSlist.h"
 
@@ -11,6 +12,121 @@
 namespace NSEngine {
 
 extern bool GameIsPaused();
+
+template<typename T>
+struct InterpolatorWithoutBezier_t {
+    InterpolatorWithoutBezier_t() { current = goal = T(); }
+    InterpolatorWithoutBezier_t(T base) { current = goal = base; }
+    T current = T();
+    T initial = T();
+    T goal = T();
+    T bezier1 = T();
+    T bezier2 = T();
+    int32_t time = 0;
+    int32_t endTime = 0;
+    int32_t method = 0;
+    void update()
+    {
+        if (time == endTime) { current = goal; method = 0; return; }
+        if (method == 7)
+            current+=goal;
+        else if (method == 17)
+        {
+            current+=bezier2;
+            bezier2+=goal;
+        }
+        else
+            current = interpolate(method, initial, goal, endTime, time);
+        time++;
+    }
+    void start(T begin, T end, int32_t mode, int32_t duration, T b1 = T(), T b2 = T())
+    {
+        time = 0;
+        endTime = duration;
+        bezier1 = b1;
+        bezier2 = b2;
+        method = mode;
+        current = initial = begin;
+        goal = end;
+    }
+    void operator=(T const& other) { current = goal = other; }
+    void operator=(InterpolatorWithoutBezier_t const& other) {
+        current = other.current;
+        time = other.time;
+        endTime = other.endTime;
+        method = other.method;
+        bezier1 = other.bezier1;
+        bezier2 = other.bezier2;
+        initial = other.initial;
+        goal = other.goal;
+    }
+    void operator+=(T const& other) { current = (goal += other); }
+    void operator-=(T const& other) { current = (goal -= other); }
+    void operator*=(T const& other) { current = (goal *= other); }
+    void operator/=(T const& other) { current = (goal /= other); }
+};
+template<typename T>
+struct Interpolator_t {
+    Interpolator_t() { current = goal = T(); }
+    Interpolator_t(T base) { current = goal = base; }
+    T current = T();
+    T initial = T();
+    T goal = T();
+    T bezier1 = T();
+    T bezier2 = T();
+    int32_t time = 0;
+    int32_t endTime = 0;
+    int32_t method = 0;
+    void update()
+    {
+        if (time == endTime) { current = goal; method = 0; return; }
+        if (method == 7)
+            current+=goal;
+        else if (method == 80)
+        {
+            T sp0 = bezier1/*/T(duration)*//T(2),sp1 = bezier2/*/T(duration)*//T(2);
+            T a0 = initial;
+            T a1 = sp0;
+            T a2 = -sp1 + T(3) * (goal - initial) - T(2) * sp0;
+            T a3 = sp1 + sp0 - T(2) * (goal - initial);
+            T timeIn = T((float)time/(float)endTime);
+            current = a0 + a1 * timeIn + a2 * timeIn * timeIn + a3 * timeIn * timeIn * timeIn;
+        }
+        else if (method == 17)
+        {
+            current+=bezier2;
+            bezier2+=goal;
+        }
+        else
+            current = interpolate(method, initial, goal, endTime, time);
+        time++;
+    }
+    void start(T begin, T end, int32_t mode, int32_t duration, T b1 = T(), T b2 = T())
+    {
+        time = 0;
+        endTime = duration;
+        bezier1 = b1;
+        bezier2 = b2;
+        method = mode;
+        current = initial = begin;
+        goal = end;
+    }
+    void operator=(T const& other) { current = goal = other; }
+    void operator=(Interpolator_t const& other) {
+        current = other.current;
+        time = other.time;
+        endTime = other.endTime;
+        method = other.method;
+        bezier1 = other.bezier1;
+        bezier2 = other.bezier2;
+        initial = other.initial;
+        goal = other.goal;
+    }
+    void operator+=(T const& other) { current = (goal += other); }
+    void operator-=(T const& other) { current = (goal -= other); }
+    void operator*=(T const& other) { current = (goal *= other); }
+    void operator/=(T const& other) { current = (goal /= other); }
+};
 
 class InterpolateManager
 {

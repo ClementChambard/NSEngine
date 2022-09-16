@@ -36,6 +36,8 @@ namespace NSEngine {
 
             void Update(bool debugControl = false);
 
+            void setMatStatic(glm::mat4 const& m) {cameraStaticMatrix = m;}
+
             float getFov() const;
             glm::vec3 getPosition() const;
             glm::vec3 getLook() const;

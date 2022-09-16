@@ -2,6 +2,8 @@
 #include "GameLayers.h"
 #include "AnmManager.h"
 #include "NSEngine.h"
+#include "Interpolator.h"
+#include <glm/gtx/euler_angles.hpp>
 
 AnimScript::AnimScript() 
 {
@@ -97,7 +99,6 @@ bool AnimScript::isNotDrawable()
     return (!(flags&ANM_FLAG_ACTIVE)||!(flags&ANM_FLAG_VISIBLE)||lyr==0||sprit==0||a==0.f);
 }
 
-#include <glm/gtx/euler_angles.hpp>
 void AnimScript::Draw()
 {
     if (isNotDrawable()) return;
@@ -296,7 +297,7 @@ void AnimScript::scale_vel(float x, float y)
 }
 void AnimScript::move_bezier(uint16_t t, float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3)
 {
-
+    NSEngine::InterpolateManager::InterpolateBezier(&pos, pos, {x2, y2, z2}, {x1, y1, z1}, {x3, y3, z3}, t);
 }
 void AnimScript::scroll_x(float amt)
 {

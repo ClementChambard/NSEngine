@@ -7,6 +7,7 @@
 namespace NSEngine {
 
     extern void nsLoadScreen(std::atomic_bool& run, std::atomic_bool& done);
+    extern void blackLoadScreen(std::atomic_bool& run, std::atomic_bool& done);
 
     class LoadingScreen {
 

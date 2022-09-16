@@ -71,6 +71,7 @@ namespace NSEngine {
 
     uint32_t AnmManagerN::SpawnVM(size_t slot, size_t script, bool ui, bool front)
     {
+        if (loadedFiles[slot].name == "notLoaded") return -1;
 
         AnmVM* activeVM;
 

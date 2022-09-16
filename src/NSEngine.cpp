@@ -44,7 +44,7 @@ namespace NSEngine {
 
         info("Assets loaded !");
         #ifdef NS_USE_AUDIO
-            AudioEngine::Init();
+//            AudioEngine::Init();
         #endif
         #ifdef NS_USE_ANIMS
             AnmManager::Init(8192);

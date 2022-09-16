@@ -112,6 +112,13 @@ class AnimScript {
         float x_(bool p=false);
         float y_(bool p=false);
         float z_(bool p=false);
+        float rx_(bool p=false) { return rot.x; }
+        float ry_(bool p=false) { return rot.y; }
+        float rz_(bool p=false) { return rot.z; }
+        uint8_t cr_() { return col1.r; }
+        uint8_t cg_() { return col1.g; }
+        uint8_t cb_() { return col1.b; }
+        uint8_t ca_() { return a; }
         void incx(float x);
         void incy(float y);
         void incz(float z);

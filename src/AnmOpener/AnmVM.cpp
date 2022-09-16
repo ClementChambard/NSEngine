@@ -5,7 +5,6 @@
 #include "AnmBitflags.h"
 #include "../vertex.h"
 #include "../math/Random.h"
-#include "../Interpolator.h"
 #include "../NSlist.h"
 
 namespace NSEngine {
@@ -36,7 +35,8 @@ namespace NSEngine {
         uv_scale         = toCopy.uv_scale         ;
         uv_scroll_pos    = toCopy.uv_scroll_pos    ;
         anchor_offset    = toCopy.anchor_offset    ;
-        uv_scroll_vel    = toCopy.uv_scroll_vel    ;
+        uv_scroll_vel_x  = toCopy.uv_scroll_vel_x  ;
+        uv_scroll_vel_y  = toCopy.uv_scroll_vel_y  ;
         rot_vars         = toCopy.rot_vars         ;
         script_var_8     = toCopy.script_var_8     ;
         script_var_9     = toCopy.script_var_9     ;
@@ -44,11 +44,12 @@ namespace NSEngine {
         color1           = toCopy.color1           ;
         alpha1           = toCopy.alpha1           ;
         color2           = toCopy.color2           ;
-        alpha2           = toCopy.alpha2           ;
+        alpha2           = toCopy.alpha2.current           ;
         bitflags_lo      = toCopy.bitflags_lo      ;
         bitflags_hi      = toCopy.bitflags_hi      ;
         rand_scale_1f    = toCopy.rand_scale_1f    ;
         rand_scale_pi    = toCopy.rand_scale_pi    ;
+        entity_pos       = toCopy.entity_pos       ;
 
         for (int i = 0; i < 4; i++) {
             int_vars[i] = toCopy.int_vars[i];
@@ -83,7 +84,8 @@ namespace NSEngine {
         uv_scale         = toCopy.uv_scale         ;
         uv_scroll_pos    = toCopy.uv_scroll_pos    ;
         anchor_offset    = toCopy.anchor_offset    ;
-        uv_scroll_vel    = toCopy.uv_scroll_vel    ;
+        uv_scroll_vel_x  = toCopy.uv_scroll_vel_x  ;
+        uv_scroll_vel_y  = toCopy.uv_scroll_vel_y  ;
         rot_vars         = toCopy.rot_vars         ;
         script_var_8     = toCopy.script_var_8     ;
         script_var_9     = toCopy.script_var_9     ;
@@ -91,11 +93,12 @@ namespace NSEngine {
         color1           = toCopy.color1           ;
         alpha1           = toCopy.alpha1           ;
         color2           = toCopy.color2           ;
-        alpha2           = toCopy.alpha2           ;
+        alpha2           = toCopy.alpha2.current           ;
         bitflags_lo      = toCopy.bitflags_lo      ;
         bitflags_hi      = toCopy.bitflags_hi      ;
         rand_scale_1f    = toCopy.rand_scale_1f    ;
         rand_scale_pi    = toCopy.rand_scale_pi    ;
+        entity_pos       = toCopy.entity_pos       ;
 
         for (int i = 0; i < 4; i++) {
             int_vars[i] = toCopy.int_vars[i];
@@ -146,8 +149,20 @@ namespace NSEngine {
 
         /* UPDATE VARIABLES */
         rotation += angular_velocity;
-        uv_scroll_pos += uv_scroll_vel;
+        uv_scroll_pos += glm::vec2{uv_scroll_vel_x.current, uv_scroll_vel_y.current};
         scale += scale_growth;
+        pos.update();
+        rotation.update();
+        scale.update();
+        scale_2.update();
+        uv_scale.update();
+        uv_scroll_vel_x.update();
+        uv_scroll_vel_y.update();
+
+        color1.update();
+        alpha1.update();
+        color2.update();
+        alpha2.update();
 
         int8_t* instructions = AnmManagerN::loadedFiles[anim_slot].getScript(script_id);
         if (instructions == nullptr) return;
@@ -208,34 +223,34 @@ namespace NSEngine {
         /* CHECK IF THE VM IS VISIBLE */
         if (ANMVM_GET_ACTIVE != ANMVM_ACTIVE) return;
         if (!(bitflags_lo & ANMVM_BIT_VISIBLE)) return;
-        if (alpha1.value == 0 && alpha2.value == 0) return;
+        if (alpha1.current.value == 0 && alpha2.current.value == 0) return;
 
         /* GET PARENT VARIABLES */
         float px = 0, py = 0, pz = 0, prx = 0, pry = 0, prz = 0, psx = 1, psy = 1;
         if (parent != nullptr)
         {
-            px = parent->pos.x;
-            py = -parent->pos.y;
-            pz = parent->pos.z;
-            prx = parent->rotation.x;
-            pry = parent->rotation.y;
-            prz = parent->rotation.z;
-            psx = parent->scale.x;
-            psy = parent->scale.y;
+            px = parent->pos.current.x+parent->entity_pos.x;
+            py = -parent->pos.current.y-parent->entity_pos.y;
+            pz = parent->pos.current.z+parent->entity_pos.z;
+            prx = parent->rotation.current.x;
+            pry = parent->rotation.current.y;
+            prz = parent->rotation.current.z;
+            psx = parent->scale.current.x;
+            psy = parent->scale.current.y;
         }
 
         /* CALCULATE SCALE AND ANCHOR MULTIPLIERS AND COLORS */
-        float XS = scale.x * scale_2.x * psx;
-        float YS = scale.y * scale_2.y * psy;
+        float XS = scale.current.x * scale_2.current.x * psx;
+        float YS = scale.current.y * scale_2.current.y * psy;
         float l = ANMVM_GET_ANCHORH != 0 ? -(ANMVM_GET_ANCHORH - 1) : -0.5f;
         float r = l+1;
         float b = ANMVM_GET_ANCHORV != 0 ? -(ANMVM_GET_ANCHORV - 1) : -0.5f;
         float t = b+1;
-        Color c1 = Color(color1.r,color1.g,color1.b,alpha1);
-        Color c2 = Color(color2.r,color2.g,color2.b,alpha2);
+        Color c1 = Color(color1.current.r,color1.current.g,color1.current.b,alpha1.current);
+        Color c2 = Color(color2.current.r,color2.current.g,color2.current.b,alpha2.current);
         uint8_t blendmode = ANMVM_GET_BLEND;
 
-        auto p = pos+pos2;
+        auto p = pos.current+pos2;
         if (ANMVM_GET_ORIGIN == 0)
         {
             p += glm::vec3(-engineData::gameWidth/2,-engineData::gameHeight/2,0);
@@ -247,7 +262,7 @@ namespace NSEngine {
         {
             draw_set_layer(layer);
             draw_set_blend(blendmode);
-            glm::mat4 rotZ = glm::rotate(glm::mat4(1.0f), rotation.z, {0, 0, -1});
+            glm::mat4 rotZ = glm::rotate(glm::mat4(1.0f), rotation.current.z, {0, 0, -1});
             float width = float_vars[2] * XS;
             float height = float_vars[3] * YS;
             glm::vec4 pp = glm::vec4(/*psx */ p.x + px, /*psy */ -p.y + py, p.z + pz, 0);
@@ -264,7 +279,7 @@ namespace NSEngine {
         /* MODE 4 : POLYGON      MODE 5 : POLYGON OUTLINE */
         if (mode_of_special_draw == 4 || mode_of_special_draw == 5)
         {
-            float radius = float_vars[3] * scale.x * psx;
+            float radius = float_vars[3] * scale.current.x * psx;
             int nbVert = int_vars[3];
             draw_set_layer(layer);
             draw_circle_set_vertex_count(nbVert);
@@ -279,12 +294,12 @@ namespace NSEngine {
         if (mode_of_special_draw == 13)
         {
             float len = float_vars[3] * XS;
-            glm::mat4 rotate = glm::eulerAngleZYX(-rotation.z + prz, rotation.y + pry, rotation.x + prx);
-            glm::vec4 pos2 = glm::vec4(pos,0) + rotate * glm::vec4(len, 0, 0, 0);
+            glm::mat4 rotate = glm::eulerAngleZYX(-rotation.current.z + prz, rotation.current.y + pry, rotation.current.x + prx);
+            glm::vec4 pos2 = glm::vec4(pos.current,0) + rotate * glm::vec4(len, 0, 0, 0);
             draw_set_layer(layer);
             draw_set_blend(blendmode);
-            draw_set_color(color1.r, color1.g, color1.b, alpha1);
-            draw_line(pos.x*psx - px, -pos.y*psy+py, pos2.x*psx+px, -pos2.y*psy+py, 1);
+            draw_set_color(color1.current.r, color1.current.g, color1.current.b, alpha1.current);
+            draw_line(pos.current.x*psx - px, -pos.current.y*psy+py, pos2.x*psx+px, -pos2.y*psy+py, 1);
             draw_set_color(c_white);
             draw_set_blend(0);
             return;
@@ -296,7 +311,7 @@ namespace NSEngine {
             draw_set_layer(layer);
             draw_set_blend(blendmode);
             draw_circle_set_vertex_count(int_vars[0]);
-            draw_set_color(color1.r, color1.g, color1.b, alpha1);
+            draw_set_color(color1.current.r, color1.current.g, color1.current.b, alpha1.current);
             float r1 = float_vars[3]*XS - float_vars[2]*YS/2.f;
             float r2 = float_vars[3]*XS + float_vars[2]*YS/2.f;
             draw_circle_arc(p.x+px, -p.y+py, r1, r2, 0, PI2);
@@ -313,7 +328,7 @@ namespace NSEngine {
             float width = float_vars[2] * XS;
             float height = float_vars[3] * YS;
             c2 = mode_of_special_draw == 8 ? c2 : c1;
-            glm::mat4 rotate = glm::eulerAngleZYX(-rotation.z + prz, rotation.y + pry, rotation.x + prx);
+            glm::mat4 rotate = glm::eulerAngleZYX(-rotation.current.z + prz, rotation.current.y + pry, rotation.current.x + prx);
             // TODO: rotate and fix position
             draw_rectangle_color(p.x+px-width*l,-p.y+py-height*t,p.x+px+width*r,-p.y+py+height*b,c1,c2,c2,c1);
             draw_set_blend(0);
@@ -322,30 +337,30 @@ namespace NSEngine {
 
         /* GET SPRITE DATA */
         auto s = AnmManagerN::loadedFiles[anim_slot].getSprite(sprite_id);
-        float u1 = (s.u1+uv_scroll_pos.x)*uv_scale.x;
-        float u2 = (s.u2+uv_scroll_pos.x)*uv_scale.x;
-        float v1 = (s.v1+uv_scroll_pos.y)*uv_scale.y;
-        float v2 = (s.v2+uv_scroll_pos.y)*uv_scale.y;
+        float u1 = (s.u1+uv_scroll_pos.x)*uv_scale.current.x;
+        float u2 = (s.u2+uv_scroll_pos.x)*uv_scale.current.x;
+        float v1 = (s.v1+uv_scroll_pos.y)*uv_scale.current.y;
+        float v2 = (s.v2+uv_scroll_pos.y)*uv_scale.current.y;
 
         /* MODE 0,1,2 : ARCS */
         if (mode_of_special_draw == 1 || mode_of_special_draw == 2 || mode_of_special_draw == 0)
         {
-            float r1 = scale.y-scale.x/2.f;
-            float r2 = scale.y+scale.x/2.f;
-            float angleStart = -rotation.z, angleEnd = angleStart+PI2;
+            float r1 = scale.current.y-scale.current.x/2.f;
+            float r2 = scale.current.y+scale.current.x/2.f;
+            float angleStart = -rotation.current.z, angleEnd = angleStart+PI2;
             if (mode_of_special_draw == 1)
             {
-                angleStart = -rotation.z - rotation.x/2.f;
-                angleEnd = -rotation.z + rotation.x/2.f;
+                angleStart = -rotation.current.z - rotation.current.x/2.f;
+                angleEnd = -rotation.current.z + rotation.current.x/2.f;
             }
             else if (mode_of_special_draw == 2)
             {
-                angleEnd = angleStart+rotation.x;
+                angleEnd = angleStart+rotation.current.x;
             }
             draw_set_layer(layer);
             draw_set_blend(blendmode);
             draw_circle_set_vertex_count(int_vars[0]);
-            draw_set_color(color1.r, color1.g, color1.b, alpha1);
+            draw_set_color(color1.current.r, color1.current.g, color1.current.b, alpha1.current);
             draw_circle_arc_textured(p.x*psx+px, -p.y*psy+py, r1, r2, angleStart, angleEnd, s.texID, u1, u2, int_vars[1]);
             draw_set_color(c_white);
             draw_set_blend(0);
@@ -362,7 +377,7 @@ namespace NSEngine {
             draw_set_layer(layer);
             draw_set_blend(blendmode);
             draw_circle_set_vertex_count(int_vars[0]);
-            draw_set_color(color1.r, color1.g, color1.b, alpha1);
+            draw_set_color(color1.current.r, color1.current.g, color1.current.b, alpha1.current);
             draw_circle_arc_textured(p.x+px, -p.y+py, r1, r2, a1, a2, s.texID, u1, u2, int_vars[1]);
             draw_set_color(c_white);
             draw_set_blend(0);
@@ -377,11 +392,11 @@ namespace NSEngine {
             float a1 = float_vars[3] - float_vars[0]/2.f;
             float a2 = float_vars[3] + float_vars[0]/2.f;
             glm::vec3 posi = {p.x+px, -p.y+py, p.z+pz};
-            glm::vec3 rota = rotation + glm::vec3(prx, pry, prz);
+            glm::vec3 rota = rotation.current + glm::vec3(prx, pry, prz);
             draw_set_layer(layer);
             draw_set_blend(blendmode);
             draw_circle_set_vertex_count(int_vars[0]);
-            draw_set_color(color1.r, color1.g, color1.b, alpha1);
+            draw_set_color(color1.current.r, color1.current.g, color1.current.b, alpha1.current);
             draw_cylinder(posi, rota, r, h, a1, a2, s.texID, u1, u2, int_vars[1]);
             draw_set_color(c_white);
             draw_set_blend(0);
@@ -394,9 +409,9 @@ namespace NSEngine {
         glm::vec4 pos4 = glm::vec4(p,0);
         pos4.x *= psx;
         pos4.y *= -psy;
-        glm::mat4 rotate = glm::eulerAngleZYX(-rotation.z + prz, -rotation.y - pry, -rotation.x - prx);
+        glm::mat4 rotate = glm::eulerAngleZYX(rotation.current.z - prz, rotation.current.y + pry, -rotation.current.x - prx);
 
-        pos4 = glm::vec4(pos4.x+px,pos4.y+py,pos4.z+pz,0);
+        pos4 = glm::vec4(pos4.x+px+entity_pos.x,pos4.y+py-entity_pos.y,pos4.z+pz+entity_pos.z,0);
  /*       if (layer == 3) {
             pos4.y += 2*224.f;
             XS*=2;
@@ -435,12 +450,12 @@ namespace NSEngine {
     float& AnmVM::check_ref(float f)
     {
         if      (f >= 10004 && f < 10008) return float_vars[static_cast<size_t>(f-10004)];
-        else if (f == 10013.f) return pos.x;
-        else if (f == 10014.f) return pos.y;
-        else if (f == 10015.f) return pos.z;
-        else if (f == 10023.f) return rotation.x;
-        else if (f == 10024.f) return rotation.y;
-        else if (f == 10025.f) return rotation.z;
+        else if (f == 10013.f) return pos.current.x;
+        else if (f == 10014.f) return pos.current.y;
+        else if (f == 10015.f) return pos.current.z;
+        else if (f == 10023.f) return rotation.current.x;
+        else if (f == 10024.f) return rotation.current.y;
+        else if (f == 10025.f) return rotation.current.z;
         else if (f == 10027.f) return rand_scale_1f;
         else if (f == 10028.f) return rand_scale_pi;
         else if (f == 10033.f) return rot_vars.x;
@@ -465,19 +480,19 @@ namespace NSEngine {
         else if (f == 10010.f || f == 10030.f) return Random::Floatm11() * rand_scale_pi;
         else if (f == 10011.f || f == 10031.f) return Random::Float01() * rand_scale_1f;
         else if (f == 10012.f || f == 10032.f) return Random::Floatm11() * rand_scale_1f;
-        else if (f == 10013.f) return pos.x;
-        else if (f == 10014.f) return pos.y;
-        else if (f == 10015.f) return pos.z;
+        else if (f == 10013.f) return pos.current.x;
+        else if (f == 10014.f) return pos.current.y;
+        else if (f == 10015.f) return pos.current.z;
         else if (f == 10016.f) return (activeCamera3D() ? activeCamera3D()->getPosition().x : 0.f);
         else if (f == 10017.f) return (activeCamera3D() ? activeCamera3D()->getPosition().y : 0.f);
         else if (f == 10018.f) return (activeCamera3D() ? activeCamera3D()->getPosition().z : 0.f);
         else if (f == 10019.f) return (activeCamera3D() ? activeCamera3D()->getLook().x : 0.f);
         else if (f == 10020.f) return (activeCamera3D() ? activeCamera3D()->getLook().y : 0.f);
         else if (f == 10021.f) return (activeCamera3D() ? activeCamera3D()->getLook().z : 1.f);
-        else if (f == 10023.f) return rotation.x;
-        else if (f == 10024.f) return rotation.y;
-        else if (f == 10025.f) return rotation.z;
-        else if (f == 10026.f) return rotation.z + (parent ? parent->rotation.z : 0);
+        else if (f == 10023.f) return rotation.current.x;
+        else if (f == 10024.f) return rotation.current.y;
+        else if (f == 10025.f) return rotation.current.z;
+        else if (f == 10026.f) return rotation.current.z + (parent ? parent->rotation.current.z : 0);
         else if (f == 10027.f) return rand_scale_1f;
         else if (f == 10028.f) return rand_scale_pi;
         else if (f == 10033.f) return rot_vars.x;
@@ -497,14 +512,6 @@ namespace NSEngine {
             while (childrens->next) childrens->next->value->destroy();
             delete childrens; childrens = nullptr;
         }
-        InterpolateManager::RemoveReference(&pos);
-        InterpolateManager::RemoveReference(&rotation);
-        InterpolateManager::RemoveReference(&scale);
-        InterpolateManager::RemoveReference(&scale_2);
-        InterpolateManager::RemoveReference(&color1);
-        InterpolateManager::RemoveReference(&color2);
-        InterpolateManager::RemoveReference(&alpha1);
-        InterpolateManager::RemoveReference(&alpha2);
     }
 
     void AnmVM::exec_instruction(int8_t* ins)
@@ -731,11 +738,13 @@ namespace NSEngine {
                 // do nothing : only one type of random
                 return;
             case 308: // flipX
-                scale.x *= -1;
+                scale.current.x *= -1;
+                scale.goal.x *= -1;
                 flagTl(ANMVM_BIT_FLIP_X);
                 return;
             case 309: // flipY
-                scale.y *= -1;
+                scale.current.y *= -1;
+                scale.goal.y *= -1;
                 flagTl(ANMVM_BIT_FLIP_Y);
                 return;
             case 310: // visible
@@ -774,40 +783,40 @@ namespace NSEngine {
                 scale = { f(0), f(1) };
                 return;
             case 403: // alpha
-                alpha1 = u8S(0);
+                alpha1.current = u8S(0);
                 return;
             case 404: // color
                 color1 = { u8S(0), u8S(1), u8S(2) };
                 return;
-            case 405: // alpha2
-                alpha2 = u8S(0);
+            case 405: // alpha2.current
+                alpha2.current = u8S(0);
                 return;
             case 406: // color2
                 color2 = { u8S(0), u8S(1), u8S(2) };
                 return;
             case 407: // posTime
-                InterpolateManager::Interpolate(&pos, pos, { f(2), f(3), f(4) }, S(1), S(0));
+                pos.start(pos.current, { f(2), f(3), f(4) }, S(1), S(0));
                 return;
             case 408: // colorTime
-                InterpolateManager::Interpolate(&color1, color1, { u8S(2), u8S(3), u8S(4) }, S(1), S(0));
+                color1.start(color1.current, { u8S(2), u8S(3), u8S(4) }, S(1), S(0));
                 return;
             case 409: // alphaTime
-                InterpolateManager::Interpolate(&alpha1, alpha1, (NSITPuint8_t)u8S(2), S(1), S(0));
+                alpha1.start(alpha1.current, (NSITPuint8_t)u8S(2), S(1), S(0));
                 return;
             case 410: // rotateTime
-                InterpolateManager::Interpolate(&rotation, rotation, { f(2), f(3), f(4) }, S(1), S(0));
+                rotation.start(rotation.current, { f(2), f(3), f(4) }, S(1), S(0));
                 return;
             case 411: // rotateTime2D
-                InterpolateManager::Interpolate(&rotation, rotation, { rotation.x, rotation.y, f(2) }, S(1), S(0));
+                rotation.start(rotation.current, { rotation.current.x, rotation.current.y, f(2) }, S(1), S(0));
                 return;
             case 412: // scaleTime
-                InterpolateManager::Interpolate(&scale, scale, { f(2), f(3) }, S(1), S(0));
+                scale.start(scale.current, { f(2), f(3) }, S(1), S(0));
                 return;
             case 413: // color2Time
-                InterpolateManager::Interpolate(&color2, color2, { u8S(2), u8S(3), u8S(4) }, S(1), S(0));
+                color2.start(color2.current, { u8S(2), u8S(3), u8S(4) }, S(1), S(0));
                 return;
-            case 414: // alpha2Time
-                InterpolateManager::Interpolate(&alpha2, alpha2, (NSITPuint8_t)u8S(2), S(1), S(0));
+            case 414: // alpha2.currentTime
+                alpha2.start(alpha2.current, (NSITPuint8_t)u8S(2), S(1), S(0));
                 return;
             case 415: // rotVel
                 angular_velocity = { f(0), f(1), f(2) };
@@ -816,7 +825,7 @@ namespace NSEngine {
                 scale_growth = { f(0), f(1) };
                 return;
             case 417: // alphaTimeLinear
-                InterpolateManager::Interpolate(&alpha1, alpha1, (NSITPuint8_t)u8S(1), 0, S(0));
+                alpha1.start(alpha1.current, (NSITPuint8_t)u8S(1), 0, S(0));
                 return;
             case 418: // TODO: ins_418
                 // get some uvs from position
@@ -825,7 +834,7 @@ namespace NSEngine {
                 flagh(ANMVM_BIT_534_13, S(0));
                 return;
             case 420: // moveBezier
-                InterpolateManager::InterpolateBezier(&pos, pos, {f(4), f(5), f(6)}, {f(1), f(2), f(3)}, {f(7), f(8), f(9)}, S(0));
+                pos.start(pos.current, {f(4), f(5), f(6)}, 80, S(0), {f(1), f(2), f(3)}, {f(7), f(8), f(9)});
                 return;
             case 421: // anchor
                 ANMVM_SET_ANCHORH(S(0) & 3);
@@ -841,22 +850,22 @@ namespace NSEngine {
                 flagh(ANMVM_BIT_AUTOROT, S(0));
                 return;
             case 425: // scrollX
-                uv_scroll_vel.x = f(0);
+                uv_scroll_vel_x.current = f(0);
                 return;
             case 426: // scrollY
-                uv_scroll_vel.y = f(0);
+                uv_scroll_vel_y.current = f(0);
                 return;
             case 427: // scrollXTime
-                InterpolateManager::Interpolate(&uv_scroll_vel.x, uv_scroll_vel.x, f(2), S(1), S(0));
+                uv_scroll_vel_x.start(uv_scroll_vel_x.current, f(2), S(1), S(0));
                 return;
             case 428: // scrollYTime
-                InterpolateManager::Interpolate(&uv_scroll_vel.y, uv_scroll_vel.y, f(2), S(1), S(0));
+                uv_scroll_vel_y.start(uv_scroll_vel_y.current, f(2), S(1), S(0));
                 return;
             case 429: // zoomOut
                 uv_scale = { f(0), f(1) };
                 return;
             case 430: // zoomOutTime
-                InterpolateManager::Interpolate(&uv_scale, uv_scale, { f(2), f(3) }, S(1), S(0));
+                uv_scale.start(uv_scale.current, { f(2), f(3) }, S(1), S(0));
                 return;
             case 431: // ins_431
                 flagh(ANMVM_BIT_534_8, S(0));
@@ -865,13 +874,13 @@ namespace NSEngine {
                 flagh(ANMVM_BIT_534_9, S(0));
                 return;
             case 433: // ins_433
-                InterpolateManager::Interpolate(&pos, pos, { f(3)*cos(f(2)), f(3)*sin(f(2)), pos.z }, S(1), S(0));
+                pos.start(pos.current, { f(3)*cos(f(2)), f(3)*sin(f(2)), pos.current.z }, S(1), S(0));
                 return;
             case 434: // scale2
                 scale_2 = { f(0), f(1) };
                 return;
             case 435: // scale2Time
-                InterpolateManager::Interpolate(&scale_2, scale_2, { f(2), f(3) }, S(1), S(0));
+                scale_2.start(scale_2.current, { f(2), f(3) }, S(1), S(0));
                 return;
             case 436: // anchorOffset
                 anchor_offset = { -f(0), f(1) };
@@ -922,7 +931,7 @@ namespace NSEngine {
                 flagh(ANMVM_BIT_NOPAREN, S(0));
                 return;
             case 508: // TODO: effectNew
-                std::cout << "[WARNING] instruction 508 (effectNew) is not implemented\n";
+                std::cout << "[WARNING] anm: instruction 508 (effectNew) is not implemented\n";
                 return;
             case 509: // copyVars
                 if (parent == nullptr) return;

@@ -4,6 +4,7 @@
 #include <vector>
 #include <glm/glm.hpp>
 #include "anmOpener.h"
+#include "../Interpolator.h"
 #include "../vertex.h"
 #include "../math/math.h"
 
@@ -57,6 +58,8 @@ namespace NSEngine {
             float check_val(float f);
             void exec_instruction(int8_t* ins);
 
+            void setPos(float x, float y, float z) { pos = {x, y, z}; }
+            void setEntityPos(float x, float y, float z) { entity_pos = {x, y, z}; }
             void setPos2(float x, float y, float z) { pos2 = {x, y, z}; }
             uint32_t getID() const { return id.val; }
 
@@ -68,17 +71,18 @@ namespace NSEngine {
             int32_t sprite_id = 0;
             int32_t script_id = 0;
             int32_t current_instr = 0;
-            glm::vec3 pos = {};
-            glm::vec3 rotation = {};
+            Interpolator_t<glm::vec3> pos = {};
+            Interpolator_t<glm::vec3> rotation = {};
             glm::vec3 angular_velocity = {};
-            glm::vec2 scale = {1, 1};
-            glm::vec2 scale_2 = {1, 1};
+            Interpolator_t<glm::vec2> scale = {{1.f,1.f}};
+            Interpolator_t<glm::vec2> scale_2 = {{1,1}};
             glm::vec2 scale_growth = {};
-            glm::vec2 uv_scale = {1, 1};
+            Interpolator_t<glm::vec2> uv_scale = {{1, 1}};
             glm::vec2 uv_scroll_pos = {};
             glm::vec2 anchor_offset = {};
             // unknown + interpolators + uv_quad_of_sprite (used by 418?)
-            glm::vec2 uv_scroll_vel = {};
+            Interpolator_t<float> uv_scroll_vel_x = {};
+            Interpolator_t<float> uv_scroll_vel_y = {};
             // 3 matrix4 (position, rotation, scale ?  used to not recalculate each frame ?)
             int32_t pending_switch_label = 0;
             // unused stuff ?
@@ -93,10 +97,10 @@ namespace NSEngine {
             glm::vec3 pos2 = {};
         //  glm::vec3 last_rendered_quad_in_surface_space[4];  (used to not recalculate each frame ?)
             int32_t mode_of_special_draw = -1; // mode_of_create_child
-            ColorRGB color1 = {255, 255, 255};
-            NSITPuint8_t alpha1 = 255;
-            ColorRGB color2 = {};
-            NSITPuint8_t alpha2 = 0;
+            InterpolatorWithoutBezier_t<ColorRGB> color1 = {{255, 255, 255}};
+            InterpolatorWithoutBezier_t<NSITPuint8_t> alpha1 = {255};
+            InterpolatorWithoutBezier_t<ColorRGB> color2 = {};
+            InterpolatorWithoutBezier_t<NSITPuint8_t> alpha2 = {};
             // mixed_inherited_color + more unused stuff
             uint32_t bitflags_lo = 0;
             uint32_t bitflags_hi = 0;

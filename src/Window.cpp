@@ -111,8 +111,16 @@ namespace NSEngine {
             float mi=1000000.f, ma=1000000.f;
             glm::vec4 col = {0,0,0,0};
             if (l->type != GLT_TILES) l->getBatch()->end();
-            baseShader->SetProjectionMatrix(cam3dexists?activeCamera3D()->getProjection(l->is_static, l->type == GLT_GUI):glm::mat4(1.f));
-            baseShader->SetViewMatrix(cam3dexists?activeCamera3D()->getView(l->is_static, l->type == GLT_GUI):glm::mat4(1.f));
+            if (l->is_static)
+            {
+                baseShader->SetProjectionMatrix(glm::mat4(1.f));
+                baseShader->SetViewMatrix(cam3dexists?activeCamera3D()->getCamStatic():glm::mat4(1.f));
+            }
+            else
+            {
+                baseShader->SetProjectionMatrix(cam3dexists?activeCamera3D()->getProjection(l->is_static, l->type == GLT_GUI):glm::mat4(1.f));
+                baseShader->SetViewMatrix(cam3dexists?activeCamera3D()->getView(l->is_static, l->type == GLT_GUI):glm::mat4(1.f));
+            }
             if (engineData::cam3d!=nullptr && !l->is_static && l->type != GLT_GUI) col = engineData::cam3d->getFog(mi,ma);
             baseShader->SetFog(mi, ma, col);
             l->render();
