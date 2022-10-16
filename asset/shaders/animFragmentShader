@@ -1,4 +1,5 @@
 #version 130
+precision mediump float; //Medium precision for float. highp and smallp can also be used
 
 in vec4 fragmentColor;
 in vec2 fragmentTexCoords;
@@ -21,6 +22,7 @@ float getFogFactor(float d)
 
 void main() {
     vec4 col = texture(NSTexture, fragmentTexCoords);
+    if (col.a == 0) discard;
     float alpha = getFogFactor(distToCamera);
     col = col * fragmentColor;
     color = mix(col, fogColor, alpha);

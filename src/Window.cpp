@@ -79,6 +79,7 @@ namespace NSEngine {
         {
             glm::vec3 c = activeCamera3D()->getClearColor();
             glClearColor(c.r, c.g, c.b, 1.f);
+            if (engineData::gameflags & 4) glClearColor(1.f, 0.f, 1.f, 1.f);
             glClearDepth(1.0);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         }

@@ -21,13 +21,13 @@ namespace NSEngine {
         fogMax = 1000000.f;
         fogCol = Color(0, 0, 0, 0);
         orthoMatrix = glm::ortho(0.f, (float)scr_w, 0.f, (float)scr_h);
-        persp = glm::perspective(fov, (float)scr_w / (float)scr_h, 0.01f, 10000.f);
+        persp = glm::perspective(fov, (float)scr_w / (float)scr_h, 0.1f, 10000.f);
         viewMatrix = glm::lookAt(pos, pos + lookat, up);
         cameraStaticMatrix = persp * viewMatrix;
         glm::vec3 right_vec = glm::cross(lookat, up);
         glm::vec3 up2 = glm::normalize(glm::cross(right_vec, lookat));
         viewMatrix = glm::lookAt(pos, pos + lookat, up2);
-        perspS = glm::perspective(PI1_4, (float)scr_w / (float)scr_h, 0.01f, 10000.f);
+        perspS = glm::perspective(PI1_4, (float)scr_w / (float)scr_h, 0.1f, 10000.f);
         viewMatrixS = glm::lookAt(glm::vec3(0.f, 0.f, 0.9f * (float)scr_w + 2.f), glm::vec3(0.f, 0.f, 0.9f * (float)scr_w + 1.f), glm::vec3(0.f, 1.f, 0.f));
         cameraMatrix = persp * viewMatrix;
         cameraStaticMatrix = perspS * viewMatrixS;
@@ -123,7 +123,7 @@ namespace NSEngine {
     {
         scr_h = (unsigned int)((float)h / factor); scr_w = (unsigned int)((float)w / factor);
         calculate();
-        perspS = glm::perspective(PI1_4, (float)scr_w / (float)scr_h, 0.01f, 10000.f);
+        perspS = glm::perspective(PI1_4, (float)scr_w / (float)scr_h, 0.1f, 10000.f);
         viewMatrixS = glm::lookAt(glm::vec3(0.f, 0.f, 0.9f * (float)scr_w + 2.f), glm::vec3(0.f, 0.f, 0.9f * (float)scr_w + 1.f), glm::vec3(0.f, 1.f, 0.f));
         cameraStaticMatrix = perspS * viewMatrixS;
     }
@@ -149,24 +149,33 @@ namespace NSEngine {
         static bool isFirstFrame = true;
         if (debugControl)
         {
-            float dbgx = pos.x, dbgy = pos.y, dbgz = pos.z;
+            static float dbgx = pos.x, dbgy = pos.y, dbgz = pos.z;
             if (!isFirstFrame) {
+                static glm::vec3 debugPos = pos, debugLookat = lookat;
                 yaw -= mouseSpeed * (Inputs::Mouse().guiPos.x + Inputs::Keyboard().Axis(NSK_q, NSK_e));
                 pitch += mouseSpeed * (Inputs::Mouse().guiPos.y + Inputs::Keyboard().Axis(NSK_f, NSK_r));
                 pitch = glm::clamp(pitch, -PI / 2.f + 0.001f, PI / 2.f - 0.001f);
                 float keyHoriz = moveSpeed * Inputs::Keyboard().Axis(NSK_d, NSK_a);
                 float keyVerti = moveSpeed * Inputs::Keyboard().Axis(NSK_s, NSK_w);
-                lookat = glm::vec3(cos(pitch) * sin(yaw), sin(pitch), cos(pitch) * cos(yaw));
+                debugLookat = glm::vec3(cos(pitch) * sin(yaw), sin(pitch), cos(pitch) * cos(yaw));
+                glm::vec3 debugUp = glm::vec3(0,1,0);
+                glm::vec3 debugRight = glm::normalize(glm::cross(debugLookat, debugUp));
+                glm::vec3 debugForward = glm::normalize(glm::cross(debugUp, debugRight));
                 dbgx += keyHoriz * cos(yaw) + keyVerti * sin(yaw);
                 dbgz += -keyHoriz * sin(yaw) + keyVerti * cos(yaw);
                 dbgy += moveSpeed * Inputs::Keyboard().Axis(NSK_lshift, NSK_space);
                 fov += 0.01f * Inputs::Keyboard().Axis(NSK_z, NSK_x);
                 fov = glm::clamp(fov, 0.f, PI / 2.f);
+                debugPos = glm::vec3(dbgx, dbgy, dbgz);
+
+                persp = glm::perspective((float)fov, (float)scr_w / (float)scr_h, 0.1f, 10000.f);
+                glm::vec3 up2 = glm::normalize(glm::cross(debugRight, debugLookat));
+                viewMatrix = glm::lookAt(debugPos, debugPos + debugLookat, up2);
+                cameraMatrix = persp * viewMatrix;
             }
             else Inputs::Mouse().Hide();
             Inputs::Mouse().SetPos(0, 0);
             isFirstFrame = false;
-            pos = glm::vec3(dbgx, dbgy, dbgz);
         }
         else if (!isFirstFrame)
         {
@@ -176,9 +185,9 @@ namespace NSEngine {
         else
         {
             pitch = asin(lookat.y);
+            calculate();
         }
 
-        calculate();
     }
 
     float Camera3D::getFov() const
@@ -243,7 +252,7 @@ namespace NSEngine {
 
     void Camera3D::calculate()
     {
-        persp = glm::perspective((float)fov, (float)scr_w / (float)scr_h, 0.01f, 10000.f);
+        persp = glm::perspective((float)fov, (float)scr_w / (float)scr_h, 0.1f, 10000.f);
         glm::vec3 right_vec = glm::cross(lookat, up);
         glm::vec3 up2 = glm::normalize(glm::cross(right_vec, lookat));
         viewMatrix = glm::lookAt(pos, pos + lookat, up2);

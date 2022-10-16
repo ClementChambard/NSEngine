@@ -6,6 +6,8 @@
 
 #include "../Camera3D.h"
 #include "../AnmOpener/AnmVM.h"
+#include "../SpriteBatch.h"
+#include "../AnimShader.h"
 
 namespace StdOpener {
 
@@ -20,6 +22,9 @@ namespace StdOpener {
         void Clear();
 
         void Update();
+        void Draw();
+
+        void interrupt(int s);
 
     private:
         struct quad {
@@ -61,10 +66,14 @@ namespace StdOpener {
         uint32_t time = 0;
         uint16_t pending_switch_label = 0;
 
+        int anmSlots[8] = {-1, -1, -1, -1, -1, -1, -1, -1};
         std::vector<NSEngine::AnmVM*> bgVms;
 
         void spawnFace(face const& f);
         void execInstr(instruction const& i);
+
+        NSEngine::SpriteBatch* sprBatch;
+        NSEngine::AnimShader* baseShader;
 
     };
 

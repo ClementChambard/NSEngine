@@ -22,8 +22,10 @@ float getFogFactor(float d)
 
 void main() {
     vec4 texCol = texture(NSTexture, fragmentTexCoords);
+    if (texCol.a == 0) discard;
     float alpha = getFogFactor(d);
     vec4 col = mix(passColor1, passColor2, texCol.r);
     color = mix(col, fogColor, alpha);
     color.a = min(color.a,min(col.a,texCol.a));
+
 }

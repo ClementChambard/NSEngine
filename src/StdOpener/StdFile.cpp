@@ -7,10 +7,15 @@
 
 namespace StdOpener {
 
+    void StdFile::interrupt(int s) { pending_switch_label = s; }
+
     StdFile::StdFile(std::string const& filename)
     {
+        sprBatch = new NSEngine::SpriteBatch();
+        baseShader = new NSEngine::AnimShader();
         thstd_t* std = std_read_file(filename);
 
+        int i = 0;
         for (auto e : std->entries)
         {
             entries.push_back({});
@@ -21,8 +26,21 @@ namespace StdOpener {
             entries.back().width = e->header->width;
             entries.back().height = e->header->height;
             entries.back().depth = e->header->depth;
+            //std::cout << "Entry #" << i++ << ":\n";
+            //std::cout << "    layer = " << entries.back().layer  << "\n";
+            //std::cout << "        x = " << entries.back().x      << "\n";
+            //std::cout << "        y = " << entries.back().y      << "\n";
+            //std::cout << "        z = " << entries.back().z      << "\n";
+            //std::cout << "    width = " << entries.back().width  << "\n";
+            //std::cout << "   height = " << entries.back().height << "\n";
+            //std::cout << "    depth = " << entries.back().depth  << "\n";
+            //std::cout << "    quads = {\n";
             for (auto q : e->quads)
+            {
                 entries.back().quads.push_back({q->size, q->script_index, q->x, q->y, q->z, q->width, q->height});
+                //std::cout << "        {" << q->size<< ", " << q->script_index<< ", " << q->x<< ", " << q->y<< ", " << q->z<< ", " << q->width<< ", " << q->height << "}\n";
+            }
+            //std::cout << "}\n";
         }
 
         for (auto i : std->instances) faces.push_back({i->object_id, i->x, i->y, i->z});
@@ -32,9 +50,9 @@ namespace StdOpener {
         {
             script.push_back({i->time, i->type, offset});
             offset += 8;
-            if (i->size > sizeof(i))
+            if (i->size > sizeof(*i))
             {
-                uint16_t nbArgs = (i->size - sizeof(i)) / 4;
+                uint16_t nbArgs = (i->size - sizeof(*i)) / 4;
                 offset += nbArgs * 4;
                 for (uint16_t j = 0; j < nbArgs; j++)
                 {
@@ -57,20 +75,20 @@ namespace StdOpener {
     void StdFile::Init()
     {
         NSEngine::AnmManagerN::LoadFile(30, anm_file_name);
-        auto en = entries;
-        std::sort(faces.begin(), faces.end(), [en](face const& a, face const& b) { return en[a.entry_id].layer < en[b.entry_id].layer;});
         for (auto f : faces) spawnFace(f);
+        std::sort(bgVms.begin(), bgVms.end(), [](NSEngine::AnmVM* const& a, NSEngine::AnmVM* const& b) { return a->getLayer() < b->getLayer();});
         theCam = NSEngine::activeCamera3D();
     }
 
     void StdFile::Clear()
     {
-        for (auto vm : bgVms) NSEngine::AnmManagerN::deleteVM(vm->getID());
+        for (auto vm : bgVms) delete vm;
         bgVms.clear();
     }
 
     void StdFile::Update()
     {
+        for (auto vm : bgVms) if (vm) vm->update();
         /* CHECK FOR INTERRUPTIONS */
         if (pending_switch_label != 0)
         {
@@ -107,21 +125,121 @@ namespace StdOpener {
         time++;
     }
 
+    void StdFile::Draw()
+    {
+        if (bgVms.size() == 0) return;
+        baseShader->start();
+        baseShader->SetCameraPosition(theCam->getPosition());
+        glActiveTexture(GL_TEXTURE0);
+        NSEngine::toggleCulling(false);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        float mi=1000000.f, ma=1000000.f;
+        glm::vec4 col = theCam->getFog(mi,ma);
+        col.w = 1.0f;
+        if (Inputs::Keyboard().Down(NSK_f5)) mi=1000000.f, ma=1000000.f;
+        sprBatch->begin();
+
+        int l = bgVms[0]->getLayer();
+        int m = bgVms[0]->getMode();
+        int z = bgVms[0]->getZdis();
+        for (auto vm : bgVms) {
+            if (!vm) continue;
+            if (vm->getLayer() != l || vm->getMode() != m || vm->getZdis() != z)
+            {
+                sprBatch->end();
+                if (m < 4) {
+                    baseShader->SetProjectionMatrix(glm::mat4(1.f));
+                    baseShader->SetViewMatrix(theCam->getCamStatic());
+                } else {
+                    baseShader->SetProjectionMatrix(theCam->getProjection(false, false));
+                    baseShader->SetViewMatrix(theCam->getView(false, false));
+                }
+                if (z || m < 4) glDisable(GL_DEPTH_TEST);
+                else glEnable(GL_DEPTH_TEST);
+                baseShader->SetFog(m<4?1000000.f:mi, m<4?1000000.f:ma, col);
+                sprBatch->renderBatch();
+                sprBatch->begin();
+                l = vm->getLayer();
+                m = vm->getMode();
+                z = vm->getZdis();
+            }
+            vm->draw(sprBatch);
+
+        }
+
+        sprBatch->end();
+        if (z) glDisable(GL_DEPTH_TEST);
+        else glEnable(GL_DEPTH_TEST);
+        if (m < 4) {
+            baseShader->SetProjectionMatrix(glm::mat4(1.f));
+            baseShader->SetViewMatrix(theCam->getCamStatic());
+        } else {
+            baseShader->SetProjectionMatrix(theCam->getProjection(false, false));
+            baseShader->SetViewMatrix(theCam->getView(false, false));
+        }
+        baseShader->SetFog(m<4?1000000.f:mi, m<4?1000000.f:ma, col);
+        sprBatch->renderBatch();
+
+        glDisable(GL_DEPTH_TEST);
+        NSEngine::toggleCulling(true);
+        baseShader->stop();
+        NSEngine::TextureManager::ResetTexture();
+        glDisable(GL_BLEND);
+    }
+
     void StdFile::spawnFace(StdFile::face const& f)
     {
         const entry& e = entries[f.entry_id];
         for (auto q : e.quads)
         {
-            float x = f.x + e.x; if (q.x != e.x) x += q.x;
-            float y = f.y + e.y; if (q.y != e.y) y += q.y;
-            float z = f.z + e.z; if (q.z != e.z) z += q.z;
-            bgVms.push_back(NSEngine::AnmManagerN::getVM(NSEngine::AnmManagerN::SpawnVM(30, q.script_index)));
-            bgVms.back()->setPos2(x, y, z);
+            float x = f.x + q.x;
+            float y = f.y + q.y;
+            float z = f.z + q.z;
+            bgVms.push_back(NSEngine::AnmManagerN::SpawnVMExt(30, q.script_index));
+            bgVms.back()->setEntityPos(x, y, z);
+            bgVms.back()->setLayer(e.layer);
         }
+    }
+
+    template<typename T, typename _Predicate>
+    size_t insertRemoveNullptr(const T& val, std::vector<T>& vec, _Predicate predicate)
+    {
+        //vec.push_back(val);
+        //std::sort(vec.begin(), vec.end(), predicate);
+        //return;
+        size_t i = 0;
+        int nullptrcnt = 0;
+        while (i < vec.size())
+        {
+            if (vec[i] == nullptr) nullptrcnt++;
+            while (i+nullptrcnt < vec.size() && vec[i+nullptrcnt]==nullptr) nullptrcnt++;
+            if (i+nullptrcnt >= vec.size()) break;
+            vec[i] = vec[i+nullptrcnt];
+            i++;
+        }
+        vec.resize(vec.size()-nullptrcnt);
+        i = 0;
+        size_t ret = -1;
+        T toInsert = val;
+        while (i < vec.size()) {
+            if (toInsert != val || predicate(val, vec[i]))
+            {
+                if (toInsert == val) ret = i;
+                T temp = toInsert;
+                toInsert = vec[i];
+                vec[i] = temp;
+            }
+            i++;
+        }
+        if (ret == -1) ret = vec.size();
+        vec.push_back(toInsert);
+        return ret;
     }
 
     void StdFile::execInstr(StdFile::instruction const& i)
     {
+        //return;
         if (theCam == nullptr) return;
 #define S(n) (i.args[n].S)
 #define f(n) (i.args[n].f)
@@ -175,9 +293,23 @@ namespace StdOpener {
             case 13: // bgColor
                 theCam->setClearColor(r(0), g(0), b(0));
                 return;
-            case 14: // sprite
-                bgVms.push_back(NSEngine::AnmManagerN::getVM(NSEngine::AnmManagerN::SpawnVM(30, S(1))));
-                return;
+            case 14: {// sprite
+                std::cout << S(0) << ":" << S(1) << " on " << S(2) << "  ";
+                if (anmSlots[S(0)] != -1) {
+                    delete bgVms[anmSlots[S(0)]];
+                    bgVms[anmSlots[S(0)]] = nullptr;
+                    anmSlots[S(0)] = -1;
+                }
+                NSEngine::AnmVM* vm = NSEngine::AnmManagerN::SpawnVMExt(30, S(1));
+                vm->update();
+                vm->setLayer(S(2));
+                //bgVms.push_back(vm);
+                std::cout << bgVms.size() << " ";
+                auto predicate = [](NSEngine::AnmVM* const & a, NSEngine::AnmVM* const & b){ return a->getLayer() <= b->getLayer(); };
+                //std::sort(bgVms.begin(), bgVms.end(), predicate);
+                anmSlots[S(0)] = insertRemoveNullptr(vm, bgVms, predicate);
+                std::cout << anmSlots[S(0)] << "\n";
+                return; }
             case 15: // nop
                 return;
             case 16: // interruptLabel

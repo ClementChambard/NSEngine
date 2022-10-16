@@ -7,6 +7,7 @@
 #include "../Interpolator.h"
 #include "../vertex.h"
 #include "../math/math.h"
+#include "../SpriteBatch.h"
 
 namespace NSEngine {
 
@@ -48,7 +49,7 @@ namespace NSEngine {
             ~AnmVM();
 
             void update(bool printInstr = false);
-            void draw();
+            void draw(SpriteBatch* sb = nullptr);
             void destroy();
             void interrupt(int i);
 
@@ -61,8 +62,17 @@ namespace NSEngine {
             void setPos(float x, float y, float z) { pos = {x, y, z}; }
             void setEntityPos(float x, float y, float z) { entity_pos = {x, y, z}; }
             void setPos2(float x, float y, float z) { pos2 = {x, y, z}; }
+            void setScale(float x, float y) { scale = {x, y}; }
+            void setI(int i, int v) { int_vars[i] = v; }
+            void setf(int i, int v) { float_vars[i] = v; }
+            void setLayer(uint32_t i) { layer = i; }
+            int getMode() const;
+            int getLayer() const { return layer; }
+            int getZdis() const;
+            AnmVMList* getChild() { return childrens; }
             uint32_t getID() const { return id.val; }
 
+            static int cnt;
         protected:
             int32_t case_return_time = -99;
             int32_t return_instr = 0;
@@ -119,6 +129,7 @@ namespace NSEngine {
             friend class AnmManagerN;
             friend class AnmManager;
             friend class AnmFile;
+            friend class StdFile;
     };
 
     struct AnmFastVM {

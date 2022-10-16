@@ -81,6 +81,7 @@ namespace NSEngine {
 
         AnmOpener::anm_free(archive);
         int i = 0;
+        std::cout << "Opened Anm : " << filename << "\n";
     }
 
     void AnmFile::Cleanup()

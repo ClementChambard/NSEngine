@@ -9,6 +9,7 @@
 
 namespace NSEngine {
 
+    int AnmVM::cnt = 0;
     void AnmVM::interrupt(int i)
     {
         pending_switch_label = i;
@@ -93,7 +94,7 @@ namespace NSEngine {
         color1           = toCopy.color1           ;
         alpha1           = toCopy.alpha1           ;
         color2           = toCopy.color2           ;
-        alpha2           = toCopy.alpha2.current           ;
+        alpha2           = toCopy.alpha2.current   ;
         bitflags_lo      = toCopy.bitflags_lo      ;
         bitflags_hi      = toCopy.bitflags_hi      ;
         rand_scale_1f    = toCopy.rand_scale_1f    ;
@@ -146,6 +147,7 @@ namespace NSEngine {
     {
         /* VM IS NOT RUNNING */
         if (ANMVM_GET_ACTIVE != ANMVM_ACTIVE && time != -1) return;
+        cnt++;
 
         /* UPDATE VARIABLES */
         rotation += angular_velocity;
@@ -217,14 +219,16 @@ namespace NSEngine {
         }
         time++;
     }
-
-    void AnmVM::draw()
+    int AnmVM::getMode() const { return ANMVM_GET_MODE; }
+    int AnmVM::getZdis() const { return bitflags_lo & ANMVM_BIT_ZWRITDI || ANMVM_GET_BLEND != 0; }
+    void AnmVM::draw(SpriteBatch* sb)
     {
         /* CHECK IF THE VM IS VISIBLE */
         if (ANMVM_GET_ACTIVE != ANMVM_ACTIVE) return;
         if (!(bitflags_lo & ANMVM_BIT_VISIBLE)) return;
         if (alpha1.current.value == 0 && alpha2.current.value == 0) return;
 
+        cnt++;
         /* GET PARENT VARIABLES */
         float px = 0, py = 0, pz = 0, prx = 0, pry = 0, prz = 0, psx = 1, psy = 1;
         if (parent != nullptr)
@@ -239,6 +243,7 @@ namespace NSEngine {
             psy = parent->scale.current.y;
         }
 
+
         /* CALCULATE SCALE AND ANCHOR MULTIPLIERS AND COLORS */
         float XS = scale.current.x * scale_2.current.x * psx;
         float YS = scale.current.y * scale_2.current.y * psy;
@@ -250,18 +255,19 @@ namespace NSEngine {
         Color c2 = Color(color2.current.r,color2.current.g,color2.current.b,alpha2.current);
         uint8_t blendmode = ANMVM_GET_BLEND;
 
+        if (!sb) sb = engineData::layers[layer]->getBatch();
         auto p = pos.current+pos2;
+        draw_set_blend(blendmode);
+        //if (layer == 5) { p += glm::vec3(0,-192,0); }
         if (ANMVM_GET_ORIGIN == 0)
         {
             p += glm::vec3(-engineData::gameWidth/2,-engineData::gameHeight/2,0);
         }
-        if (!(bitflags_hi & ANMVM_BIT_534_8)) { psx *=2; psy *=2; }
+        //if (!(bitflags_hi & ANMVM_BIT_534_8)) { psx *=2; psy *=2; }
 
         /* MODE 3 : RECTANGLE      MODE 6 : RECTANGLE GRADIENT      MODE 12 : RECTANGLE BORDER*/
         if (mode_of_special_draw == 6 || mode_of_special_draw == 3 || mode_of_special_draw == 12)
         {
-            draw_set_layer(layer);
-            draw_set_blend(blendmode);
             glm::mat4 rotZ = glm::rotate(glm::mat4(1.0f), rotation.current.z, {0, 0, -1});
             float width = float_vars[2] * XS;
             float height = float_vars[3] * YS;
@@ -271,8 +277,7 @@ namespace NSEngine {
             glm::vec4 pos3 = pp + rotZ * glm::vec4(+ width * r, + height * b, 0, 0);
             glm::vec4 pos4 = pp + rotZ * glm::vec4(- width * l, + height * b, 0, 0);
             c2 = mode_of_special_draw == 6 ? c2 : c1;
-            draw_quad_color_2d(pos1, pos2, pos3, pos4, c1, c2, c2, c1);
-            draw_set_blend(0);
+            batch_draw_quad_color_2d(sb, pos1, pos2, pos3, pos4, c1, c2, c2, c1);
             return;
         }
 
@@ -281,12 +286,9 @@ namespace NSEngine {
         {
             float radius = float_vars[3] * scale.current.x * psx;
             int nbVert = int_vars[3];
-            draw_set_layer(layer);
             draw_circle_set_vertex_count(nbVert);
-            draw_set_blend(blendmode);
             if (mode_of_special_draw == 5) c2 = c1;
-            draw_circle_color(p.x * psx + px, -p.y * psy + py, radius, c1, c2, mode_of_special_draw == 5);
-            draw_set_blend(0);
+            batch_draw_circle_color(sb, p.x * psx + px, -p.y * psy + py, radius, c1, c2, mode_of_special_draw == 5);
             return;
         }
 
@@ -296,42 +298,33 @@ namespace NSEngine {
             float len = float_vars[3] * XS;
             glm::mat4 rotate = glm::eulerAngleZYX(-rotation.current.z + prz, rotation.current.y + pry, rotation.current.x + prx);
             glm::vec4 pos2 = glm::vec4(pos.current,0) + rotate * glm::vec4(len, 0, 0, 0);
-            draw_set_layer(layer);
-            draw_set_blend(blendmode);
             draw_set_color(color1.current.r, color1.current.g, color1.current.b, alpha1.current);
-            draw_line(pos.current.x*psx - px, -pos.current.y*psy+py, pos2.x*psx+px, -pos2.y*psy+py, 1);
+            batch_draw_line(sb, pos.current.x*psx - px, -pos.current.y*psy+py, pos2.x*psx+px, -pos2.y*psy+py, 1);
             draw_set_color(c_white);
-            draw_set_blend(0);
             return;
         }
 
         /* MODE 11 : RING */
         if (mode_of_special_draw == 11)
         {
-            draw_set_layer(layer);
-            draw_set_blend(blendmode);
             draw_circle_set_vertex_count(int_vars[0]);
             draw_set_color(color1.current.r, color1.current.g, color1.current.b, alpha1.current);
             float r1 = float_vars[3]*XS - float_vars[2]*YS/2.f;
             float r2 = float_vars[3]*XS + float_vars[2]*YS/2.f;
-            draw_circle_arc(p.x+px, -p.y+py, r1, r2, 0, PI2);
+            batch_draw_circle_arc(sb, p.x+px, -p.y+py, r1, r2, 0, PI2);
             draw_set_color(c_white);
-            draw_set_blend(0);
             return;
         }
 
         /* MODE 7 : RECT_ROT    8 : RECT_ROT_GRAD */
         if (mode_of_special_draw == 8 || mode_of_special_draw == 7)
         {
-            draw_set_layer(layer);
-            draw_set_blend(blendmode);
             float width = float_vars[2] * XS;
             float height = float_vars[3] * YS;
             c2 = mode_of_special_draw == 8 ? c2 : c1;
             glm::mat4 rotate = glm::eulerAngleZYX(-rotation.current.z + prz, rotation.current.y + pry, rotation.current.x + prx);
             // TODO: rotate and fix position
-            draw_rectangle_color(p.x+px-width*l,-p.y+py-height*t,p.x+px+width*r,-p.y+py+height*b,c1,c2,c2,c1);
-            draw_set_blend(0);
+            batch_draw_rectangle_color(sb, p.x+px-width*l,-p.y+py-height*t,p.x+px+width*r,-p.y+py+height*b,c1,c2,c2,c1);
             return;
         }
 
@@ -357,13 +350,10 @@ namespace NSEngine {
             {
                 angleEnd = angleStart+rotation.current.x;
             }
-            draw_set_layer(layer);
-            draw_set_blend(blendmode);
             draw_circle_set_vertex_count(int_vars[0]);
             draw_set_color(color1.current.r, color1.current.g, color1.current.b, alpha1.current);
-            draw_circle_arc_textured(p.x*psx+px, -p.y*psy+py, r1, r2, angleStart, angleEnd, s.texID, u1, u2, int_vars[1]);
+            batch_draw_circle_arc_textured(sb, p.x*psx+px, -p.y*psy+py, r1, r2, angleStart, angleEnd, s.texID, u1, u2, int_vars[1]);
             draw_set_color(c_white);
-            draw_set_blend(0);
             return;
         }
 
@@ -374,13 +364,10 @@ namespace NSEngine {
             float r2 = float_vars[2] + float_vars[1]/2.f;
             float a1 = float_vars[3] - float_vars[0]/2.f;
             float a2 = float_vars[3] + float_vars[0]/2.f;
-            draw_set_layer(layer);
-            draw_set_blend(blendmode);
             draw_circle_set_vertex_count(int_vars[0]);
             draw_set_color(color1.current.r, color1.current.g, color1.current.b, alpha1.current);
-            draw_circle_arc_textured(p.x+px, -p.y+py, r1, r2, a1, a2, s.texID, u1, u2, int_vars[1]);
+            batch_draw_circle_arc_textured(sb, p.x+px, -p.y+py, r1, r2, a1, a2, s.texID, u1, u2, int_vars[1]);
             draw_set_color(c_white);
-            draw_set_blend(0);
             return;
         }
 
@@ -393,15 +380,13 @@ namespace NSEngine {
             float a2 = float_vars[3] + float_vars[0]/2.f;
             glm::vec3 posi = {p.x+px, -p.y+py, p.z+pz};
             glm::vec3 rota = rotation.current + glm::vec3(prx, pry, prz);
-            draw_set_layer(layer);
-            draw_set_blend(blendmode);
             draw_circle_set_vertex_count(int_vars[0]);
             draw_set_color(color1.current.r, color1.current.g, color1.current.b, alpha1.current);
-            draw_cylinder(posi, rota, r, h, a1, a2, s.texID, u1, u2, int_vars[1]);
+            batch_draw_cylinder(sb, posi, rota, r, h, a1, a2, s.texID, u1, u2, int_vars[1]);
             draw_set_color(c_white);
-            draw_set_blend(0);
             return;
         }
+        draw_set_blend(0);
 
         /* CALCULATE POSITION VECTORS */
         //glm::mat4 parentRotate = glm::eulerAngleYXZ(pry, prx, prz);
@@ -409,15 +394,16 @@ namespace NSEngine {
         glm::vec4 pos4 = glm::vec4(p,0);
         pos4.x *= psx;
         pos4.y *= -psy;
-        glm::mat4 rotate = glm::eulerAngleZYX(rotation.current.z - prz, rotation.current.y + pry, -rotation.current.x - prx);
 
+        glm::mat4 rotate;
         pos4 = glm::vec4(pos4.x+px+entity_pos.x,pos4.y+py-entity_pos.y,pos4.z+pz+entity_pos.z,0);
+        if (ANMVM_GET_MODE < 4) { pos4.z = 0; rotate = glm::rotate(glm::mat4(1.0f), -rotation.current.z + prz, glm::vec3(0,0,1)); }
+        else rotate = glm::eulerAngleZYX(-rotation.current.z + prz, rotation.current.y + pry, -rotation.current.x - prx);
  /*       if (layer == 3) {
             pos4.y += 2*224.f;
             XS*=2;
             YS*=2;
         } */
-        if (bitflags_lo & ANMVM_BIT_ZWRITDI) pos4.z = 0;
 
         uint8_t colmod = ANMVM_GET_COLMO;
         if (colmod == 1) c1 = c2;
@@ -434,7 +420,7 @@ namespace NSEngine {
         Vertex br = {{pos4 + rotate * glm::vec4(r * s.w * XS + anchor_offset.x, b * s.h * YS + anchor_offset.y, 0, 0)}, cbr, {u2, v2}};
         Vertex bl = {{pos4 + rotate * glm::vec4(l * s.w * XS + anchor_offset.x, b * s.h * YS + anchor_offset.y, 0, 0)}, cbl, {u1, v2}};
 
-        engineData::layers[layer]->getBatch()->draw(s.texID, tl, tr, br, bl, blendmode);
+        sb->draw(s.texID, tl, tr, br, bl, blendmode);
 
     }
 
@@ -784,12 +770,14 @@ namespace NSEngine {
                 return;
             case 403: // alpha
                 alpha1.current = u8S(0);
+                alpha1.goal = u8S(0);
                 return;
             case 404: // color
                 color1 = { u8S(0), u8S(1), u8S(2) };
                 return;
             case 405: // alpha2.current
                 alpha2.current = u8S(0);
+                alpha2.goal = u8S(0);
                 return;
             case 406: // color2
                 color2 = { u8S(0), u8S(1), u8S(2) };
@@ -850,10 +838,10 @@ namespace NSEngine {
                 flagh(ANMVM_BIT_AUTOROT, S(0));
                 return;
             case 425: // scrollX
-                uv_scroll_vel_x.current = f(0);
+                uv_scroll_vel_x = f(0);
                 return;
             case 426: // scrollY
-                uv_scroll_vel_y.current = f(0);
+                uv_scroll_vel_y = f(0);
                 return;
             case 427: // scrollXTime
                 uv_scroll_vel_x.start(uv_scroll_vel_x.current, f(2), S(1), S(0));

@@ -27,7 +27,7 @@ struct InterpolatorWithoutBezier_t {
     int32_t method = 0;
     void update()
     {
-        if (time == endTime) { current = goal; method = 0; return; }
+        if (time >= endTime && endTime != -1) { current = goal; method = 0; return; }
         if (method == 7)
             current+=goal;
         else if (method == 17)
@@ -41,6 +41,7 @@ struct InterpolatorWithoutBezier_t {
     }
     void start(T begin, T end, int32_t mode, int32_t duration, T b1 = T(), T b2 = T())
     {
+        if (duration == 0) { goal = current; time = endTime; return;}
         time = 0;
         endTime = duration;
         bezier1 = b1;
@@ -79,7 +80,7 @@ struct Interpolator_t {
     int32_t method = 0;
     void update()
     {
-        if (time == endTime) { current = goal; method = 0; return; }
+        if (time >= endTime && endTime != -1) { current = goal; method = 0; return; }
         if (method == 7)
             current+=goal;
         else if (method == 80)
@@ -103,6 +104,7 @@ struct Interpolator_t {
     }
     void start(T begin, T end, int32_t mode, int32_t duration, T b1 = T(), T b2 = T())
     {
+        if (duration == 0) { goal = current; time = endTime; return;}
         time = 0;
         endTime = duration;
         bezier1 = b1;
@@ -111,6 +113,7 @@ struct Interpolator_t {
         current = initial = begin;
         goal = end;
     }
+    operator T() { return current; }
     void operator=(T const& other) { current = goal = other; }
     void operator=(Interpolator_t const& other) {
         current = other.current;

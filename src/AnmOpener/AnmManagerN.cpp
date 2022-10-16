@@ -69,6 +69,15 @@ namespace NSEngine {
 
     }
 
+    AnmVM* AnmManagerN::SpawnVMExt(size_t slot, size_t script)
+    {
+        AnmVM* activeVM = new AnmVM(loadedFiles[slot].getPreloaded(script));
+        activeVM->id = AnmID::fastIdMask;
+        activeVM->id.setDiscriminator(last_id_discriminator++);
+        activeVM->script_id = script;
+        return activeVM;
+    }
+
     uint32_t AnmManagerN::SpawnVM(size_t slot, size_t script, bool ui, bool front)
     {
         if (loadedFiles[slot].name == "notLoaded") return -1;
@@ -79,9 +88,7 @@ namespace NSEngine {
         if (n == nullptr)
         {
             //no free spot in the array
-            activeVM = new AnmVM(loadedFiles[slot].getPreloaded(script));
-            activeVM->id = AnmID::fastIdMask;
-            activeVM->id.setDiscriminator(last_id_discriminator++);
+            activeVM = SpawnVMExt(slot, script);
         }
         else
         {
