@@ -27,7 +27,7 @@ struct InterpolatorWithoutBezier_t {
     int32_t method = 0;
     void update()
     {
-        if (time >= endTime && endTime != -1) { current = goal; method = 0; return; }
+        if (time >= endTime && endTime >= 0) { current = goal; method = 0; return; }
         if (method == 7)
             current+=goal;
         else if (method == 17)
@@ -80,7 +80,7 @@ struct Interpolator_t {
     int32_t method = 0;
     void update()
     {
-        if (time >= endTime && endTime != -1) { current = goal; method = 0; return; }
+        if (time >= endTime && endTime >= 0) { current = goal; method = 0; return; }
         if (method == 7)
             current+=goal;
         else if (method == 80)

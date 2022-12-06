@@ -26,7 +26,7 @@ namespace NSEngine {
         return texID;
     }
 
-    void AnmFile::Sprite::genTexCoords(float tw, float th)
+    void AnmSprite::genTexCoords(float tw, float th)
     {
         u1 = x / tw;
         v1 = y / th;
@@ -101,7 +101,7 @@ namespace NSEngine {
 
     int8_t* AnmFile::getScript(size_t id) const { if (scripts.size() == 0) return {}; return scripts[id%scripts.size()]; }
     AnmVM AnmFile::getPreloaded(size_t id) const { if (preloaded.size() == 0) return {}; return preloaded[id%preloaded.size()]; }
-    AnmFile::Sprite AnmFile::getSprite(size_t id) const { if (sprites.size() == 0) return {}; return sprites[id%sprites.size()]; }
+    AnmSprite AnmFile::getSprite(size_t id) const { if (sprites.size() == 0) return {}; return sprites[id%sprites.size()]; }
     uint32_t AnmFile::getTextureFromName(std::string const& name) const { return textures.at(name); }
 
 }

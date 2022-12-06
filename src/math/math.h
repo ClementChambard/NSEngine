@@ -137,10 +137,12 @@ namespace math {
     template<typename T>
     inline T wrap(T val, T min, T max)
     {
-        while(val >= max) val -= (max-min);
-        while(val < min) val += (max-min);
+        int i = 32;
+        while(val >= max && i--) val -= (max-min);
+        while(val < min && i--) val += (max-min);
         return val;
     }
+    inline void angle_normalize(float& a) { a = wrap(a, -PI, PI); }
 
     extern float point_distance_to_segment(glm::vec2 s1, glm::vec2 s2, glm::vec2 p);
     extern bool segment_intersect(glm::vec2 a1, glm::vec2 a2, glm::vec2 b1, glm::vec2 b2);

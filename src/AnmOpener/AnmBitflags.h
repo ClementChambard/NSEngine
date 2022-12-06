@@ -1,6 +1,8 @@
 #ifndef ANMBITFLAGS_H_
 #define ANMBITFLAGS_H_
 
+#include <cstdint>
+
 #define ANMVM_BIT_VISIBLE (1 <<  0)
 #define ANMVM_BIT_530_1   (1 <<  1)
 #define ANMVM_BIT_ROTATED (1 <<  2)
@@ -66,6 +68,53 @@
 #define ANMVM_BIT_534_29  (1 << 29)
 #define ANMVM_BIT_534_30  (1 << 30)
 #define ANMVM_BIT_534_31  (1 << 31)
+
+struct AnmVM_flags_t {
+
+    AnmVM_flags_t() { *(uint64_t*)this = 0; }
+    uint32_t visible:1;
+    uint32_t f530_1:1;
+    uint32_t rotated:1;
+    uint32_t scaled:1;
+    uint32_t zoomed:1;
+    uint32_t blendmode:4;
+    uint32_t f530_9:1;
+    uint32_t alt_pos:1;
+    uint32_t flip_x:1;
+    uint32_t flip_y:1;
+    uint32_t zwritedis:1;
+    uint32_t f530_14:1;
+    uint32_t f530_15:1;
+    uint32_t f530_16:1;
+    uint32_t colmode:2;
+    uint32_t f530_19_20:2;
+    uint32_t anchorX:2;
+    uint32_t anchorY:2;
+    uint32_t rendermode:5;
+    uint32_t scrollY:2;
+
+    uint32_t scrollX:2;
+    uint32_t rotationMode:3;
+    uint32_t activeFlags:2;
+    uint32_t autoRotate:1;
+    uint32_t f534_8:1;
+    uint32_t f534_9:1;
+    uint32_t randomMode:1;
+    uint32_t resampleMode:1;
+    uint32_t f534_12:1;
+    uint32_t ins419:1;
+    uint32_t f534_14_15:2;
+    uint32_t noParent:1;
+    uint32_t f534_17:1;
+    uint32_t originMode:2;
+    uint32_t resolutionMode:3;
+    uint32_t parRotate:1;
+    uint32_t hasVel:1;
+    uint32_t colorizeChildren:1;
+    uint32_t f534_26:1;
+    uint32_t f534_27_31:5;
+
+};
 
 #define RESET_FLAGS(f, r, n) f &= ~(n << r)
 

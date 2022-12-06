@@ -197,17 +197,17 @@ namespace StdOpener {
             float y = f.y + q.y;
             float z = f.z + q.z;
             bgVms.push_back(NSEngine::AnmManagerN::SpawnVMExt(30, q.script_index));
+            bgVms.back()->update();
             bgVms.back()->setEntityPos(x, y, z);
             bgVms.back()->setLayer(e.layer);
+            auto s = bgVms.back()->getSprite();
+            bgVms.back()->setScale2(q.width / s.w, q.height / s.h);
         }
     }
 
     template<typename T, typename _Predicate>
     size_t insertRemoveNullptr(const T& val, std::vector<T>& vec, _Predicate predicate)
     {
-        //vec.push_back(val);
-        //std::sort(vec.begin(), vec.end(), predicate);
-        //return;
         size_t i = 0;
         int nullptrcnt = 0;
         while (i < vec.size())
@@ -294,7 +294,7 @@ namespace StdOpener {
                 theCam->setClearColor(r(0), g(0), b(0));
                 return;
             case 14: {// sprite
-                std::cout << S(0) << ":" << S(1) << " on " << S(2) << "  ";
+                //std::cout << S(0) << ":" << S(1) << " on " << S(2) << "  ";
                 if (anmSlots[S(0)] != -1) {
                     delete bgVms[anmSlots[S(0)]];
                     bgVms[anmSlots[S(0)]] = nullptr;
@@ -303,10 +303,8 @@ namespace StdOpener {
                 NSEngine::AnmVM* vm = NSEngine::AnmManagerN::SpawnVMExt(30, S(1));
                 vm->update();
                 vm->setLayer(S(2));
-                //bgVms.push_back(vm);
                 std::cout << bgVms.size() << " ";
                 auto predicate = [](NSEngine::AnmVM* const & a, NSEngine::AnmVM* const & b){ return a->getLayer() <= b->getLayer(); };
-                //std::sort(bgVms.begin(), bgVms.end(), predicate);
                 anmSlots[S(0)] = insertRemoveNullptr(vm, bgVms, predicate);
                 std::cout << anmSlots[S(0)] << "\n";
                 return; }

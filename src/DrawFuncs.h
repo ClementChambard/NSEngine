@@ -12,14 +12,54 @@ namespace NSEngine {
 
     extern void batch_draw_game_sprite(SpriteBatch* batch, int sprite_index, int x, int y, float xs, float ys, float rot, Color ctl, Color ctr, Color cbr, Color cbl);
 
-    /** draw_set_[color,alpha,blend](value)
+    /** draw_set_color(value)
      *
-     * set the default value of [color,alpha,blend] for the draw functions 
+     * set the default value of color for the draw functions
+     * @param c the new drawing color
      */
+
+    /** set the default value of color for the draw functions*/
     extern void draw_set_color(Color c);
+
+    /** draw_set_color(value_rgba)
+     *
+     * set the default value of color for the draw functions
+     * @param r the red component of the color
+     * @param g the green component of the color
+     * @param b the blue component of the color
+     * @param a the alpha component of the color
+     */
+
+    /** set the default value of color for the draw functions*/
     extern void draw_set_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+
+    /** draw_set_color(value_rgb)
+     *
+     * set the default value of color for the draw functions
+     * @param r the red component of the color
+     * @param g the green component of the color
+     * @param b the blue component of the color
+     */
+
+    /** set the default value of color for the draw functions*/
     extern void draw_set_color(uint8_t r, uint8_t g, uint8_t b);
+
+    /** draw_set_alpha(value)
+     *
+     * set the default value of alpha for the draw functions
+     * @param a the new alpha value
+     */
+
+    /** set the default value of alpha for the draw functions*/
     extern void draw_set_alpha(uint8_t a);
+
+    /** *draw_set_blend(value)
+     *
+     * set the default value of blendmode for the draw functions
+     * @param bm the new blendmode id
+     */
+
+    /** set the default value of blendmode for the draw functions*/
     extern void draw_set_blend(int bm);
 
     /** draw_sprite[scaled,color,rotated](sprite_index, frame, position, [scale,rotation,color])

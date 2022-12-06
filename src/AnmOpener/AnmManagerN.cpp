@@ -93,7 +93,7 @@ namespace NSEngine {
         else
         {
             ListUtil::listRemoveNode(n);
-            n->value->fastID.setDiscriminator(last_id_discriminator++);
+            n->value->fastID.setDiscriminator(++last_id_discriminator);
             n->value->isAlive = true;
             n->value->vm(loadedFiles[slot].getPreloaded(script));
             activeVM = &n->value->vm;
@@ -160,6 +160,7 @@ namespace NSEngine {
 
     AnmVM* AnmManagerN::getVM(uint32_t id)
     {
+        if (id == 0) return nullptr;
         if ((id & AnmID::fastIdMask) == AnmID::fastIdMask)
         {
             for (auto node = first->next; node != last; node = node->next)
@@ -175,16 +176,24 @@ namespace NSEngine {
         return nullptr;
     }
 
-    void AnmManagerN::LoadFile(size_t slot, std::string filename)
+    AnmFile* AnmManagerN::LoadFile(size_t slot, std::string filename)
     {
         if (loadedFiles[slot].name != "notLoaded") { /* do something */ }
         loadedFiles[slot].Open(filename, slot);
+        return &loadedFiles[slot];
     }
 
     void AnmManagerN::update(bool printInstr)
     {
         on_tick_ui();
         on_tick_world();
+    }
+
+    int AnmManagerN::getFreeAnm()
+    {
+        int n = 0;
+        for (int i = 0; i < 8191; i++) if (!fastArray[i].isAlive) n++;
+        return n;
     }
 
     void AnmManagerN::on_tick_world()
@@ -194,11 +203,15 @@ namespace NSEngine {
             if (node->value)
             {
                 node->value->update();
-                bool del = (node->value->bitflags_hi & (ANMVM_BIT_ACTIVE1)) && !(node->value->bitflags_hi & (ANMVM_BIT_ACTIVE2));
+                bool del = (node->value->bitflags.activeFlags & 1) && !(node->value->bitflags.activeFlags & 2);
                 if (del)
                 {
+                    int id = node->value->id.val;
                     node = node->previous;
                     node->next->value->destroy();
+                    if (fastArray[id & AnmID::fastIdMask].fastID != id) continue;
+                    fastArray[id & AnmID::fastIdMask].isAlive = false;
+                    ListUtil::listInsertAfter(fastFirst, fastArray[id & AnmID::fastIdMask].freelistNode);
                 }
             }
         }
@@ -211,11 +224,15 @@ namespace NSEngine {
             if (node->value)
             {
                 node->value->update();
-                bool del = (node->value->bitflags_hi & (ANMVM_BIT_ACTIVE1)) && !(node->value->bitflags_hi & (ANMVM_BIT_ACTIVE2));
+                bool del = (node->value->bitflags.activeFlags & 1) && !(node->value->bitflags.activeFlags & 2);
                 if (del)
                 {
+                    int id = node->value->id.val;
                     node = node->previous;
                     node->next->value->destroy();
+                    if (fastArray[id & AnmID::fastIdMask].fastID != id) continue;
+                    fastArray[id & AnmID::fastIdMask].isAlive = false;
+                    ListUtil::listInsertAfter(fastFirst, fastArray[id & AnmID::fastIdMask].freelistNode);
                 }
             }
         }
@@ -241,7 +258,7 @@ namespace NSEngine {
     {
         if (spriteID == (size_t)-1) spriteID = 0;
         if (spriteID >= loadedFiles[slot].sprites.size()) spriteID = loadedFiles[slot].sprites.size()-1;
-        AnmFile::Sprite s = loadedFiles[slot].getSprite(spriteID);
+        AnmSprite s = loadedFiles[slot].getSprite(spriteID);
         int tw = 1, th = 1;
         TextureManager::GetTextureSize(s.texID, tw, th);
         float u1 = s.x/(float)tw, u2 = (s.x+s.w)/(float)tw;

@@ -1,6 +1,7 @@
 #ifndef ANMVM_H_
 #define ANMVM_H_
 
+#include <functional>
 #include <vector>
 #include <glm/glm.hpp>
 #include "anmOpener.h"
@@ -8,6 +9,8 @@
 #include "../vertex.h"
 #include "../math/math.h"
 #include "../SpriteBatch.h"
+#include "AnmSprite.h"
+#include "AnmBitflags.h"
 
 namespace NSEngine {
 
@@ -63,17 +66,26 @@ namespace NSEngine {
             void setEntityPos(float x, float y, float z) { entity_pos = {x, y, z}; }
             void setPos2(float x, float y, float z) { pos2 = {x, y, z}; }
             void setScale(float x, float y) { scale = {x, y}; }
+            void setScale2(float x, float y) { scale_2 = {x, y}; }
             void setI(int i, int v) { int_vars[i] = v; }
             void setf(int i, int v) { float_vars[i] = v; }
             void setLayer(uint32_t i) { layer = i; }
+            void setEntity(void* e) { entity = e; }
+            void setRotz(float z) { rotation.current.z = rotation.goal.z = z; }
+            void setFlags(AnmVM_flags_t flags) { bitflags = flags; }
+            void refreshSprite(int s = -1) { sprite_id = on_set_sprite(this, s==-1?sprite_id:s); }
+            AnmVM_flags_t getFlags() const { return bitflags; }
             int getMode() const;
             int getLayer() const { return layer; }
             int getZdis() const;
+            void* getEntity() const { return entity; }
             AnmVMList* getChild() { return childrens; }
             uint32_t getID() const { return id.val; }
+            AnmSprite getSprite() const;
 
+            std::function<int(AnmVM*, int)> on_set_sprite = [](AnmVM* me, int spr){ return spr; };
             static int cnt;
-        protected:
+        //protected:
             int32_t case_return_time = -99;
             int32_t return_instr = 0;
             uint32_t layer = 0;
@@ -112,8 +124,7 @@ namespace NSEngine {
             InterpolatorWithoutBezier_t<ColorRGB> color2 = {};
             InterpolatorWithoutBezier_t<NSITPuint8_t> alpha2 = {};
             // mixed_inherited_color + more unused stuff
-            uint32_t bitflags_lo = 0;
-            uint32_t bitflags_hi = 0;
+            AnmVM_flags_t bitflags;
 
             AnmID id = 0;
             uint32_t fast_id = 0;
@@ -125,6 +136,7 @@ namespace NSEngine {
             //things like that
             glm::vec3 entity_pos = {}; // pos3 ?
             void* entity = nullptr;
+
 
             friend class AnmManagerN;
             friend class AnmManager;

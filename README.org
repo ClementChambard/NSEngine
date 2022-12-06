@@ -1,10 +1,25 @@
-#+TITLE: README
+#+TITLE: NSEngine
 #+AUTHOR: Clement Chambard
 
-* NSEngine
+Team Nano's Game Engine, made with c++ and OpenGL.
 
-Team Nano's Game Engine
+This engine is used in some of my projects.
 
-Made by Clement Chambard
+** Structure
 
-** TODO better cmake
+- asset : the engine related assets. This directory needs to be placed in the game's asset directory with the name 'engine'
+
+- src : the source code of the engine.
+
+- scripts : some bash and python scripts to help with using the engine.
+
+In an older version (still used in one of my project), there used to be a file called resources.nsr that would fill the src/assets.cpp and src/assets.h files when using scripts/createAssetFile.py.
+If the project you are trying to compile complains about one of these files, run the script in the project's root directory.
+
+** Compile
+
+Copy or link the engine folder as a subdirectory of the project. CMake will take care of compiling the engine when compiling your project.
+
+** Contact
+
+for further questions, contact me at [[clement.chambard@universite-paris-saclay.fr]]

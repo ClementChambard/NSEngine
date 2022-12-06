@@ -21,7 +21,7 @@ namespace NSEngine
 
             static void deleteVM(uint32_t id);
             static bool isAlive(uint32_t id);
-            static void LoadFile(size_t slot, std::string filename);
+            static AnmFile* LoadFile(size_t slot, std::string filename);
 
             static void update(bool printInstr = false);
             static void draw();
@@ -31,6 +31,8 @@ namespace NSEngine
 
             static void drawSprite(size_t slot, size_t& spriteID);
             static void drawTexture(size_t slot, size_t& texID);
+
+            static int getFreeAnm();
 
         private:
 
