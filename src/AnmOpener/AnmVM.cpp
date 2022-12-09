@@ -13,9 +13,14 @@ namespace NSEngine {
     void AnmVM::interrupt(int i)
     {
         pending_switch_label = i;
+    }
+
+    void AnmVM::interruptRec(int i)
+    {
+        interrupt(i);
         for (AnmVMList* child = childrens->next; child != nullptr; child = child->next)
         {
-            if (child->value) child->value->interrupt(i);
+            if (child->value) child->value->interruptRec(i);
         }
     }
 
@@ -26,6 +31,7 @@ namespace NSEngine {
         layer            = toCopy.layer            ;
         anim_slot        = toCopy.anim_slot        ;
         sprite_id        = toCopy.sprite_id        ;
+        script_id        = toCopy.script_id        ;
         current_instr    = toCopy.current_instr    ;
         pos              = toCopy.pos              ;
         rotation         = toCopy.rotation         ;
@@ -76,6 +82,7 @@ namespace NSEngine {
         layer            = toCopy.layer            ;
         anim_slot        = toCopy.anim_slot        ;
         sprite_id        = toCopy.sprite_id        ;
+        script_id        = toCopy.script_id        ;
         current_instr    = toCopy.current_instr    ;
         pos              = toCopy.pos              ;
         rotation         = toCopy.rotation         ;
@@ -238,46 +245,46 @@ namespace NSEngine {
         }
 
         on_set_sprite = [](AnmVM* me, int spr){ return spr; };
-            case_return_time = -99;
-            return_instr = 0;
-            layer = 0;
-            anim_slot = 0;
-            sprite_id = 0;
-            script_id = 0;
-            current_instr = 0;
-            pos = {{0,0,0}};
-            rotation = {{0,0,0}};
-            angular_velocity = {};
-            scale = {{1.f,1.f}};
-            scale_2 = {{1,1}};
-            scale_growth = {};
-            uv_scale = {{1, 1}};
-            uv_scroll_pos = {};
-            anchor_offset = {};
-            uv_scroll_vel_x = {};
-            uv_scroll_vel_y = {};
-            pending_switch_label = 0;
-            for (int i = 0; i < 4; i++) {
-            int_vars[i] = 0;
-            float_vars[i] = 0;}
-            rot_vars = {};
-            script_var_8 = 0;
-            script_var_9 = 0;
-            rand_scale_1f = 1.f;
-            rand_scale_pi = PI;
-            num_cycles_in_texture = 1;
-            pos2 = {};
-            mode_of_special_draw = -1; // mode_of_create_child
-            color1 = {ColorRGB{255, 255, 255}};
-            alpha1 = {NSITPuint8_t{255}};
-            color2 = {ColorRGB{255, 255, 255}};
-            alpha2 = {NSITPuint8_t{255}};
-            id = 0;
-            fast_id = 0;
-            time = 0;
-            parent = nullptr;
-            entity_pos = {}; // pos3 ?
-            entity = nullptr;
+        case_return_time = -99;
+        return_instr = 0;
+        layer = 0;
+        anim_slot = 0;
+        sprite_id = 0;
+        script_id = 0;
+        current_instr = 0;
+        pos = {{0,0,0}};
+        rotation = {{0,0,0}};
+        angular_velocity = {};
+        scale = {{1.f,1.f}};
+        scale_2 = {{1,1}};
+        scale_growth = {};
+        uv_scale = {{1, 1}};
+        uv_scroll_pos = {};
+        anchor_offset = {};
+        uv_scroll_vel_x = {};
+        uv_scroll_vel_y = {};
+        pending_switch_label = 0;
+        for (int i = 0; i < 4; i++) {
+        int_vars[i] = 0;
+        float_vars[i] = 0;}
+        rot_vars = {};
+        script_var_8 = 0;
+        script_var_9 = 0;
+        rand_scale_1f = 1.f;
+        rand_scale_pi = PI;
+        num_cycles_in_texture = 1;
+        pos2 = {};
+        mode_of_special_draw = -1; // mode_of_create_child
+        color1 = {ColorRGB{255, 255, 255}};
+        alpha1 = {NSITPuint8_t{255}};
+        color2 = {ColorRGB{255, 255, 255}};
+        alpha2 = {NSITPuint8_t{255}};
+        id = 0;
+        fast_id = 0;
+        time = 0;
+        parent = nullptr;
+        entity_pos = {}; // pos3 ?
+        entity = nullptr;
     }
 
 }

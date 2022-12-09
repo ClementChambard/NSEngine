@@ -55,6 +55,7 @@ namespace NSEngine {
             void draw(SpriteBatch* sb = nullptr);
             void destroy();
             void interrupt(int i);
+            void interruptRec(int i);
 
             int& check_ref(int i);
             float& check_ref(float f);

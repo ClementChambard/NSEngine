@@ -34,6 +34,7 @@ namespace NSEngine
 
             static int getFreeAnm();
 
+            static AnmFile* getLoaded(int i) { return &loadedFiles[i]; }
         private:
 
             //216 unknown bytes + int32 useless_count
