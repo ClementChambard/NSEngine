@@ -1,0 +1,73 @@
+* Current architecture :
+** Files :
+- portable-file-dialogs        External
+- stb_image                    External
+- NSEngine                     Main
+  - Window                       Very important
+  - InputManager                 Important
+    - Keys
+  - DrawFuncs                    Lots here
+- NS3D/                      NSEngine 3D sub library
+  -
+- NSGui/                     NSEngine Gui sub library
+  - not done
+- NSRig/                     NSEngine Rigging sub library
+  - NSRig.h
+  - NSRigAnim.h
+  - NSRigBone.h
+  - NSRigEditor
+  - NSRigGraphics
+  - NSRigGraphicsLine
+- math/                      Math ???
+  - math
+  - Random
+  - color
+- LayerRenderer                Renderer to go with 3d, think it is used
+- StringUtil                   ? stringBeginWith & stringContains (used in NS3D I think)
+- pr                           Tiny print lib, only used by err func
+- Error                        Nice, but redo (logger)
+- Bytestreams                  Nice, redo?
+- EventProcessor               Nice
+- GameSprites                  Used with old AnmManager
+- LoadingScreen                Nice
+- taskSchedule                 Old, not used but interesting
+- Camera2D                     Redo camera system probably
+  - Camera3D
+- FrameBuffer                  Nice to have
+- PostProcessing               PostProcessings
+  - PPEffect
+  - HorizontalBlur
+  - VerticalBlur
+  - Shockwave
+- ShaderProgram                Shaders
+  - AnimShader
+  - AnimShaderTwoColor
+  - HorizontalBlurShader
+  - VerticalBlurShader
+  - ShockwaveShader
+  - ShockwaveEffectShader
+- vertex                       Old & bad but still used a lot
+- GLTexture                    Old, maybe bad but used
+- TextureManager               Old but used
+- ImageLoader                  Old but used
+- Timing                       Old but used
+- FileOpener                   Old but used
+- GraphicsLayer                Old but used
+- SpriteBatch                  Old but used a lot and not that bad
+- AnmManager                   Old but used in touhou clone (and some other projects)
+  - AnimScript
+  - GameLayers
+- Assets                       Bad, not used that much
+- Interpolator                 Bad
+- NSlist                       Mostly useless ?
+- AudioEngine                  Redo audio module
+  - SoundSource
+  - SoundDevice
+  - SoundBuffer
+  - MusicBuffer
+- SpriteManager                Old
+- SpriteFont                   Old, Stopped working ?
+- Sprite                       Old
+- Tileset                      Old
+- TilesetManager               Old
+- Tilemap                      Old
