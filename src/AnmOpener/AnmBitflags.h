@@ -72,26 +72,26 @@
 struct AnmVM_flags_t {
 
     AnmVM_flags_t() { *(uint64_t*)this = 0; }
-    uint32_t visible:1;
-    uint32_t f530_1:1;
-    uint32_t rotated:1;
-    uint32_t scaled:1;
-    uint32_t zoomed:1;
-    uint32_t blendmode:4;
-    uint32_t f530_9:1;
-    uint32_t alt_pos:1;
-    uint32_t flip_x:1;
-    uint32_t flip_y:1;
-    uint32_t zwritedis:1;
-    uint32_t f530_14:1;
-    uint32_t f530_15:1;
-    uint32_t f530_16:1;
-    uint32_t colmode:2;
-    uint32_t f530_19_20:2;
-    uint32_t anchorX:2;
-    uint32_t anchorY:2;
-    uint32_t rendermode:5;
-    uint32_t scrollY:2;
+    uint32_t visible:1;    /* 0x00000001  |  0xfffffffe */
+    uint32_t f530_1:1;     /* 0x00000002  |  0xfffffffd */
+    uint32_t rotated:1;    /* 0x00000004  |  0xfffffffb */
+    uint32_t scaled:1;     /* 0x00000008  |  0xfffffff7 */
+    uint32_t zoomed:1;     /* 0x00000010  |  0xffffffef */
+    uint32_t blendmode:4;  /* 0x000001e0  |  0xfffffe1f */
+    uint32_t f530_9:1;     /* 0x00000200  |  0xfffffdff */
+    uint32_t alt_pos:1;    /* 0x00000400  |  0xfffffbff */
+    uint32_t flip_x:1;     /* 0x00000800  |  0xfffff7ff */
+    uint32_t flip_y:1;     /* 0x00001000  |  0xffffefff */
+    uint32_t zwritedis:1;  /* 0x00002000  |  0xffffdfff */
+    uint32_t f530_14:1;    /* 0x00004000  |  0xffffbfff */
+    uint32_t f530_15:1;    /* 0x00008000  |  0xffff7fff */
+    uint32_t f530_16:1;    /* 0x00010000  |  0xfffeffff */
+    uint32_t colmode:2;    /* 0x00060000  |  0xfff9ffff */
+    uint32_t f530_19_20:2; /* 0x00180000  |  0xffe7ffff */
+    uint32_t anchorX:2;    /* 0x00600000  |  0xff9fffff */
+    uint32_t anchorY:2;    /* 0x01800000  |  0xfe7fffff */
+    uint32_t rendermode:5; /* 0x3e000000  |  0xc1ffffff */
+    uint32_t scrollY:2;    /* 0xc0000000  |  0x3fffffff */
 
     uint32_t scrollX:2;
     uint32_t rotationMode:3;

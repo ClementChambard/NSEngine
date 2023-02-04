@@ -1,6 +1,5 @@
 #include "LayerRenderer.h"
 #include "NSEngine.h"
-#include "Profiler.h"
 
 namespace NSEngine {
 
@@ -26,7 +25,6 @@ namespace NSEngine {
         toggleCulling(false);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        if (engineData::gameflags&0b00000010) Profiler::Draw();
         for (auto l : layers)
         {
             float mi=1000000.f, ma=1000000.f;

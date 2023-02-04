@@ -3,7 +3,6 @@
 #include "GraphicsLayer.h"
 #include "NSEngine.h"
 #include <glm/fwd.hpp>
-#include "Profiler.h"
 
 namespace NSEngine {
 
@@ -106,7 +105,6 @@ namespace NSEngine {
             func(this);
             return;
         }
-        if (engineData::gameflags&0b00000010) Profiler::Draw();
         for (auto l : engineData::layers)
         {
             float mi=1000000.f, ma=1000000.f;
