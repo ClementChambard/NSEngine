@@ -2,7 +2,7 @@
 #define LAYERRENDERER_INCLUDED_H
 
 #include "AnimShader.h"
-#include "GraphicsLayer.h"
+#include "SpriteBatch.h"
 #include <vector>
 
 namespace NSEngine {
@@ -12,7 +12,7 @@ namespace NSEngine {
             LayerRenderer(AnimShader* shad) : shader(shad) {}
             ~LayerRenderer() { delete shader; }
 
-            void addLayer(GraphicsLayer* l) { layers.push_back(l); }
+            void addLayer(SpriteBatch* l) { layers.push_back(l); }
             void setRenderFunction(void (*func)(LayerRenderer*)) { renderFunction = func; }
 
             void initFrame();
@@ -25,7 +25,7 @@ namespace NSEngine {
 
             void (*renderFunction)(LayerRenderer*) = nullptr;
 
-            std::vector<GraphicsLayer*> layers;
+            std::vector<SpriteBatch*> layers;
             
     };
 

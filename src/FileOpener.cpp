@@ -41,7 +41,7 @@ namespace NSEngine {
         //Reduce the file size by any header bytes
         fileSize -= f.tellg();
 
-        buffer.resize((const size_t)fileSize);
+        buffer.resize((size_t)fileSize);
         f.read(&(buffer[0]), fileSize);
         f.close();
 
@@ -65,7 +65,7 @@ namespace NSEngine {
         //Reduce the file size by any header bytes
         fileSize -= f.tellg();
 
-        buffer.resize((const size_t)fileSize);
+        buffer.resize((size_t)fileSize);
         f.read((char*)&(buffer[0]), fileSize);
         f.close();
 
@@ -89,7 +89,7 @@ namespace NSEngine {
         //Reduce the file size by any header bytes
         fileSize -= f.tellg();
 
-        buffer.resize((const size_t) fileSize);
+        buffer.resize((size_t) fileSize);
         f.read(&(buffer[0]), fileSize);
         f.close();
 

@@ -2,15 +2,16 @@
 #define DRAWFUNCS
 
 #include <iostream>
-#include "SpriteManager.h"
-#include "GameSprites.h"
+//#include "SpriteManager.h"
+#include "SpriteBatch.h"
+//#include "GameSprites.h"
 #include <glm/glm.hpp>
 
 namespace NSEngine {
  
-    extern void draw_game_sprite(int sprite_index, int x, int y, float xs, float ys, float rot, Color ctl, Color ctr, Color cbr, Color cbl);
+    //extern void draw_game_sprite(int sprite_index, int x, int y, float xs, float ys, float rot, Color ctl, Color ctr, Color cbr, Color cbl);
 
-    extern void batch_draw_game_sprite(SpriteBatch* batch, int sprite_index, int x, int y, float xs, float ys, float rot, Color ctl, Color ctr, Color cbr, Color cbl);
+    //extern void batch_draw_game_sprite(SpriteBatch* batch, int sprite_index, int x, int y, float xs, float ys, float rot, Color ctl, Color ctr, Color cbr, Color cbl);
 
     /** draw_set_color(value)
      *
@@ -62,24 +63,24 @@ namespace NSEngine {
     /** set the default value of blendmode for the draw functions*/
     extern void draw_set_blend(int bm);
 
-    /** draw_sprite[scaled,color,rotated](sprite_index, frame, position, [scale,rotation,color])
-     *
-     * draws the frame frame of sprite sprite_index at position position with extra options
-     */
-    extern void draw_sprite(int sprite_index, int frame, int x, int y);
-    extern void draw_sprite_scaled(int sprite_index, int frame, int x, int y, float xs, float ys);
-    extern void draw_sprite_rotated(int sprite_index, int frame, int x, int y, float rot);
-    extern void draw_sprite_scrotatled(int sprite_index, int frame ,int x, int y, float xs, float ys, float rot);
-    extern void draw_sprite_color(int sprite_index, int frame, int x, int y, Color c);
-    extern void draw_sprite_scalor(int sprite_index, int frame, int x, int y, float xs, float ys, Color c);
-    extern void draw_sprite_rotalor(int sprite_index, int frame, int x, int y, float rot, Color c);
-    extern void draw_sprite_scrotalor(int sprite_index, int frame, int x, int y, float xs, float ys, float rot, Color c);
+//    /** draw_sprite[scaled,color,rotated](sprite_index, frame, position, [scale,rotation,color])
+//     *
+//     * draws the frame frame of sprite sprite_index at position position with extra options
+//     */
+//    extern void draw_sprite(int sprite_index, int frame, int x, int y);
+//    extern void draw_sprite_scaled(int sprite_index, int frame, int x, int y, float xs, float ys);
+//    extern void draw_sprite_rotated(int sprite_index, int frame, int x, int y, float rot);
+//    extern void draw_sprite_scrotatled(int sprite_index, int frame ,int x, int y, float xs, float ys, float rot);
+//    extern void draw_sprite_color(int sprite_index, int frame, int x, int y, Color c);
+//    extern void draw_sprite_scalor(int sprite_index, int frame, int x, int y, float xs, float ys, Color c);
+//    extern void draw_sprite_rotalor(int sprite_index, int frame, int x, int y, float rot, Color c);
+//    extern void draw_sprite_scrotalor(int sprite_index, int frame, int x, int y, float xs, float ys, float rot, Color c);
     
     /** draw_text(font_index, text, x, y)
      *
      * draws text text at position (x,y) with font font_index
      */
-    extern void draw_text(int font_index, const char* text, int x, int y);
+ //   extern void draw_text(int font_index, const char* text, int x, int y);
 
     /** draw_line[color,3d](pos1, pos2, width, [color])
      *

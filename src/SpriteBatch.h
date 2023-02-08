@@ -2,6 +2,7 @@
 #define SPRITEBATCH
 
 #include <GL/glew.h>
+#include <cstddef>
 #include <glm/glm.hpp>
 #include <vector>
 #include "vertex.h"
@@ -35,7 +36,7 @@ namespace NSEngine {
     class Glyph {
 
         public:
-            Glyph(GLuint tex, Vertex tl, Vertex tr, Vertex br, Vertex bl, int bm = 0, bool i3d = false) : texture(tex), topLeft(tl), topRight(tr), bottomRight(br), bottomLeft(bl), blendmode(bm), is3d(i3d) {};
+            Glyph(GLuint tex, Vertex tl, Vertex tr, Vertex br, Vertex bl, int bm = 0, bool i3d = false) : texture(tex), blendmode(bm), is3d(i3d), topLeft(tl), topRight(tr), bottomRight(br), bottomLeft(bl) {};
 
             GLuint texture;
             GLubyte blendmode = 0;
@@ -70,8 +71,12 @@ namespace NSEngine {
 
             void draw(GLuint texture, Vertex tl, Vertex tr, Vertex br, Vertex bl, int blendmode = 0, bool is3d = false);
 
-            void renderBatch(bool depthTest = false, bool staticview = false);
+            void renderBatch();
 
+            std::size_t size() const { return glyphs.size(); }
+
+            bool depthTest = false;
+            bool is_static = false;
         private:
             bool depthSort = false;
             GLuint vbo;

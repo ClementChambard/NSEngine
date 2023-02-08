@@ -1,5 +1,4 @@
 #include "TextureManager.h"
-#include "ImageLoader.h"
 #include "NSEngine.h"
 
 #include <iostream>
@@ -17,7 +16,7 @@ namespace NSEngine {
      //   for (int i = 0; i < textures.size(); i++) if (textures[i].name == name) return i;
         if (textures.size() == 0)
         {
-            textures.push_back({0,0,0});
+            textures.push_back({0,0,0,0,0,0,"____EMPTY____"});
         }
         textures.push_back(ImageLoader::loadImageFile(name,name2,name3,name4));
         textures.back().name = name;
@@ -104,7 +103,7 @@ namespace NSEngine {
 
     int TextureManager::AddTexture(GLuint texID, int w, int h)
     {
-        textures.push_back({texID, w, h});
+        textures.push_back({texID, w, h, 0, 0, 0, "____UNKNOWN_NAME____"});
         return textures.size() -1;
     }
 
@@ -119,7 +118,7 @@ namespace NSEngine {
         return textures[i].id;
     }
 
-    UV TextureManager::GetUVAt(int i, int x, int y)
+    glm::vec2 TextureManager::GetUVAt(int i, int x, int y)
     {
         return {(float)x / (float)textures[i].width, (float)y / (float)textures[i].height};
     }
@@ -144,9 +143,9 @@ namespace NSEngine {
         return r;
     }
 
-    void TextureManager::SetSurfaceTarget(int i, int x1, int y1, int x2, int y2)
+    void TextureManager::SetSurfaceTarget(size_t i, int x1, int y1, int x2, int y2)
     {
-        if (i >= surfaces.size() || i < 0) return;
+        if (i >= surfaces.size()) return;
         glBindTexture(GL_TEXTURE_2D,0);
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER,surfaces[i].framebuffer);
         if (x1 == -1)

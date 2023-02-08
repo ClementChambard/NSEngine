@@ -10,7 +10,7 @@ namespace NSEngine {
         public:
             FpsLimiter();
 
-            void setMaxFps(int maxfps) { maxFPS = maxfps; }
+            void setMaxFps(int maxfps);
 
             void begin();
             float end();

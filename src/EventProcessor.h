@@ -5,9 +5,9 @@
 
 namespace NSEngine {
 
-    class EventProcessor {
+    class IEventProcessor {
         public:
-            virtual void ProcessEvent(SDL_Event* event, bool& noKeyboard, bool& noMouse) = 0;
+            virtual void ProcessEvent(SDL_Event* event, bool& capture_keyboard, bool& capture_mouse) = 0;
     };
 
 }

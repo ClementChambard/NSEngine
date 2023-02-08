@@ -1,6 +1,5 @@
 #include "SpriteBatch.h"
 #include "TextureManager.h"
-#include "vertex.h"
 #include "NSEngine.h"
 #include <cstddef>
 #include <iostream>
@@ -81,19 +80,16 @@ namespace NSEngine {
     }
 
 
-    SpriteBatch::SpriteBatch() {}
-    SpriteBatch::~SpriteBatch() {}
-
-    SpriteBatch* SpriteBatch::Init()
-    {
+    SpriteBatch::SpriteBatch() {
         glGenBuffers(1, &vbo);
-        return this;
     }
-
-    void SpriteBatch::Dispose()
-    {
+    SpriteBatch::~SpriteBatch() {
         if (vbo != 0) glDeleteBuffers(1, &vbo);
     }
+
+    SpriteBatch* SpriteBatch::Init() { return this; }
+
+    void SpriteBatch::Dispose() {}
 
     void SpriteBatch::begin() { renderBatches.clear(); glyphs.clear(); }
 
@@ -110,7 +106,7 @@ namespace NSEngine {
         glyphs.emplace_back(texture, tl, tr, br, bl, blendmode, is3d);
     }
 
-    void SpriteBatch::renderBatch(bool depthTest, bool staticview) {
+    void SpriteBatch::renderBatch() {
 
         if (depthTest) glEnable(GL_DEPTH_TEST);
 
@@ -125,13 +121,13 @@ namespace NSEngine {
                 if (renderBatches[i-1].blendmode != renderBatches[i].blendmode)
                     TextureManager::SetBlendmode(renderBatches[i].blendmode);
                 //if (renderBatches[i-1].is3d != renderBatches[i].is3d)
-                   // TextureManager::SetPerspective(renderBatches[i].is3d,staticview);
+                   // TextureManager::SetPerspective(renderBatches[i].is3d,is_static);
             }
             else 
             {
                 TextureManager::UseTexture(renderBatches[i].texture);
                 TextureManager::SetBlendmode(renderBatches[i].blendmode);
-                //TextureManager::SetPerspective(renderBatches[i].is3d,staticview);
+                //TextureManager::SetPerspective(renderBatches[i].is3d,is_static);
             }
             glDrawArrays(GL_TRIANGLES, renderBatches[i].offset, renderBatches[i].numVertices);
         }

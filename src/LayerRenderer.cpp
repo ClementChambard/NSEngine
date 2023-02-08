@@ -5,10 +5,7 @@ namespace NSEngine {
 
     void LayerRenderer::initFrame()
     {
-        for (auto l : layers)
-        {
-            if (l->type != GLT_TILES) l->getBatch()->begin();
-        }
+        for (auto l : layers) l->begin();
     }
 
     void LayerRenderer::renderLayers()
@@ -29,12 +26,12 @@ namespace NSEngine {
         {
             float mi=1000000.f, ma=1000000.f;
             glm::vec4 col = {0,0,0,0};
-            if (l->type != GLT_TILES) l->getBatch()->end();
-            shader->SetProjectionMatrix(cam3dexists?activeCamera3D()->getProjection(l->is_static, l->type == GLT_GUI):glm::mat4(1.f));
-            shader->SetViewMatrix(cam3dexists?activeCamera3D()->getView(l->is_static, l->type == GLT_GUI):glm::mat4(1.f));
-            if (activeCamera3D() != nullptr && !l->is_static && l->type != GLT_GUI) col = engineData::cam3d->getFog(mi,ma);
+            l->end();
+            shader->SetProjectionMatrix(cam3dexists?activeCamera3D()->getProjection(l->is_static):glm::mat4(1.f));
+            shader->SetViewMatrix(cam3dexists?activeCamera3D()->getView(l->is_static):glm::mat4(1.f));
+            if (activeCamera3D() != nullptr && !l->is_static) col = engineData::cam3d->getFog(mi,ma);
             shader->SetFog(mi, ma, col);
-            l->render();
+            l->renderBatch();
         }
         toggleCulling(true);
         

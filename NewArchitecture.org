@@ -7,11 +7,11 @@
   - InputManager                 Important
     - Keys
   - DrawFuncs                    Lots here
-- NS3D/                      NSEngine 3D sub library
+- NS3D/                      NSEngine 3D sub library (separated)
   -
-- NSGui/                     NSEngine Gui sub library
+- NSGui/                     NSEngine Gui sub library (separated)
   - not done
-- NSRig/                     NSEngine Rigging sub library
+- NSRig/                     NSEngine Rigging sub library (separated)
   - NSRig.h
   - NSRigAnim.h
   - NSRigBone.h
@@ -21,16 +21,13 @@
 - math/                      Math ???
   - math
   - Random
-  - color
 - LayerRenderer                Renderer to go with 3d, think it is used
-- StringUtil                   ? stringBeginWith & stringContains (used in NS3D I think)
-- pr                           Tiny print lib, only used by err func
 - Error                        Nice, but redo (logger)
+  - pr                           Tiny print lib
 - Bytestreams                  Nice, redo?
 - EventProcessor               Nice
 - GameSprites                  Used with old AnmManager
 - LoadingScreen                Nice
-- taskSchedule                 Old, not used but interesting
 - Camera2D                     Redo camera system probably
   - Camera3D
 - FrameBuffer                  Nice to have
@@ -54,20 +51,39 @@
 - FileOpener                   Old but used
 - GraphicsLayer                Old but used
 - SpriteBatch                  Old but used a lot and not that bad
-- AnmManager                   Old but used in touhou clone (and some other projects)
-  - AnimScript
-  - GameLayers
-- Assets                       Bad, not used that much
 - Interpolator                 Bad
 - NSlist                       Mostly useless ?
-- AudioEngine                  Redo audio module
-  - SoundSource
-  - SoundDevice
-  - SoundBuffer
-  - MusicBuffer
-- SpriteManager                Old
-- SpriteFont                   Old, Stopped working ?
-- Sprite                       Old
-- Tileset                      Old
-- TilesetManager               Old
-- Tilemap                      Old
+
+* Bloat
+- AnmOpener                      Not used
+- AnimShaderTwoColor             Not done
+- taskSchedule                   Old, not used but interesting
+
+* New architecture :
+
+You can create an instance of engine / extends -> init + window (given sizes)
+from here, override on_create, on_update, on_render, and on_destroy
+
+
+* TODO LIST:
+** TODO Move things used only by a few projects
+** TODO Main architecture [1/2]
+- [X] define engine interface
+- [ ] replace old engine by engine interface
+** TODO Camera system [0/5]
+- [ ] base camera class/interface
+- [ ] redo camera3d
+- [ ] redo camera2d
+- [ ] redo functions that use those
+- [ ] go in projects / modules to fix
+
+** TODO Logging system [0/1]
+- [ ] replace Error & pr by logging system
+** TODO Audio module [0/3]
+- [ ] Load sound files
+- [ ] Play sound effect [0/2]
+  - [ ] Play a sound
+  - [ ] Sound sources
+- [ ] Play music [0/2]
+  - [ ] Play continuous music
+  - [ ] Place loopPoints -> seamless loop

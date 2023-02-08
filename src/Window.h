@@ -2,7 +2,6 @@
 #define WINDOW
 
 #include "AnimShader.h"
-#include "vertex.h"
 #include <SDL2/SDL.h>
 #include <GL/glew.h>
 #include <glm/fwd.hpp>
@@ -46,7 +45,7 @@ namespace NSEngine {
             /**
              * Changes the display mode of the window object
              */
-            void setDisplayMode(int modeID);
+            void setDisplayMode(size_t modeID);
 
             /**
              * Switches to the next display mode
@@ -69,11 +68,20 @@ namespace NSEngine {
              */
             void BindAsRenderTarget();
 
-            int windowFlags, windowWidth, windowHeight;
-            AnimShader* baseShader;
-     
+            auto getWindowData() const { struct {int flags; int width; int height;} r = {windowFlags, windowWidth, windowHeight}; return r; }
+
+            AnimShader* getBaseShader() const { return baseShader; }
+
+            SDL_Window* getSdlWindow() const { return m_window; }
+
+            SDL_GLContext getSdlGlContext() const { return m_context; }
+
         private:
             std::vector<NS_DisplayMode> modes;
+            int windowFlags, windowWidth, windowHeight;
+            AnimShader* baseShader;
+            SDL_Window* m_window;
+            SDL_GLContext m_context;
     };
 
 

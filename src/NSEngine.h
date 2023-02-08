@@ -3,49 +3,20 @@
 #define NS_USE_ALL
 
 #ifdef NS_USE_ALL
-#define NS_USE_TASKS
 #define NS_USE_INTERPOLATOR
-#define NS_USE_AUDIO
-#define NS_USE_ANIMS
-#define NS_USE_EVENTPROCESSOR
 #endif
 
-#include "Assets.h"
 #include "InputManager.h"
 #include "TextureManager.h"
 #include "Window.h"
-#include "Error.h"
-#include "SpriteManager.h"
 #include "DrawFuncs.h"
 #include "Camera2D.h"
 #include "Camera3D.h"
-#include "SpriteBatch.h"
 #include "Timing.h"
-#include "vertex.h"
-#include "GraphicsLayer.h"
-#include "LayerRenderer.h"
-#include "EventProcessor.h"
-
-#ifdef NS_USE_TASKS
-#include "taskSchedule.h"
-#endif
-
-#ifdef NS_USE_AUDIO
-//#include "AudioEngine.h"
-#endif
-
-#ifdef NS_USE_ANIMS
-#ifndef NS_USE_INTERPOLATOR
-#define NS_USE_INTERPOLATOR
-#endif
-#include "AnmManager.h"
-#endif
 
 #ifdef NS_USE_INTERPOLATOR
 #include "Interpolator.h"
 #endif
-
-#include "StringUtil.h"
 
 #ifndef NSENGINE_INCLUDED_H
 #define NSENGINE_INCLUDED_H
@@ -67,14 +38,14 @@ namespace NSEngine {
             static SDL_Window* window;
             static SDL_GLContext context;
             static Window* NSWindow;
-            static std::vector<GraphicsLayer*> layers;
-            static int targetLayer;
+            static std::vector<SpriteBatch> layers;
+            static size_t targetLayer;
             static int gameWidth;
             static int gameHeight;
             static float displayRatio;
             static int displaymode;
             static int debugLayer;
-            static std::vector<EventProcessor*> eventProcessors;
+            static std::vector<IEventProcessor*> eventProcessors;
     };
 
    /**
@@ -180,26 +151,12 @@ namespace NSEngine {
    /**
     * Adds a new graphics layer
     */
-    extern int addGameLayer(graphicsLayerType type, bool depthTest = false, bool is_static = false, int blendmode = 0);
+    extern int addGameLayer(bool depthTest = false, bool is_static = false);
 
    /**
     * Sets the graphics layer to draw to
     */
-    extern void draw_set_layer(int layerID);
-
-#ifdef NS_USE_TASKS
-
-   /**
-    * Schedule the execution of fp in frame frames.
-    */
-    extern void ScheduleTask(int frame, std::function<void(void)> fp, int cancel = -1, bool updateOnPause = false);
-
-   /**
-    * Cancel all tasks with cancel id cancel
-    */
-    extern void CancelTask(int cancel);
-
-#endif
+    extern void draw_set_layer(size_t layerID);
 
    /**
     * Starts the current game frame

@@ -1,6 +1,5 @@
 #include "Window.h"
 #include "Error.h"
-#include "GraphicsLayer.h"
 #include "NSEngine.h"
 #include <glm/fwd.hpp>
 
@@ -19,19 +18,19 @@ namespace NSEngine {
 
         addDisplayMode({width, height, (flag & SDL_WINDOW_FULLSCREEN) != 0});
 
-        engineData::window = SDL_CreateWindow(name, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, windowFlags);
-        if (engineData::window == nullptr) fatalError("Failed to create window");
+        engineData::window = m_window = SDL_CreateWindow(name, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, windowFlags);
+        if (m_window == nullptr) fatalError("Failed to create window");
 
-        engineData::context = SDL_GL_CreateContext(engineData::window);
-        if (engineData::context == nullptr) fatalError("Failed to create GL context");
+        engineData::context = m_context = SDL_GL_CreateContext(engineData::window);
+        if (m_context == nullptr) fatalError("Failed to create GL context");
 
         GLenum Error = glewInit();
         if (Error != GLEW_OK) fatalError("Failed to initialize GLEW");
 
-        glClearColor(0.f, 0.f, 0.f, 1.f);
-
+        SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
         SDL_GL_SetSwapInterval(1);
 
+        glClearColor(0.f, 0.f, 0.f, 1.f);
         glEnable(GL_MULTISAMPLE);
         
         baseShader = new AnimShader();
@@ -52,7 +51,7 @@ namespace NSEngine {
         return modes.size()-1;
     }
 
-    void Window::setDisplayMode(int modeID)
+    void Window::setDisplayMode(size_t modeID)
     {
         if (modeID >= modes.size()) {
             error("Invalid display mode", modeID);
@@ -64,6 +63,7 @@ namespace NSEngine {
         if (modes[modeID].fullscreen) SDL_SetWindowFullscreen(engineData::window, windowFlags | SDL_WINDOW_FULLSCREEN);
         else SDL_SetWindowFullscreen(engineData::window, windowFlags);
         engineData::displaymode = modeID;
+        // change vars ?
     }
     void Window::nextDisplaymode()
     {
@@ -83,10 +83,7 @@ namespace NSEngine {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         }
 
-        for (auto l : engineData::layers)
-        {
-            if (l->type != GLT_TILES) l->getBatch()->begin();
-        }
+        for (auto& l : engineData::layers) l.begin();
     }
 
     
@@ -105,24 +102,24 @@ namespace NSEngine {
             func(this);
             return;
         }
-        for (auto l : engineData::layers)
+        for (auto& l : engineData::layers)
         {
             float mi=1000000.f, ma=1000000.f;
             glm::vec4 col = {0,0,0,0};
-            if (l->type != GLT_TILES) l->getBatch()->end();
-            if (l->is_static)
+            l.end();
+            if (l.is_static)
             {
                 baseShader->SetProjectionMatrix(glm::mat4(1.f));
                 baseShader->SetViewMatrix(cam3dexists?activeCamera3D()->getCamStatic():glm::mat4(1.f));
             }
             else
             {
-                baseShader->SetProjectionMatrix(cam3dexists?activeCamera3D()->getProjection(l->is_static, l->type == GLT_GUI):glm::mat4(1.f));
-                baseShader->SetViewMatrix(cam3dexists?activeCamera3D()->getView(l->is_static, l->type == GLT_GUI):glm::mat4(1.f));
+                baseShader->SetProjectionMatrix(cam3dexists?activeCamera3D()->getProjection(l.is_static):glm::mat4(1.f));
+                baseShader->SetViewMatrix(cam3dexists?activeCamera3D()->getView(l.is_static):glm::mat4(1.f));
             }
-            if (engineData::cam3d!=nullptr && !l->is_static && l->type != GLT_GUI) col = engineData::cam3d->getFog(mi,ma);
+            if (engineData::cam3d!=nullptr && !l.is_static) col = engineData::cam3d->getFog(mi,ma);
             baseShader->SetFog(mi, ma, col);
-            l->render();
+            l.renderBatch();
         }
         toggleCulling(true);
         
@@ -130,6 +127,7 @@ namespace NSEngine {
         TextureManager::ResetTexture();
         glDisable(GL_BLEND);
 
+        SDL_GL_SwapWindow(m_window);
     }
 
     void Window::BindAsRenderTarget()

@@ -1,8 +1,6 @@
 #include "Camera3D.h"
 #include "InputManager.h"
-#include "SDL2/SDL.h"
-#include "math/math.h"
-#include "NSEngine.h"
+#include <SDL2/SDL.h>
 #include "Interpolator.h"
 
 #define tempNormalize3 glm::vec3 temp = glm::normalize(glm::vec3(x, y, z));
@@ -160,7 +158,7 @@ namespace NSEngine {
                 debugLookat = glm::vec3(cos(pitch) * sin(yaw), sin(pitch), cos(pitch) * cos(yaw));
                 glm::vec3 debugUp = glm::vec3(0,1,0);
                 glm::vec3 debugRight = glm::normalize(glm::cross(debugLookat, debugUp));
-                glm::vec3 debugForward = glm::normalize(glm::cross(debugUp, debugRight));
+                //glm::vec3 debugForward = glm::normalize(glm::cross(debugUp, debugRight));
                 dbgx += keyHoriz * cos(yaw) + keyVerti * sin(yaw);
                 dbgz += -keyHoriz * sin(yaw) + keyVerti * cos(yaw);
                 dbgy += moveSpeed * Inputs::Keyboard().Axis(NSK_lshift, NSK_space);
@@ -228,15 +226,13 @@ namespace NSEngine {
         return cameraMatrix;
     }
 
-    glm::mat4 Camera3D::getView(bool is_static, bool is_gui) const
+    glm::mat4 Camera3D::getView(bool is_static) const
     {
-        if (is_gui) return glm::mat4(1.f);
         return is_static ? viewMatrixS : viewMatrix;
     }
 
-    glm::mat4 Camera3D::getProjection(bool is_static, bool is_gui) const
+    glm::mat4 Camera3D::getProjection(bool is_static) const
     {
-        if (is_gui) return glm::translate(orthoMatrix, glm::vec3((float)scr_w / 2.f, (float)scr_h / 2.f, 0));
         return is_static ? perspS : persp;
     }
 

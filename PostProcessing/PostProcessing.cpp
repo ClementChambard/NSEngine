@@ -5,7 +5,8 @@ namespace NSEngine {
     float PostProcessing::POSITIONS[] = {
         -1, 1, -1, -1, 1, 1, 1, -1
     };
-    NS3D::RawModel* PostProcessing::quad;
+    GLuint PostProcessing::vboID = 0;
+    GLuint PostProcessing::vaoID = 0;
     std::vector<PPEffect*> PostProcessing::effectsQueue;
 
 }

@@ -34,7 +34,7 @@ namespace NSEngine {
     void ImageLoader::textureParameters(GLTexture tex, std::vector<GLenum> params, std::vector<GLint> options)
     {
         glBindTexture(GL_TEXTURE_2D, tex.id);
-        for (unsigned int i = 0; i < params.size(); i++)
+        for (size_t i = 0; i < params.size(); i++)
         {
             glTexParameteri(GL_TEXTURE_2D, params[i], options[i]);
         }

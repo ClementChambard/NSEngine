@@ -1,9 +1,5 @@
 #include "Timing.h"
-#include "Assets.h"
-#include "GraphicsLayer.h"
-#include "NSEngine.h"
-#include "SpriteFont.h"
-#include "SpriteManager.h"
+#include "Error.h"
 
 #include <iostream>
 #include <string>
@@ -30,16 +26,17 @@ namespace NSEngine {
         return (int) (1000 / frameTime);
     }
 
+    void FpsLimiter::setMaxFps(int maxfps)
+    {
+        maxFPS = maxfps;
+        info("max FPS set to", maxfps);
+    }
+
     void FpsLimiter::DrawFPS()
     {
-        //if (!(engineData::gameflags & 0b00000010)) return;
-        //draw_set_layer(2);
-        //draw_set_halign(fa_left);
-        //draw_set_valign(fa_top);
-        //draw_text(gameassets::fnt_base, ("FPS:" + std::to_string(currentFps)).c_str(), -engineData::gameWidth/2, engineData::gameHeight/2);
-        //draw_text(gameassets::fnt_small, ("(" + std::to_string(currentTexSwap) + ")").c_str(), -engineData::gameWidth/2 + 80, engineData::gameHeight/2);
         currentTexSwap = 0;
     }
+
     float FpsLimiter::GetFPS()
     {
         return currentFps;
@@ -54,13 +51,12 @@ namespace NSEngine {
 
         if (currentFrame == 0)
         {
-            float tim = 0, rtim = 0;
+            float tim = 0;
             for (int i = 0; i < NUM_SAMPLES; i++) tim += frameTimes[i];
             tim /= NUM_SAMPLES;
             std::to_string(tim);
             if (tim!=0)
             currentFps = 1000.f / tim;
-            //std::cout << "FPS : " << FPS << std::endl;
         }
         currentFrame = (currentFrame+1) % NUM_SAMPLES;
 

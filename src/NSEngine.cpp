@@ -1,12 +1,4 @@
 #include "NSEngine.h"
-#include "Camera2D.h"
-#include "Error.h"
-#include "GraphicsLayer.h"
-#include "InputManager.h"
-#include "SpriteBatch.h"
-#include "Timing.h"
-#include "vertex.h"
-#include "LoadingScreen.h"
 #include <cmath>
 #include <glm/fwd.hpp>
 
@@ -20,13 +12,13 @@ namespace NSEngine {
     SDL_GLContext engineData::context;
     SDL_Window* engineData::window;
     SDL_Event engineData::event;
-    std::vector<GraphicsLayer*> engineData::layers;
-    int engineData::targetLayer = 0;
+    std::vector<SpriteBatch> engineData::layers;
+    size_t engineData::targetLayer = 0;
     int engineData::gameHeight, engineData::gameWidth;
     float engineData::displayRatio = 1;
     int engineData::displaymode = 0;
     int engineData::debugLayer;
-    std::vector<EventProcessor*> engineData::eventProcessors;
+    std::vector<IEventProcessor*> engineData::eventProcessors;
 
     void Init()
     {
@@ -34,61 +26,30 @@ namespace NSEngine {
 
         SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
         engineData::gameflags = 0b00000001;
+        engineData::fps = new FpsLimiter();
+        TextureManager::RegisterTexture("assets/engine/textures/defaultTexture.png");
 
         info("NSEngine Initialized !");
     }
 
-    void Subsystems()
-    {
-        gameassets::Init();
-
-        info("Assets loaded !");
-        #ifdef NS_USE_AUDIO
-//            AudioEngine::Init();
-        #endif
-        #ifdef NS_USE_ANIMS
-            AnmManager::Init(8192);
-        #endif
-        engineData::fps = new FpsLimiter();
-
-        taskSchedule::Init(2000);
-
-        info("Subsystems Initialized !");
-
-    }
-
-    void DOALLTESTS()
-    {
-        STRINGUTILTESTS();
-    }
+    void Subsystems() {}
 
     void EndInit()
     {
         engineData::debugLayer = engineData::layers.size();
-        engineData::layers.push_back(new GraphicsLayer(GLT_GUI,engineData::debugLayer));
-        engineData::layers[engineData::debugLayer]->is_static = true;
-        DOALLTESTS();
+        addGameLayer(false, true);
     }
 
     void Quit()
     {
-        #ifdef NS_USE_AUDIO
-            AudioEngine::Clean();
-        #endif
         engineData::gameflags &= 0b11111110;
-        for (auto l : engineData::layers) delete l;
         engineData::layers.clear();
-        if (engineData::cam2d != nullptr) delete engineData::cam2d; engineData::cam2d = nullptr;
-        if (engineData::cam3d != nullptr) delete engineData::cam3d; engineData::cam3d = nullptr;
+        if (engineData::cam2d != nullptr) delete engineData::cam2d;
+        engineData::cam2d = nullptr;
+        if (engineData::cam3d != nullptr) delete engineData::cam3d;
+        engineData::cam3d = nullptr;
         delete engineData::fps;
         engineData::window = nullptr;
-        #ifdef NS_USE_TASKS
-            taskSchedule::Clean();
-        #endif
-        SpriteManager::cleanUp();
-        #ifdef NS_USE_ANIMS
-        AnmManager::Cleanup();
-        #endif
         //other cleanup
         SDL_Quit();
         info("Quit engine");
@@ -107,7 +68,6 @@ namespace NSEngine {
     void setMaxFps(int fps)
     {
         engineData::fps->setMaxFps(fps);
-        info("max FPS set to", fps);
     }
 
     void toggleDebugInfo()
@@ -216,41 +176,25 @@ namespace NSEngine {
         if (engineData::cam3d != nullptr) engineData::cam3d->setWH(w,h,(float)w/(float)engineData::gameWidth);
     }
 
-    int addGameLayer(graphicsLayerType type, bool depthTest, bool is_static, int blendmode)
+    int addGameLayer(bool depthTest, bool is_static)
     {
         int id = engineData::layers.size();
-        GraphicsLayer* l = new GraphicsLayer(type, id);
-        l->is_static = is_static;
-        l->depthTest = depthTest;
-        l->blendmode = blendmode;
-        engineData::layers.push_back(l);
-        info("added new graphics layer", id, "of type", std::to_string(type) + std::to_string(l->is_static) + std::to_string(l->depthTest) + std::to_string(l->blendmode));
+        engineData::layers.emplace_back();
+        engineData::layers.back().is_static = is_static;
+        engineData::layers.back().depthTest = depthTest;
+        info("added new graphics layer", id, "of type", std::to_string(is_static) + std::to_string(depthTest));
         return id;
     }
 
-    void draw_set_layer(int layerID)
+    void draw_set_layer(size_t layerID)
     {
-        if (layerID >= engineData::layers.size() || layerID < -1)
+        if (layerID >= engineData::layers.size())
         {
             error("no such graphics layer");
             return;
         }
         engineData::targetLayer = layerID;
     }
-
-#ifdef NS_USE_TASKS
-
-    void ScheduleTask(int frame, std::function<void(void)> fp, int cancel, bool updateOnPause)
-    {
-        taskSchedule::newTask(frame, fp, cancel, updateOnPause);
-    }
-
-    void CancelTask(int cancel)
-    {
-        taskSchedule::cancel(cancel);
-    }
-
-#endif
 
     void StartFrame()
     {
@@ -269,7 +213,7 @@ namespace NSEngine {
                 default:
                     break;
             }
-            InputManager::CheckEvents();
+            InputManager::CheckEvents(engineData::event);
 
             bool noMouse = false;
             bool noKeyboard = false;
@@ -286,47 +230,20 @@ namespace NSEngine {
 
     void EndFrame()
     {
-        SDL_GL_SwapWindow(engineData::window);
         engineData::fps->end();
         #ifdef NS_USE_INTERPOLATOR
             InterpolateManager::Update_All();
         #endif
     }
 
-    void StartUpdate()
-    {
-        #ifdef NS_USE_TASKS
-            taskSchedule::Update();
-        #endif
-    }
-
-    void UpdateEngine(float framespeed)
-    {
-        #ifdef NS_USE_AUDIO
-            AudioEngine::Update();
-        #endif
-        #ifdef NS_USE_ROOMGUIOLD
-            engineData::rooms->UpdateRoom(framespeed);
-            engineData::guis->UpdateGui(framespeed);
-        #endif
-    }
+    void StartUpdate() {}
+    void UpdateEngine(float /*framespeed*/) {}
+    void RenderEngine() {}
 
     void EndUpdate()
     {
         if (activeCamera() != nullptr) activeCamera()->Update();
         if (activeCamera3D() != nullptr) activeCamera3D()->Update(engineData::gameflags & 0b00010000);
-    }
-
-    void RenderEngine()
-    {
-        #ifdef NS_USE_ROOMGUIOLD
-            engineData::rooms->DrawRoom();
-            engineData::guis->DrawGui();
-        #endif
-        #ifdef NS_USE_ANIMS
-            AnmManager::Update(1,engineData::gameflags & 0b10000000);
-            AnmManager::Draw();
-        #endif
     }
 
     void moveCameraTo(glm::vec3 position)

@@ -6,6 +6,8 @@ set(CMAKE_BUILD_TYPE "Debug")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(PROJECT_URL "https://github.com/ClementChambard/NSEngine")
 
+add_compile_options(-Wall -Wextra -Werror)
+
 project(NSEngine VERSION 1.0)
 
 file(GLOB_RECURSE SRCS    src/*.cpp src/*.c)

@@ -11,7 +11,12 @@ namespace NSEngine {
 
             FrameBuffer(unsigned int width, unsigned int height, type db);
             FrameBuffer(unsigned int width, unsigned int height);
+            FrameBuffer(FrameBuffer const& fb);
+            FrameBuffer(FrameBuffer&& fb);
             ~FrameBuffer();
+
+            FrameBuffer& operator=(FrameBuffer const& fb);
+            FrameBuffer& operator=(FrameBuffer&& fb);
 
             void bind();
             void unbind();
@@ -21,23 +26,24 @@ namespace NSEngine {
 
             void resize(unsigned int width, unsigned int height);
 
-            GLuint getColorTexture() const { return colorTextureID; }
-            GLuint getDepthTexture() const { return depthTextureID; }
+            GLuint getColorTexture() const { return m_colorTextureID; }
+            GLuint getDepthTexture() const { return m_depthTextureID; }
 
-            unsigned int getWidth () const { return width ; }
-            unsigned int getHeight() const { return height; }
+            unsigned int getWidth () const { return m_width ; }
+            unsigned int getHeight() const { return m_height; }
 
         private:
-            unsigned int width;
-            unsigned int height;
+            unsigned int m_width;
+            unsigned int m_height;
 
-            GLuint frameBufferID = 0;
-            GLuint colorTextureID = 0;
-            GLuint depthTextureID = 0;
-            GLuint depthBufferID = 0;
-            GLuint colorBufferID = 0;
+            GLuint m_frameBufferID = 0;
+            GLuint m_colorTextureID = 0;
+            GLuint m_depthTextureID = 0;
+            GLuint m_depthBufferID = 0;
+            GLuint m_colorBufferID = 0;
 
-            bool multisample = false;
+            type m_type;
+            bool m_multisample = false;
 
             void initialiseFrameBuffer(type dbType);
             void createFrameBuffer();

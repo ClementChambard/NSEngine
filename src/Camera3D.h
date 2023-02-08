@@ -4,8 +4,7 @@
 #include <glm/glm.hpp>
 #include <glm/fwd.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include "vertex.h"
-#include "math/math.h"
+#include "color.h"
 
 #define NS_CAM_3D 1
 
@@ -45,8 +44,8 @@ namespace NSEngine {
             glm::vec3 getClearColor() const;
             glm::vec4 getFog(float& min, float& max) const;
             glm::mat4 getCam() const;
-            glm::mat4 getView(bool is_static = false, bool is_gui = false) const;
-            glm::mat4 getProjection(bool is_static = false, bool is_gui = false) const;
+            glm::mat4 getView(bool is_static = false) const;
+            glm::mat4 getProjection(bool is_static = false) const;
             glm::mat4 getCamStatic() const;
             glm::mat4 getCamGui() const;
 

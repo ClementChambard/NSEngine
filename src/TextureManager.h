@@ -2,8 +2,8 @@
 #define TEXTUREMANAGER
 
 #include "ImageLoader.h"
-#include "vertex.h"
 #include <vector>
+#include <glm/glm.hpp>
 
 namespace NSEngine {
 
@@ -19,9 +19,9 @@ namespace NSEngine {
             static void GetTextureSize(int i, int &w, int &h);
             static GLuint GetTextureID(int i);
             static GLTexture* GetTexture(int i);
-            static UV GetUVAt(int i, int x, int y);
+            static glm::vec2 GetUVAt(int i, int x, int y);
             static int CreateSurface(int x, int y, float ratio = 1);
-            static void SetSurfaceTarget(int i, int x1 = -1, int y1 = -1, int x2 = -1, int y2 = -1);
+            static void SetSurfaceTarget(size_t i, int x1 = -1, int y1 = -1, int x2 = -1, int y2 = -1);
             static GLuint GetSurfaceTexID(int i);
         private:
             static std::vector<GLTexture> textures;

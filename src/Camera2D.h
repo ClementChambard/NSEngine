@@ -35,10 +35,10 @@ namespace NSEngine {
             bool needs_changes = true;
             float scale = 1.f;
             float scaleto = scale;
-            glm::vec3 position;
-            glm::vec3 positionto = position;
-            glm::mat4 orthoMatrix;
-            glm::mat4 cameraMatrix;
+            glm::vec3 position{};
+            glm::vec3 positionto{};
+            glm::mat4 orthoMatrix{};
+            glm::mat4 cameraMatrix{};
 
     };
 

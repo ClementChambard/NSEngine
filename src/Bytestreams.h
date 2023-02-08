@@ -170,6 +170,12 @@ namespace NSEngine {
         insertBytestreamBytes(bs, result.in, 8);
     }
 
+    template<typename T>
+    Bytestream& operator<<(Bytestream& l, T const& r) {
+        insertBytestream(l, r);
+        return l;
+    }
+
     /** reads an uint8_t at offset o in Bytestream bs */
     inline uint8_t getUint8(Bytestream const& bs, Offset o)
     {

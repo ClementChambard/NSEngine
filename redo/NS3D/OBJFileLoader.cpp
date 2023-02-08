@@ -4,6 +4,28 @@
 #include "../Error.h"
 #include "../StringUtil.h"
 
+bool stringBeginWith(std::string s, std::string pattern)
+{
+    if (pattern.size() > s.size()) return false;
+    for (int i = 0; i < pattern.size(); i++)
+        if (pattern[i] != s[i]) return false;
+    return true;
+}
+
+std::vector<std::string> stringSplit(std::string s, const char sep = ' ')
+{
+    int pos1 = 0;
+    int pos2 = 0;
+    std::vector<std::string> strs;
+    while (pos1 < s.size())
+    {
+        for (pos2 = pos1; s[pos2] != sep && pos2 < s.size(); pos2++);
+        strs.push_back(s.substr(pos1, pos2-pos1));
+        pos1 = pos2+1;
+    }
+    return strs;
+}
+
 namespace NS3D {
 
 

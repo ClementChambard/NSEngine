@@ -22,7 +22,7 @@ namespace NSEngine {
 
     class InputManager {
         public:
-            static void CheckEvents();
+            static void CheckEvents(SDL_Event& event);
             static void UpdateKeys();
             static bool KeyUp(unsigned int key);
             static bool KeyDown(unsigned int key);
@@ -35,14 +35,13 @@ namespace NSEngine {
 
         private:
             static std::unordered_map<unsigned int, keydata> keyMap;
-            static std::vector<keydata*> toUpdate;
-            class _EventProcessor : public EventProcessor {
+            class EventProcessor : public IEventProcessor {
                 public: void ProcessEvent(SDL_Event* e, bool& noKeyboard, bool& noMouse) override;
                 friend class InputManager;
             };
             static bool usingProcessor;
-            static _EventProcessor* processor;
-            friend class _EventProcessor;
+            static EventProcessor processor;
+            friend class EventProcessor;
     };
 
     struct KeyboardStruct {
@@ -62,7 +61,7 @@ namespace NSEngine {
         void Show() const { SDL_ShowCursor(SDL_TRUE); }
         void SetPos(int x, int y);
         void SetPos(const glm::vec2& p) { SetPos(p.x, p.y); }
-        void SetCursor(int i);
+        void SetCursor(size_t i);
         bool IsOffScreen();
         glm::vec2 pos;
         glm::vec2 guiPos;
