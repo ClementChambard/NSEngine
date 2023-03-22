@@ -24,5 +24,8 @@ namespace NS3D {
     };
 
 }
+bool stringBeginWith(std::string s, std::string pattern);
+
+std::vector<std::string> stringSplit(std::string s, const char sep = ' ');
 
 #endif

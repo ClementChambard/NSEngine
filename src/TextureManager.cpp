@@ -1,5 +1,6 @@
 #include "TextureManager.h"
 #include "NSEngine.h"
+#include "Engine.hpp"
 
 #include <iostream>
 
@@ -9,9 +10,9 @@ namespace NSEngine {
 
     std::vector<GLTexture> TextureManager::textures;
     std::vector<GLSurface> TextureManager::surfaces;
-    int TextureManager::currentTexture = 0;
+    size_t TextureManager::currentTexture = 0;
 
-    int TextureManager::RegisterTexture(const char* name, const char* name2, const char* name3, const char* name4)
+    size_t TextureManager::RegisterTexture(const char* name, const char* name2, const char* name3, const char* name4)
     {
      //   for (int i = 0; i < textures.size(); i++) if (textures[i].name == name) return i;
         if (textures.size() == 0)
@@ -23,7 +24,7 @@ namespace NSEngine {
         return textures.size() -1;
     }
 
-    GLTexture* TextureManager::GetTexture(int i) { return &textures[i]; }
+    GLTexture* TextureManager::GetTexture(size_t i) { return &textures[i]; }
 
     void TextureManager::SetBlendmode(int blendmode)
     {
@@ -71,7 +72,6 @@ namespace NSEngine {
                 break;
             case 10:
                 glBlendEquation(GL_FUNC_SUBTRACT);
-                //
                 glBlendFunc(GL_SRC_ALPHA,GL_ONE);
                 break;
             default:
@@ -80,19 +80,19 @@ namespace NSEngine {
         }
     }
 
-    void TextureManager::UseTexture(int i)
+    void TextureManager::UseTexture(size_t i)
     {
+        if (i == 0 || i >= textures.size()) return;
+        int displaymode = getInstance()->window().getDisplayMode();
         if (currentTexture != i) {
-            if (engineData::displaymode == 3 && textures[i].id4!=0)
+            if (displaymode == 3 && textures[i].id4!=0)
                 glBindTexture(GL_TEXTURE_2D, textures[i].id4);
-            else if (engineData::displaymode == 2 && textures[i].id3!=0)
+            else if (displaymode == 2 && textures[i].id3!=0)
                 glBindTexture(GL_TEXTURE_2D, textures[i].id3);
-            else if (engineData::displaymode == 1 && textures[i].id2!=0)
+            else if (displaymode == 1 && textures[i].id2!=0)
                 glBindTexture(GL_TEXTURE_2D, textures[i].id2);
             else
                 glBindTexture(GL_TEXTURE_2D, textures[i].id);
-
-            engineData::fps->currentTexSwap++;
         }
     }
 
@@ -101,29 +101,29 @@ namespace NSEngine {
         if (currentTexture != 0) glBindTexture(GL_TEXTURE_2D, 0);
     }
 
-    int TextureManager::AddTexture(GLuint texID, int w, int h)
+    size_t TextureManager::AddTexture(GLuint texID, int w, int h)
     {
         textures.push_back({texID, w, h, 0, 0, 0, "____UNKNOWN_NAME____"});
         return textures.size() -1;
     }
 
-    void TextureManager::GetTextureSize(int i, int &w, int &h)
+    void TextureManager::GetTextureSize(size_t i, int &w, int &h)
     {
         w = textures[i].width;
         h = textures[i].height;
     }
 
-    GLuint TextureManager::GetTextureID(int i)
+    GLuint TextureManager::GetTextureID(size_t i)
     {
         return textures[i].id;
     }
 
-    glm::vec2 TextureManager::GetUVAt(int i, int x, int y)
+    glm::vec2 TextureManager::GetUVAt(size_t i, int x, int y)
     {
         return {(float)x / (float)textures[i].width, (float)y / (float)textures[i].height};
     }
 
-    int TextureManager::CreateSurface(int x, int y, float ratio)
+    size_t TextureManager::CreateSurface(int x, int y, float ratio)
     {
         int r = surfaces.size();
         GLuint fb = 0; glGenFramebuffers(1,&fb);
@@ -157,7 +157,7 @@ namespace NSEngine {
         setCamBoundaries(x2-x1,y2-y1);
     }
 
-    GLuint TextureManager::GetSurfaceTexID(int i)
+    GLuint TextureManager::GetSurfaceTexID(size_t i)
     {
         return surfaces[i].surf;
     }

@@ -28,12 +28,12 @@ namespace NS3D {
             Vertex* getDuplicate() const { return duplicateVertex; }
 
         private:
+            int index;
             glm::vec3 position;
+            float length;
             int textureIndex = NO_INDEX;
             int normalIndex = NO_INDEX;
             Vertex* duplicateVertex = nullptr;
-            int index;
-            float length;
     };
 
 }

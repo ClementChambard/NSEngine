@@ -68,20 +68,21 @@ namespace NSEngine {
              */
             void BindAsRenderTarget();
 
-            auto getWindowData() const { struct {int flags; int width; int height;} r = {windowFlags, windowWidth, windowHeight}; return r; }
+            auto getWindowData() const { struct {int flags; int width; int height; int bwidth; int bheight;} r = {windowFlags, windowWidth, windowHeight, baseWindowWidth, baseWindowHeight}; return r; }
 
             AnimShader* getBaseShader() const { return baseShader; }
-
             SDL_Window* getSdlWindow() const { return m_window; }
-
             SDL_GLContext getSdlGlContext() const { return m_context; }
+            int getDisplayMode() const { return displayMode; }
 
         private:
+            int displayMode = 0;
             std::vector<NS_DisplayMode> modes;
-            int windowFlags, windowWidth, windowHeight;
-            AnimShader* baseShader;
-            SDL_Window* m_window;
-            SDL_GLContext m_context;
+            int windowFlags = 0, baseWindowWidth = 0, baseWindowHeight = 0;
+            int windowWidth = 0, windowHeight = 0;
+            AnimShader* baseShader = nullptr;
+            SDL_Window* m_window = nullptr;
+            SDL_GLContext m_context = nullptr;
     };
 
 

@@ -14,10 +14,10 @@ namespace NS3D {
             Object3D(TexturedModel* m, const glm::vec3& p, const glm::vec3& r, const glm::vec3& s) :
                 model(m), position(p), rotation(r), scale(s) {}
             Object3D(TexturedModel* m, const int i, const glm::vec3& p, const glm::vec3& r, const glm::vec3& s) :
-                model(m), textureIndex(i), position(p), rotation(r), scale(s) {}
+                model(m), position(p), rotation(r), scale(s), textureIndex(i) {}
 
             float getTextureXOffset() const { return (float)(textureIndex%model->getModelTexture()->getNumberOfRows())/(float)model->getModelTexture()->getNumberOfRows();}
-            float getTextureYOffset() const { return (float)(textureIndex/model->getModelTexture()->getNumberOfRows())/(float)model->getModelTexture()->getNumberOfRows();}
+            float getTextureYOffset() const { return (float)((float)textureIndex/model->getModelTexture()->getNumberOfRows())/(float)model->getModelTexture()->getNumberOfRows();}
 
             TexturedModel* getModel() const { return model; }
             glm::vec3 getPosition() const { return position; }

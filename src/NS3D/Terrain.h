@@ -33,9 +33,9 @@ namespace NS3D {
             float getHeight(int x, int y, unsigned char* buff, int w, int h, int nr_channels);
             glm::vec3 calcNormal(int x, int y, unsigned char* buff, int w, int h, int nr_channels);
 
+            TerrainTexture* texture;
             float x, z;
             RawModel* model;
-            TerrainTexture* texture;
             GLuint blendMapTexID;
     };
 

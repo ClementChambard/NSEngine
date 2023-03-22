@@ -27,9 +27,17 @@ namespace NSEngine {
             float mi=1000000.f, ma=1000000.f;
             glm::vec4 col = {0,0,0,0};
             l->end();
-            shader->SetProjectionMatrix(cam3dexists?activeCamera3D()->getProjection(l->is_static):glm::mat4(1.f));
-            shader->SetViewMatrix(cam3dexists?activeCamera3D()->getView(l->is_static):glm::mat4(1.f));
-            if (activeCamera3D() != nullptr && !l->is_static) col = engineData::cam3d->getFog(mi,ma);
+            if (l->is_static)
+            {
+                shader->SetProjectionMatrix(glm::mat4(1.f));
+                shader->SetViewMatrix(cam3dexists?activeCamera3D()->getCamStatic():glm::mat4(1.f));
+            }
+            else
+            {
+                shader->SetProjectionMatrix(cam3dexists?activeCamera3D()->getProjection(l->is_static):glm::mat4(1.f));
+                shader->SetViewMatrix(cam3dexists?activeCamera3D()->getView(l->is_static):glm::mat4(1.f));
+            }
+            if (engineData::cam3d!=nullptr && !l->is_static) col = engineData::cam3d->getFog(mi,ma);
             shader->SetFog(mi, ma, col);
             l->renderBatch();
         }

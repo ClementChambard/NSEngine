@@ -101,6 +101,12 @@ namespace NSEngine {
         createRenderBatches(staticdraw);
     }
 
+    void SpriteBatch::clear() {
+        renderBatches.clear();
+        glyphs.clear();
+        glyphsptr.clear();
+    }
+
     void SpriteBatch::draw(GLuint texture, Vertex tl, Vertex tr, Vertex br, Vertex bl, int blendmode, bool is3d) 
     {
         glyphs.emplace_back(texture, tl, tr, br, bl, blendmode, is3d);

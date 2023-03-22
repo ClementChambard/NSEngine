@@ -68,7 +68,7 @@ namespace NSEngine {
         glm::vec2 posDiff;
         bool scrollUp = false;
         bool scrollDown = false;
-        std::vector<SDL_Cursor*> cursors;
+        static std::vector<SDL_Cursor*> cursors;
     };
 
     struct GamepadStruct {

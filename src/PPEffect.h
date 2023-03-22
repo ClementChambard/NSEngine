@@ -8,7 +8,8 @@ namespace NSEngine {
 
     class PPEffect {
         public:
-            virtual void render(GLuint texture) {}
+            virtual ~PPEffect() {}
+            virtual void render(GLuint) {}
             virtual GLuint getOutputTexture() { return 0; }
 
             virtual void cleanup() {}

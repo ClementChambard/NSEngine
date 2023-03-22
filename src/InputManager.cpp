@@ -1,5 +1,6 @@
 #include "InputManager.h"
 #include "NSEngine.h"
+#include "Engine.hpp"
 #include <vector>
 
 namespace NSEngine {
@@ -88,9 +89,11 @@ namespace NSEngine {
         if (e->type == SDL_MOUSEMOTION)
         {
             if (capture_mouse) return;
+            auto windata = getInstance()->window().getWindowData();
+            float displayRatio = windata.width/(float)windata.bwidth;
             glm::vec2 newpos = {
-                (int)(e->motion.x*engineData::displayRatio) - engineData::gameWidth/2,
-                (int)(-e->motion.y*engineData::displayRatio) + engineData::gameHeight/2
+                (int)(e->motion.x*displayRatio) - windata.bwidth/2,
+                (int)(-e->motion.y*displayRatio) + windata.bheight/2
             };
             mouse.posDiff = newpos - mouse.guiPos;
             mouse.guiPos = newpos;
@@ -141,18 +144,24 @@ namespace NSEngine {
 
     void MouseStruct::SetPos(int x, int y)
     {
-        SDL_WarpMouseInWindow(engineData::window, (int)((int)(x+engineData::gameWidth/2)/engineData::displayRatio), (int)((int)(-y+engineData::gameHeight/2)/engineData::displayRatio));
+        auto windata = getInstance()->window().getWindowData();
+        float displayRatio = windata.width/(float)windata.bwidth;
+        SDL_WarpMouseInWindow(getInstance()->window().getSdlWindow(), (int)((int)(x+windata.bwidth/2)/displayRatio), (int)((int)(-y+windata.bheight/2)/displayRatio));
     }
 
     bool MouseStruct::IsOffScreen()
     {
-        return abs(guiPos.x) >= (int)(engineData::gameWidth/2) || abs(guiPos.y) >= (int)(engineData::gameHeight/2);
+        auto windata = getInstance()->window().getWindowData();
+        return abs(guiPos.x) >= (int)(windata.bwidth/2) || abs(guiPos.y) >= (int)(windata.bheight/2);
     }
 
+    std::vector<SDL_Cursor*> MouseStruct::cursors;
     void MouseStruct::SetCursor(size_t i)
     {
-        if (cursors.empty())
+        static bool ok = false;
+        if (!ok)
         {
+            ok = true;
             cursors.push_back(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW));
             cursors.push_back(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_IBEAM));
             cursors.push_back(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_WAIT));

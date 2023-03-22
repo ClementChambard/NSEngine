@@ -1,5 +1,6 @@
 #include "Interpolator.h"
 #include "NSEngine.h"
+#include "Engine.hpp"
 
 namespace NSEngine {
 
@@ -9,7 +10,7 @@ bool InterpolateManager::delcurrent = false;
 
 bool GameIsPaused()
 {
-    return engineData::gameflags&0b10000000;
+    return getInstance()->flags().val&0b10000000;
 }
 
 void InterpolateManager::DeleteCurrent()

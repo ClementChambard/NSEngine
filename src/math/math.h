@@ -150,9 +150,16 @@ namespace math {
     extern float segment_distance_y(glm::vec2 a1, glm::vec2 a2, glm::vec2 b1, glm::vec2 b2,bool min);
 
     extern float point_distance_sq(float x1, float y1, float x2, float y2);
+    extern float point_distance_sq(float x1, float y1, float z1, float x2, float y2, float z2);
     extern float point_distance(float x1, float y1, float x2, float y2);
-
+    extern float point_distance(float x1, float y1, float z1, float x2, float y2, float z2);
     extern float point_direction(float x1, float y1, float x2, float y2);
+
+    inline float point_distance_sq(glm::vec2 const& p1, glm::vec2 const& p2) { return point_distance_sq(p1.x, p1.y, p2.x, p2.y); }
+    inline float point_distance(glm::vec2 const& p1, glm::vec2 const& p2) { return point_distance(p1.x, p1.y, p2.x, p2.y); }
+    inline float point_distance_sq(glm::vec3 const& p1, glm::vec3 const& p2) { return point_distance_sq(p1.x, p1.y, p1.z, p2.x, p2.y, p2.z); }
+    inline float point_distance(glm::vec3 const& p1, glm::vec3 const& p2) { return point_distance(p1.x, p1.y, p1.z, p2.x, p2.y, p2.z); }
+    inline float point_direction(glm::vec2 const& p1, glm::vec2 const& p2) { return point_direction(p1.x, p1.y, p2.x, p2.y); }
 
     extern float lengthdir_x(float length, float direction);
     extern float lengthdir_y(float length, float direction);

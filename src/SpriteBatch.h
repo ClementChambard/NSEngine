@@ -68,6 +68,7 @@ namespace NSEngine {
 
             void begin();
             void end(bool staticdraw = false);
+            void clear();
 
             void draw(GLuint texture, Vertex tl, Vertex tr, Vertex br, Vertex bl, int blendmode = 0, bool is3d = false);
 

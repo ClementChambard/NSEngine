@@ -103,9 +103,13 @@ namespace NSEngine {
      */
     extern void draw_rectangle(float x1, float y1, float x2, float y2, bool outline = false);
     extern void draw_rectangle_color(float x1, float y1, float x2, float y2, Color ctl, Color ctr, Color cbr, Color cbl, bool outline = false);
+    extern void draw_rectangle_rotated(float cx, float cy, float w, float h, float rotation, bool outline = false);
+    extern void draw_rectangle_rotated_color(float cx, float cy, float w, float h, float rotation, Color ctl, Color ctr, Color cbr, Color cbl, bool outline = false);
 
     extern void batch_draw_rectangle(SpriteBatch* batch, float x1, float y1, float x2, float y2, bool outline = false);
     extern void batch_draw_rectangle_color(SpriteBatch* batch, float x1, float y1, float x2, float y2, Color ctl, Color ctr, Color cbr, Color cbl, bool outline = false);
+    extern void batch_draw_rectangle_rotated(SpriteBatch* batch, float cx, float cy, float w, float h, float rotation, bool outline = false);
+    extern void batch_draw_rectangle_rotated_color(SpriteBatch* batch, float cx, float cy, float w, float h, float rotation, Color ctl, Color ctr, Color cbr, Color cbl, bool outline = false);
 
     /** draw_quad[color,2d](pos1, pos2, pos3, pos4 [colors], outline)
      *

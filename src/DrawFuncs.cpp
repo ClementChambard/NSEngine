@@ -14,7 +14,7 @@ namespace NSEngine {
     int defaultBlendMode = 0;
 
     //void draw_game_sprite(int sprite_index, int x, int y, float xs, float ys, float rot, Color ctl, Color ctr, Color cbr, Color cbl)
-    //{ batch_draw_game_sprite(&engineData::layers[engineData::targetLayer], sprite_index, x, y, xs, ys, rot, ctl, ctr, cbr, cbl); }
+    //{ batch_draw_game_sprite(getTargetLayer(), sprite_index, x, y, xs, ys, rot, ctl, ctr, cbr, cbl); }
 //
     //void batch_draw_game_sprite(SpriteBatch* batch, int sprite_index, int x, int y, float xs, float ys, float rot, Color ctl, Color ctr, Color cbr, Color cbl)
     //{
@@ -105,7 +105,7 @@ namespace NSEngine {
     }
 
     void draw_line(int x1, int y1, int x2, int y2, int width)
-    { batch_draw_line(&engineData::layers[engineData::targetLayer], x1, y1, x2, y2, width); }
+    { batch_draw_line(getTargetLayer(), x1, y1, x2, y2, width); }
 
     void batch_draw_line(SpriteBatch* batch, int x1, int y1, int x2, int y2, int width)
     {
@@ -120,7 +120,7 @@ namespace NSEngine {
     }
 
     void draw_line_color(int x1, int y1, int x2, int y2, int width, Color c1, Color c2)
-    { batch_draw_line_color(&engineData::layers[engineData::targetLayer], x1, y1, x2, y2, width, c1, c2); }
+    { batch_draw_line_color(getTargetLayer(), x1, y1, x2, y2, width, c1, c2); }
 
     void batch_draw_line_color(SpriteBatch* batch, int x1, int y1, int x2, int y2, int width, Color c1, Color c2)
     {
@@ -135,13 +135,12 @@ namespace NSEngine {
     }
 
     void draw_rectangle(float x1, float y1, float x2, float y2, bool outline)
-    { batch_draw_rectangle(&engineData::layers[engineData::targetLayer], x1, y1, x2, y2, outline); }
+    { batch_draw_rectangle(getTargetLayer(), x1, y1, x2, y2, outline); }
 
     void batch_draw_rectangle(SpriteBatch* batch, float x1, float y1, float x2, float y2, bool outline)
     { batch_draw_rectangle_color(batch, x1, y1, x2, y2, defaultDrawColor, defaultDrawColor, defaultDrawColor, defaultDrawColor, outline); }
-
     void draw_rectangle_color(float x1, float y1, float x2, float y2, Color ctl, Color ctr, Color cbr, Color cbl, bool outline)
-    { batch_draw_rectangle_color(&engineData::layers[engineData::targetLayer], x1, y1, x2, y2, ctl, ctr, cbr, cbl, outline); }
+    { batch_draw_rectangle_color(getTargetLayer(), x1, y1, x2, y2, ctl, ctr, cbr, cbl, outline); }
 
     void batch_draw_rectangle_color(SpriteBatch* batch, float x1, float y1, float x2, float y2, Color ctl, Color ctr, Color cbr, Color cbl, bool outline)
     {
@@ -160,14 +159,34 @@ namespace NSEngine {
         batch->draw(1,tl,tr,br,bl,defaultBlendMode);
     }
 
+
+    void draw_rectangle_rotated(float cx, float cy, float w, float h, float rotation, bool outline)
+    { batch_draw_rectangle_rotated(getTargetLayer(), cx, cy, w,  h, rotation, outline); }
+
+    void batch_draw_rectangle_rotated(SpriteBatch* batch, float cx, float cy, float w, float h, float rotation, bool outline)
+    { batch_draw_rectangle_rotated_color(batch, cx, cy, w, h, rotation, defaultDrawColor, defaultDrawColor, defaultDrawColor, defaultDrawColor, outline); }
+
+    void draw_rectangle_rotated_color(float cx, float cy, float w, float h, float rotation, Color ctl, Color ctr, Color cbr, Color cbl, bool outline)
+    { batch_draw_rectangle_rotated_color(getTargetLayer(), cx, cy, w,  h, rotation, ctl, ctr, cbr, cbl, outline); }
+
+    void batch_draw_rectangle_rotated_color(SpriteBatch* batch, float cx, float cy, float w, float h, float rotation, Color ctl, Color ctr, Color cbr, Color cbl, bool outline)
+    {
+        glm::mat4 rot = glm::rotate(glm::mat4(1.f), rotation, {0,0,1});
+        glm::vec2 tl = glm::vec4(cx, cy, 0, 0) + (rot * glm::vec4(-w/2.f, h/2.f, 0, 0));
+        glm::vec2 tr = glm::vec4(cx, cy, 0, 0) + (rot * glm::vec4( w/2.f, h/2.f, 0, 0));
+        glm::vec2 br = glm::vec4(cx, cy, 0, 0) + (rot * glm::vec4( w/2.f,-h/2.f, 0, 0));
+        glm::vec2 bl = glm::vec4(cx, cy, 0, 0) + (rot * glm::vec4(-w/2.f,-h/2.f, 0, 0));
+        batch_draw_quad_color_2d(batch, tl, tr, br, bl, ctl, ctr, cbr, cbl, outline);
+    }
+
     void draw_quad(glm::vec3 tl, glm::vec3 tr, glm::vec3 br, glm::vec3 bl, bool outline)
-    { batch_draw_quad(&engineData::layers[engineData::targetLayer], tl, tr, br, bl, outline); }
+    { batch_draw_quad(getTargetLayer(), tl, tr, br, bl, outline); }
 
     void batch_draw_quad(SpriteBatch* batch, glm::vec3 tl, glm::vec3 tr, glm::vec3 br, glm::vec3 bl, bool outline)
     { batch_draw_quad_color(batch, tl, tr, br, bl, defaultDrawColor, defaultDrawColor, defaultDrawColor, defaultDrawColor, outline); }
 
     void draw_quad_color(glm::vec3 tl, glm::vec3 tr, glm::vec3 br, glm::vec3 bl, Color ctl, Color ctr, Color cbr, Color cbl, bool outline)
-    { batch_draw_quad_color(&engineData::layers[engineData::targetLayer], tl, tr, br, bl, ctl, ctr, cbr, cbl, outline); }
+    { batch_draw_quad_color(getTargetLayer(), tl, tr, br, bl, ctl, ctr, cbr, cbl, outline); }
 
     void batch_draw_quad_color(SpriteBatch* batch, glm::vec3 tl, glm::vec3 tr, glm::vec3 br, glm::vec3 bl, Color ctl, Color ctr, Color cbr, Color cbl, bool outline)
     {
@@ -187,13 +206,13 @@ namespace NSEngine {
     }
 
     void draw_quad_2d(glm::vec2 tl, glm::vec2 tr, glm::vec2 br, glm::vec2 bl, bool outline)
-    { batch_draw_quad_2d(&engineData::layers[engineData::targetLayer], tl, tr, br, bl, outline); }
+    { batch_draw_quad_2d(getTargetLayer(), tl, tr, br, bl, outline); }
 
     void batch_draw_quad_2d(SpriteBatch* batch, glm::vec2 tl, glm::vec2 tr, glm::vec2 br, glm::vec2 bl, bool outline)
     { batch_draw_quad_color_2d(batch, tl, tr, br, bl, defaultDrawColor, defaultDrawColor, defaultDrawColor, defaultDrawColor, outline); }
 
     void draw_quad_color_2d(glm::vec2 tl, glm::vec2 tr, glm::vec2 br, glm::vec2 bl, Color ctl, Color ctr, Color cbr, Color cbl, bool outline)
-    { batch_draw_quad_color_2d(&engineData::layers[engineData::targetLayer], tl, tr, br, bl, ctl, ctr, cbr, cbl, outline); }
+    { batch_draw_quad_color_2d(getTargetLayer(), tl, tr, br, bl, ctl, ctr, cbr, cbl, outline); }
 
     void batch_draw_quad_color_2d(SpriteBatch* batch, glm::vec2 tl, glm::vec2 tr, glm::vec2 br, glm::vec2 bl, Color ctl, Color ctr, Color cbr, Color cbl, bool outline)
     {
@@ -213,7 +232,7 @@ namespace NSEngine {
     }
 
     void draw_quad_tex_2d(GLuint texID, glm::vec4 tl, glm::vec4 tr, glm::vec4 br, glm::vec4 bl, bool outline)
-    { batch_draw_quad_tex_2d(&engineData::layers[engineData::targetLayer], texID, tl, tr, br, bl, outline); }
+    { batch_draw_quad_tex_2d(getTargetLayer(), texID, tl, tr, br, bl, outline); }
 
     void batch_draw_quad_tex_2d(SpriteBatch* batch, GLuint texID, glm::vec4 tl, glm::vec4 tr, glm::vec4 br, glm::vec4 bl, bool)
     {
@@ -225,20 +244,20 @@ namespace NSEngine {
     }
 
     void draw_triangle(glm::vec3 t1, glm::vec3 t2, glm::vec3 t3, bool outline)
-    { batch_draw_triangle(&engineData::layers[engineData::targetLayer], t1, t2, t3, outline); }
+    { batch_draw_triangle(getTargetLayer(), t1, t2, t3, outline); }
 
     void batch_draw_triangle(SpriteBatch* batch, glm::vec3 t1, glm::vec3 t2, glm::vec3 t3, bool outline)
     { batch_draw_triangle_color(batch, t1, t2, t3, defaultDrawColor, defaultDrawColor, defaultDrawColor, outline); }
 
     void draw_triangle_color(glm::vec3 t1, glm::vec3 t2, glm::vec3 t3, Color ct1, Color ct2, Color ct3, bool outline)
-    { batch_draw_triangle_color(&engineData::layers[engineData::targetLayer], t1, t2, t3, ct1, ct2, ct3, outline); }
+    { batch_draw_triangle_color(getTargetLayer(), t1, t2, t3, ct1, ct2, ct3, outline); }
 
     void batch_draw_triangle_color(SpriteBatch* batch, glm::vec3 t1, glm::vec3 t2, glm::vec3 t3, Color ct1, Color ct2, Color ct3, bool outline)
     { batch_draw_quad_color(batch, t1,t1,t2,t3,ct1,ct1,ct2,ct3,outline); }
 
 
     void draw_AA_box(glm::vec3 p1, glm::vec3 p2, Color c, bool outline, bool shade)
-    { batch_draw_AA_box(&engineData::layers[engineData::targetLayer], p1, p2, c, outline, shade); }
+    { batch_draw_AA_box(getTargetLayer(), p1, p2, c, outline, shade); }
 
     void batch_draw_AA_box(SpriteBatch* batch, glm::vec3 p1, glm::vec3 p2, Color c, bool outline, bool shade)
     {
@@ -279,13 +298,13 @@ namespace NSEngine {
     }
 
     void draw_circle(int x, int y, float r, bool outline)
-    { batch_draw_circle(&engineData::layers[engineData::targetLayer], x, y, r, outline); }
+    { batch_draw_circle(getTargetLayer(), x, y, r, outline); }
 
     void batch_draw_circle(SpriteBatch* batch, int x, int y, float r, bool outline)
     { batch_draw_circle_color(batch, x, y, r, defaultDrawColor, defaultDrawColor, outline); }
 
     void draw_circle_color(int x, int y, float r, Color c_in, Color c_out, bool outline)
-    { batch_draw_circle_color(&engineData::layers[engineData::targetLayer], x, y, r, c_in, c_out, outline); }
+    { batch_draw_circle_color(getTargetLayer(), x, y, r, c_in, c_out, outline); }
 
     void batch_draw_circle_color(SpriteBatch* batch, int x, int y, float r, Color c_in, Color c_out, bool outline)
     {
@@ -309,13 +328,13 @@ namespace NSEngine {
     }
 
     void draw_circle_arc(int x, int y, float r1, float r2, float a1, float a2)
-    { batch_draw_circle_arc(&engineData::layers[engineData::targetLayer], x, y, r1, r2, a1, a2); }
+    { batch_draw_circle_arc(getTargetLayer(), x, y, r1, r2, a1, a2); }
 
     void batch_draw_circle_arc(SpriteBatch* batch, int x, int y, float r1, float r2, float a1, float a2)
     { batch_draw_circle_arc_color(batch, x, y, r1, r2, a1, a2, defaultDrawColor, defaultDrawColor); }
 
     void draw_circle_arc_color(int x, int y, float r1, float r2, float a1, float a2, Color c_in, Color c_out)
-    { batch_draw_circle_arc_color(&engineData::layers[engineData::targetLayer], x, y, r1, r2, a1, a2, c_in, c_out); }
+    { batch_draw_circle_arc_color(getTargetLayer(), x, y, r1, r2, a1, a2, c_in, c_out); }
 
     void batch_draw_circle_arc_color(SpriteBatch* batch, int x, int y, float r1, float r2, float a1, float a2, Color c_in, Color c_out)
     {
@@ -333,7 +352,7 @@ namespace NSEngine {
 
     //assumes the texture is vertically repeatable
     void draw_circle_arc_textured(int x, int y, float r1, float r2, float a1, float a2, int texID, float u1, float u2, int repetitions)
-    { batch_draw_circle_arc_textured(&engineData::layers[engineData::targetLayer], x, y, r1, r2, a1, a2, texID, u1, u2, repetitions); }
+    { batch_draw_circle_arc_textured(getTargetLayer(), x, y, r1, r2, a1, a2, texID, u1, u2, repetitions); }
 
     void batch_draw_circle_arc_textured(SpriteBatch* batch, int x, int y, float r1, float r2, float a1, float a2, int texID, float u1, float u2, int repetitions)
     {
@@ -360,14 +379,14 @@ namespace NSEngine {
     glm::vec3 getCylPos(float r, float h, float a)
     {
         glm::vec3 pos;
-        pos.z = h;
         pos.x = r * cos(a);
-        pos.y = r * sin(a);
+        pos.y = h;
+        pos.z = r * sin(a);
         return pos;
     }
 
     void draw_cylinder(glm::vec3 pos, glm::vec3 rot, float r, float h, float a1, float a2, int texID, float u1, float u2, int repetitions)
-    { batch_draw_cylinder(&engineData::layers[engineData::targetLayer], pos, rot, r, h, a1, a2, texID, u1, u2, repetitions); }
+    { batch_draw_cylinder(getTargetLayer(), pos, rot, r, h, a1, a2, texID, u1, u2, repetitions); }
 
     void batch_draw_cylinder(SpriteBatch* batch, glm::vec3 pos, glm::vec3 rot, float r, float h, float a1, float a2, int texID, float u1, float u2, int repetitions)
     {
@@ -390,13 +409,13 @@ namespace NSEngine {
         for (double a = a1; a < a2; a += circleStep)
         {
             float aa2 = fmin(a2,a+circleStep);
-            v0.position = pos4 + rotation * glm::vec4(getCylPos(r, -h/2.f, a),0);
+            v0.position = pos4 + rotation * glm::vec4(getCylPos(r, -h/2.f, a),1);
             v0.uv.y = i * vStep;
-            v1.position = pos4 + rotation * glm::vec4(getCylPos(r, h/2.f, a),0);
+            v1.position = pos4 + rotation * glm::vec4(getCylPos(r, h/2.f, a),1);
             v1.uv.y = i * vStep;
-            v2.position = pos4 + rotation * glm::vec4(getCylPos(r, h/2.f, aa2),0);
+            v2.position = pos4 + rotation * glm::vec4(getCylPos(r, h/2.f, aa2),1);
             v2.uv.y = (i+1) * vStep;
-            v3.position = pos4 + rotation * glm::vec4(getCylPos(r, -h/2.f, aa2),0);
+            v3.position = pos4 + rotation * glm::vec4(getCylPos(r, -h/2.f, aa2),1);
             v3.uv.y = (i+1) * vStep;
             batch->draw(texID,v0,v1,v2,v3,defaultBlendMode);
             i++;
@@ -405,7 +424,7 @@ namespace NSEngine {
 
     void draw_surface(int i, float x1, float y1, float x2, float y2, SpriteBatch* b, int bm)
     {
-        if (b == nullptr) b = &engineData::layers[engineData::targetLayer];
+        if (b == nullptr) b = getTargetLayer();
         b->draw(TextureManager::GetSurfaceTexID(i),
                 {{x1,y1,0}, defaultDrawColor, {0,1}},
                 {{x2,y1,0}, defaultDrawColor, {1,1}},
@@ -415,13 +434,13 @@ namespace NSEngine {
     }
 
     void draw_line_3d(float x1, float y1, float z1, float x2, float y2, float z2, float width)
-    { batch_draw_line_3d(&engineData::layers[engineData::targetLayer], x1, y1, z1, x2, y2, z2, width); }
+    { batch_draw_line_3d(getTargetLayer(), x1, y1, z1, x2, y2, z2, width); }
 
     void batch_draw_line_3d(SpriteBatch* batch, float x1, float y1, float z1, float x2, float y2, float z2, float width)
     { batch_draw_line_color_3d(batch, x1, y1, z1, x2, y2, z2, width, defaultDrawColor, defaultDrawColor); }
 
     void draw_line_color_3d(float x1, float y1, float z1, float x2, float y2, float z2, float width, Color c1, Color c2)
-    { batch_draw_line_color_3d(&engineData::layers[engineData::targetLayer], x1, y1, z1, x2, y2, z2, width, c1, c2); }
+    { batch_draw_line_color_3d(getTargetLayer(), x1, y1, z1, x2, y2, z2, width, c1, c2); }
 
     void batch_draw_line_color_3d(SpriteBatch* batch, float x1, float y1, float z1, float x2, float y2, float z2, float width, Color c1, Color c2)
     {
@@ -432,7 +451,7 @@ namespace NSEngine {
     }
 
     void draw_billboard(glm::vec3 pos, glm::vec2 size, int texID, glm::vec4 uvs, Color tl, Color tr, Color br, Color bl)
-    { batch_draw_billboard(&engineData::layers[engineData::targetLayer], pos, size, texID, uvs, tl, tr, br, bl); }
+    { batch_draw_billboard(getTargetLayer(), pos, size, texID, uvs, tl, tr, br, bl); }
 
     void batch_draw_billboard(SpriteBatch* batch, glm::vec3 pos, glm::vec2 size, int texID, glm::vec4 uvs, Color tl, Color tr, Color br, Color bl)
     {
@@ -451,7 +470,7 @@ namespace NSEngine {
     }
 
     void draw_billboard_axis(glm::vec3 pos, glm::vec3 axis, glm::vec2 size, int texID, glm::vec4 uvs, Color tl, Color tr, Color br, Color bl)
-    { batch_draw_billboard_axis(&engineData::layers[engineData::targetLayer], pos, axis, size, texID, uvs, tl, tr, br, bl); }
+    { batch_draw_billboard_axis(getTargetLayer(), pos, axis, size, texID, uvs, tl, tr, br, bl); }
 
     void batch_draw_billboard_axis(SpriteBatch* batch, glm::vec3 pos, glm::vec3 axis, glm::vec2 size, int texID, glm::vec4 uvs, Color tl, Color tr, Color br, Color bl)
     {

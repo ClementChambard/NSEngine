@@ -2,6 +2,7 @@
 #include "Error.h"
 #include "NSEngine.h"
 #include <glm/fwd.hpp>
+#include "Engine.hpp"
 
 namespace NSEngine {
 
@@ -11,17 +12,16 @@ namespace NSEngine {
 
     void Window::Init(const char* name, int width, int height, int flag)
     {
-        engineData::NSWindow = this;
-        engineData::gameWidth = windowWidth = width;
-        engineData::gameHeight = windowHeight = height;
+        baseWindowWidth = windowWidth = width;
+        baseWindowHeight = windowHeight = height;
         windowFlags = flag | SDL_WINDOW_OPENGL;
 
         addDisplayMode({width, height, (flag & SDL_WINDOW_FULLSCREEN) != 0});
 
-        engineData::window = m_window = SDL_CreateWindow(name, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, windowFlags);
+        m_window = SDL_CreateWindow(name, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, windowFlags);
         if (m_window == nullptr) fatalError("Failed to create window");
 
-        engineData::context = m_context = SDL_GL_CreateContext(engineData::window);
+        m_context = SDL_GL_CreateContext(m_window);
         if (m_context == nullptr) fatalError("Failed to create GL context");
 
         GLenum Error = glewInit();
@@ -41,8 +41,8 @@ namespace NSEngine {
 
     void Window::destroy() 
     {
-        SDL_GL_DeleteContext(engineData::context);
-        SDL_DestroyWindow(engineData::window);
+        SDL_GL_DeleteContext(m_context);
+        SDL_DestroyWindow(m_window);
     }
 
     int Window::addDisplayMode(NS_DisplayMode mode)
@@ -57,18 +57,17 @@ namespace NSEngine {
             error("Invalid display mode", modeID);
             return;
         }
-        SDL_SetWindowSize(engineData::window, modes[modeID].width, modes[modeID].height);
-        engineData::displayRatio = (float)engineData::gameWidth/(float)modes[modeID].width;
+        SDL_SetWindowSize(m_window, modes[modeID].width, modes[modeID].height);
+        windowWidth = modes[modeID].width;
+        windowHeight = modes[modeID].height;
         glViewport(0,0,modes[modeID].width, modes[modeID].height);
-        if (modes[modeID].fullscreen) SDL_SetWindowFullscreen(engineData::window, windowFlags | SDL_WINDOW_FULLSCREEN);
-        else SDL_SetWindowFullscreen(engineData::window, windowFlags);
-        engineData::displaymode = modeID;
-        // change vars ?
+        if (modes[modeID].fullscreen) SDL_SetWindowFullscreen(m_window, windowFlags | SDL_WINDOW_FULLSCREEN);
+        else SDL_SetWindowFullscreen(m_window, windowFlags);
+        displayMode = modeID;
     }
     void Window::nextDisplaymode()
     {
-        static int m = 0;
-        m = (m+1)%modes.size();
+        int m = (displayMode+1)%modes.size();
         setDisplayMode(m);
     }
 
@@ -78,7 +77,7 @@ namespace NSEngine {
         {
             glm::vec3 c = activeCamera3D()->getClearColor();
             glClearColor(c.r, c.g, c.b, 1.f);
-            if (engineData::gameflags & 4) glClearColor(0.5f, 0.5f, 0.5f, 1.f);
+            if (getInstance()->flags().flags.wireframe) glClearColor(0.5f, 0.5f, 0.5f, 1.f);
             glClearDepth(1.0);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         }
@@ -95,11 +94,19 @@ namespace NSEngine {
         baseShader->SetCameraPosition(cam3dexists?activeCamera3D()->getPosition():glm::vec3(0,0,0));
         glActiveTexture(GL_TEXTURE0);
         toggleCulling(false);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        if (getInstance()->flags().flags.wireframe) {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        } else {
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        }
+
+
         if (func != nullptr)
         {
             func(this);
+            SDL_GL_SwapWindow(m_window);
             return;
         }
         for (auto& l : engineData::layers)
@@ -127,14 +134,17 @@ namespace NSEngine {
         TextureManager::ResetTexture();
         glDisable(GL_BLEND);
 
-        SDL_GL_SwapWindow(m_window);
+        if (getInstance()->flags().flags.wireframe) {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        }
+
     }
 
     void Window::BindAsRenderTarget()
     {
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-        glViewport(0,0,windowWidth/engineData::displayRatio,windowHeight/engineData::displayRatio);
-        setCamBoundaries(windowWidth,windowHeight);
+        glViewport(0,0,windowWidth,windowHeight);
+        setCamBoundaries(baseWindowWidth,baseWindowHeight);
     }
 
 }

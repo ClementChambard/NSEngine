@@ -25,7 +25,7 @@ namespace NS3D {
         location_offset           = getUniformLocation("offset"          );
         location_clipPlane        = getUniformLocation("clipPlane"       );
 
-        for (int i = 0; i < MAX_LIGHTS; i++)
+        for (size_t i = 0; i < MAX_LIGHTS; i++)
         {
             location_lightPosition[i] = getUniformLocation("lightPosition["+std::to_string(i)+"]");
             location_lightColor[i]    = getUniformLocation("lightColor["+std::to_string(i)+"]"   );
@@ -47,7 +47,7 @@ namespace NS3D {
     }
     void StaticShader::SetLights(const std::vector<const Light*>& lights)
     {
-        for (int i = 0; i < MAX_LIGHTS; i++)
+        for (size_t i = 0; i < MAX_LIGHTS; i++)
         {
             if (i < lights.size())
             {

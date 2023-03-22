@@ -2,20 +2,19 @@
 
 #include "../FileOpener.h"
 #include "../Error.h"
-#include "../StringUtil.h"
 
 bool stringBeginWith(std::string s, std::string pattern)
 {
     if (pattern.size() > s.size()) return false;
-    for (int i = 0; i < pattern.size(); i++)
+    for (size_t i = 0; i < pattern.size(); i++)
         if (pattern[i] != s[i]) return false;
     return true;
 }
 
-std::vector<std::string> stringSplit(std::string s, const char sep = ' ')
+std::vector<std::string> stringSplit(std::string s, const char sep)
 {
-    int pos1 = 0;
-    int pos2 = 0;
+    size_t pos1 = 0;
+    size_t pos2 = 0;
     std::vector<std::string> strs;
     while (pos1 < s.size())
     {
@@ -102,7 +101,7 @@ namespace NS3D {
     unsigned int* OBJFileLoader::convertIndicesToArray(std::vector<unsigned int> indices, unsigned int& nb)
     {
         unsigned int* ar = new unsigned int[indices.size()];
-        for (unsigned int i = 0; i < indices.size(); i++)
+        for (size_t i = 0; i < indices.size(); i++)
             ar[i] = indices[i];
         nb = indices.size();
         return ar;
@@ -111,7 +110,7 @@ namespace NS3D {
     float OBJFileLoader::convertDataToArrays(std::vector<Vertex*> vertices, std::vector<glm::vec2> tex, std::vector<glm::vec3> nor, float* vertAr, float* texAr, float* norAr)
     {
         float furthestPoint = 0;
-        for (int i = 0; i < vertices.size(); i++)
+        for (size_t i = 0; i < vertices.size(); i++)
         {
             Vertex* currentVertex = vertices[i];
             if (currentVertex->getLength() > furthestPoint)

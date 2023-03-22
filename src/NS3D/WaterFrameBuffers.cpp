@@ -1,5 +1,5 @@
 #include "WaterFrameBuffers.h"
-#include "../NSEngine.h"
+#include "../Engine.hpp"
 
 namespace NS3D { 
 
@@ -35,7 +35,7 @@ namespace NS3D {
     void WaterFrameBuffers::unbindCurrentFrameBuffer()
     {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        glViewport(0, 0, NSEngine::engineData::gameWidth, NSEngine::engineData::gameHeight);
+        glViewport(0, 0, NSEngine::getInstance()->window().getWindowData().bwidth, NSEngine::getInstance()->window().getWindowData().bheight);
     }
 
 }

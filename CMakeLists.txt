@@ -6,7 +6,7 @@ set(CMAKE_BUILD_TYPE "Debug")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(PROJECT_URL "https://github.com/ClementChambard/NSEngine")
 
-add_compile_options(-Wall -Wextra -Werror)
+add_compile_options(-Wall -Wextra -Werror -O4)
 
 project(NSEngine VERSION 1.0)
 
@@ -24,8 +24,6 @@ target_link_libraries(NSEngine PUBLIC
                        -lSDL2
                        -lSDL2_image
                        -lSDL2_ttf
-                       -lopenal
-                       -lsndfile
                        -pthread
                      )
 

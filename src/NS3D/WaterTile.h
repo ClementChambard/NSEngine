@@ -17,9 +17,9 @@ namespace NS3D {
             WaterTile* setSize(float xscale, float zscale) { w = xscale; h = zscale; return this; }
 
         private:
-            float y;
             float cX;
             float cZ;
+            float y;
             float w = 60;
             float h = 60;
     };

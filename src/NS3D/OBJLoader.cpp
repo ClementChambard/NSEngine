@@ -2,7 +2,7 @@
 #include "Loader3D.h"
 #include "../Error.h"
 #include "../FileOpener.h"
-#include "../StringUtil.h"
+#include "OBJFileLoader.h"
 
 namespace NS3D {
 
@@ -58,7 +58,7 @@ namespace NS3D {
             }
         }
 
-        for (int i = 0; i < vertexPositions.size(); i++)
+        for (size_t i = 0; i < vertexPositions.size(); i++)
         {
             positions[i*3    ] = vertexPositions[i].x;
             positions[i*3 + 1] = vertexPositions[i].y;
@@ -66,7 +66,7 @@ namespace NS3D {
         }
 
         unsigned int* indicesAr = new unsigned int[indices.size()];
-        for (int i = 0; i < indices.size(); i++) indicesAr[i] = indices[i];
+        for (size_t i = 0; i < indices.size(); i++) indicesAr[i] = indices[i];
 
         return Loader3D::loadToVAO(positions, vertexPositions.size()*3,
                                    texcoords, vertexPositions.size()*2,

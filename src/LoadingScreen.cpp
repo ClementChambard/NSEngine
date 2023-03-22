@@ -1,5 +1,6 @@
 #include "LoadingScreen.h"
 #include "NSEngine.h"
+#include "Engine.hpp"
 #include <SDL2/SDL_image.h>
 
 namespace NSEngine {
@@ -20,7 +21,8 @@ namespace NSEngine {
 
     void blackLoadScreen(std::atomic_bool& run, std::atomic_bool& done)
     {
-        SDL_Renderer* sdlrenderer = SDL_CreateRenderer(NSEngine::engineData::window, -1, 0);
+        auto w = getInstance()->window().getSdlWindow();
+        SDL_Renderer* sdlrenderer = SDL_CreateRenderer(w, -1, 0);
         SDL_SetRenderDrawColor(sdlrenderer, 0, 0, 0, 255);
         SDL_RenderClear(sdlrenderer);
         SDL_RenderPresent(sdlrenderer);
@@ -34,7 +36,8 @@ namespace NSEngine {
     void nsLoadScreen(std::atomic_bool& run, std::atomic_bool& done)
     {
         IMG_Init(IMG_INIT_PNG);
-        SDL_Renderer* sdlrenderer = SDL_CreateRenderer(NSEngine::engineData::window, -1, 0);
+        auto w = getInstance()->window().getSdlWindow();
+        SDL_Renderer* sdlrenderer = SDL_CreateRenderer(w, -1, 0);
         SDL_Surface* surf = IMG_Load("assets/engine/textures/TeamNano.png");
         SDL_Texture* tex = SDL_CreateTextureFromSurface(sdlrenderer, surf);
         SDL_Rect dest;

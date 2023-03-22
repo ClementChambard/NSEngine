@@ -1,5 +1,6 @@
 #include "FrameBuffer.h"
 #include "NSEngine.h"
+#include "Engine.hpp"
 
 namespace NSEngine {
 
@@ -96,8 +97,9 @@ namespace NSEngine {
 
     void FrameBuffer::unbind()
     {
+        auto windata = getInstance()->window().getWindowData();
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        glViewport(0, 0, NSEngine::engineData::gameWidth, NSEngine::engineData::gameHeight);
+        glViewport(0, 0, windata.bwidth, windata.bheight);
     }
 
     void FrameBuffer::resolveToFBO(FrameBuffer* fbo)
@@ -114,7 +116,8 @@ namespace NSEngine {
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
         glBindFramebuffer(GL_READ_FRAMEBUFFER, m_frameBufferID);
         glDrawBuffer(GL_BACK);
-        glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, engineData::gameWidth, engineData::gameHeight,
+        auto windata = getInstance()->window().getWindowData();
+        glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, windata.bwidth, windata.bheight,
                 GL_COLOR_BUFFER_BIT, GL_NEAREST);
         this->unbind();
     }

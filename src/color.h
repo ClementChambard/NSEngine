@@ -3,6 +3,7 @@
 
 #include <glm/glm.hpp>
 #include <GL/glew.h>
+#include <iostream>
 
 namespace NSEngine {
 
@@ -58,7 +59,27 @@ namespace NSEngine {
     inline ColorRGB operator+=(ColorRGB &c1, ColorRGB c2) { return (c1 = ColorRGB(c1.r+c2.r,c1.g+c2.g,c1.b+c2.b)); }
     inline ColorRGB operator*(float f, ColorRGB c2) { return ColorRGB((uint8_t)(f*(float)c2.r),(uint8_t)(f*(float)c2.g),(uint8_t)(f*(float)c2.b)); }
     inline ColorRGB operator*(ColorRGB f, ColorRGB c2) { return ColorRGB((uint8_t)((float)f.r*(float)c2.r),(uint8_t)((float)f.g*(float)c2.g),(uint8_t)((float)f.b*(float)c2.b)); }
+    inline std::ostream& operator<<(std::ostream& l, Color const& c) {
+        return l << "{r:" << (int)c.r << ",g:" << (int)c.g << ",b:" << (int)c.b << ",a:" << (int)c.a << "}";
+    }
 
+    inline Color mix(Color const& c1, Color const& c2) {
+        Color out;
+        int tmp;
+        tmp = c1.r * c2.r / 255;
+        if (tmp > 255) out.r = 255;
+        else           out.r = tmp;
+        tmp = c1.g * c2.g / 255;
+        if (tmp > 255) out.g = 255;
+        else           out.g = tmp;
+        tmp = c1.b * c2.b / 255;
+        if (tmp > 255) out.b = 255;
+        else           out.b = tmp;
+        tmp = c1.a * c2.a / 255;
+        if (tmp > 255) out.a = 255;
+        else           out.a = tmp;
+        return out;
+    }
 
     #define c_white NSEngine::Color(255,255,255,255)
     #define c_black NSEngine::Color(0,0,0,255)

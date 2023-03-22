@@ -3,6 +3,7 @@
 
 #include "PPEffect.h"
 #include "NSEngine.h"
+#include "Engine.hpp"
 
 namespace NSEngine { 
 
@@ -41,7 +42,7 @@ namespace NSEngine {
             }
 
             static void start() {
-                if (engineData::gameflags&0b00000100)
+                if (getInstance()->flags().flags.wireframe)
                     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
                 glBindVertexArray(vaoID);
                 glEnableVertexAttribArray(0);
@@ -52,7 +53,7 @@ namespace NSEngine {
                 glEnable(GL_DEPTH_TEST);
                 glDisableVertexAttribArray(0);
                 glBindVertexArray(0);
-                if (engineData::gameflags&0b00000100)
+                if (getInstance()->flags().flags.wireframe)
                     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
             }
 

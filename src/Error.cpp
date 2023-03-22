@@ -1,5 +1,6 @@
 #include "Error.h"
 #include "NSEngine.h"
+#include "Engine.hpp"
 #include <SDL2/SDL.h>
 #include <cstdlib>
 #include <string>
@@ -40,7 +41,12 @@ namespace NSEngine {
 
     void FatalErrorQuit()
     {
-        Quit();
+        getInstance()->on_destroy();
+        engineData::layers.clear();
+        if (engineData::cam2d != nullptr) delete engineData::cam2d;
+        engineData::cam2d = nullptr;
+        if (engineData::cam3d != nullptr) delete engineData::cam3d;
+        engineData::cam3d = nullptr;
         exit(EXIT_FAILURE);
     }
 }
