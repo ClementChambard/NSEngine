@@ -3,4 +3,5 @@
 *.log
 tmp/
 
+.cache/
 build/

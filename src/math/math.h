@@ -59,6 +59,13 @@ namespace math {
         else return var2;
     }
     template<typename T>
+    inline void swap(T& var1, T& var2)
+    {
+        T temp = var1;
+        var1 = var2;
+        var2 = temp;
+    }
+    template<typename T>
     inline T clamp(T var1, T var2, T var3)
     {
         if (var2 > var3) swap(var2,var3);

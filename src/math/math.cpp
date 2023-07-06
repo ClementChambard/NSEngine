@@ -2,14 +2,6 @@
 
 namespace math {
 
-    template<typename T>
-    void swap(T& var1, T& var2)
-    {
-        T temp = var1;
-        var1 = var2;
-        var2 = temp;
-    }
-
     float point_distance_to_segment(glm::vec2 s1, glm::vec2 s2, glm::vec2 p)
     {
         float tempt = (p.x-s1.x)*(s2.x-s1.x)+(p.y-s1.y)*(s2.y-s1.y);

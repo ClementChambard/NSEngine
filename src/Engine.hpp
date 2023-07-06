@@ -69,6 +69,8 @@ class IEngine {
         Window& window() { return m_window; }
 
         void setRenderFunc(void (*render_func)(Window*)) { this->render_func = render_func; }
+
+        float fps() const { return m_fps.GetFPS(); }
     private:
 
         void on_create_engine();

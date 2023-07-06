@@ -13,6 +13,8 @@ project(NSEngine VERSION 1.0)
 file(GLOB_RECURSE SRCS    src/*.cpp src/*.c)
 file(GLOB_RECURSE HEADERS src/*.h src/*.hpp)
 
+set(OpenGL_GL_PREFERENCE LEGACY)
+
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 

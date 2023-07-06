@@ -15,8 +15,8 @@ namespace NSEngine {
             void begin();
             float end();
 
-            void DrawFPS();
-            float GetFPS();
+            void DrawFPS() const;
+            float GetFPS() const;
 
             int currentTexSwap = 0;
 
