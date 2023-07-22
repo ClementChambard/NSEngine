@@ -41,6 +41,8 @@ namespace NSEngine {
 
     void Window::destroy() 
     {
+        delete baseShader;
+        baseShader = nullptr;
         SDL_GL_DeleteContext(m_context);
         SDL_DestroyWindow(m_window);
     }

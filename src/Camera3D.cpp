@@ -47,6 +47,14 @@ namespace NSEngine {
         if(debugprint)std::cout << "setPos(" << x << ", " << y << ", " << z << ");\n";
     }
 
+static bool donotupdatenextframe = false;
+    void Camera3D::setMat(glm::mat4 const& proj, glm::mat4 const& view) {
+        persp = proj;
+        viewMatrix = view;
+        cameraMatrix = persp * view;
+        donotupdatenextframe = true;
+    }
+
     void Camera3D::PositionTime(uint16_t time, uint8_t mode, float x, float y, float z)
     {
         ITP_ (&pos, pos, glm::vec3(x, y, z), mode, time, false);
@@ -144,6 +152,10 @@ namespace NSEngine {
 
     void Camera3D::Update(bool debugControl)
     {
+    if (donotupdatenextframe) {
+        donotupdatenextframe = false;
+        return;
+    }
         static bool isFirstFrame = true;
         if (debugControl)
         {

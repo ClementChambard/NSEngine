@@ -28,6 +28,7 @@ namespace NSEngine {
             void setFog(uint8_t r, uint8_t g, uint8_t b, uint8_t a, float min, float max);              //8
             void FogTime(uint16_t time, uint8_t mode, uint8_t r, uint8_t g, uint8_t b, uint8_t a, float min, float max); //9
             void UpTime(uint16_t time, uint8_t mode, float x, float y, float z);                 //18
+            void setMat(glm::mat4 const& proj, glm::mat4 const& view);
 
             void setWH(unsigned int w, unsigned int h, float factor = 1);
             void InvertY(float yy);
