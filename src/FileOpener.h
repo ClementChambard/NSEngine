@@ -15,6 +15,8 @@ namespace NSEngine {
             static bool Read(Bytestream& bs, std::string const& file);
             static bool Write(Bytestream const& bs, std::string const& file);
 
+
+            static bool readFileToBuffer(const std::string& filename, void* &data, int& size);
             static bool readFileToBuffer(const std::string& filename, std::vector<char>& buffer);
             static bool readFileToBuffer(const std::string& filename, std::vector<uint8_t>& buffer);
             static bool readFileToBuffer(const std::string& filename, std::string& buffer);

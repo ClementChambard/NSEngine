@@ -120,6 +120,10 @@ namespace math {
     {
         return glm::vec2(lengthdir_x(length, direction), lengthdir_y(length, direction));
     }
+    glm::vec3 lengthdir_vec3(float length, float direction)
+    {
+        return glm::vec3(lengthdir_x(length, direction), lengthdir_y(length, direction), 0);
+    }
 
     bool point_in_rectangle(float x, float y, float x1, float y1, float x2, float y2)
     {

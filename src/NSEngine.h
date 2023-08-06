@@ -33,6 +33,7 @@ namespace NSEngine {
             static Camera2D* cam2d;
             static Camera3D* cam3d;
             static std::vector<SpriteBatch> layers;
+            static int* layerDrawOrder;
             static size_t targetLayer;
             static int debugLayer;
             static std::vector<IEventProcessor*> eventProcessors;

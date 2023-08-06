@@ -8,6 +8,7 @@ namespace NSEngine {
     Camera2D* engineData::cam2d = nullptr;
     Camera3D* engineData::cam3d = nullptr;
     std::vector<SpriteBatch> engineData::layers;
+    int* engineData::layerDrawOrder = nullptr;
     size_t engineData::targetLayer = 0;
     int engineData::debugLayer;
     std::vector<IEventProcessor*> engineData::eventProcessors;

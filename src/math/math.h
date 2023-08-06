@@ -171,6 +171,7 @@ namespace math {
     extern float lengthdir_x(float length, float direction);
     extern float lengthdir_y(float length, float direction);
     extern glm::vec2 lengthdir_vec(float length, float direction);
+    extern glm::vec3 lengthdir_vec3(float length, float direction);
 
     extern bool point_in_rectangle(float x, float y, float x1, float y1, float x2, float y2);
     extern bool rectangle_intersect(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4, bool equal = false);

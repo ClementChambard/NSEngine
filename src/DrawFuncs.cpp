@@ -218,10 +218,10 @@ namespace NSEngine {
     {
         if (outline)
         {
-            draw_line_color(tl.x,tl.y,tr.x,tr.y,1,ctl,ctr);
-            draw_line_color(tl.x,tl.y,bl.x,bl.y,1,ctl,cbl);
-            draw_line_color(tr.x,tr.y,br.x,br.y,1,ctr,cbr);
-            draw_line_color(bl.x,bl.y,br.x,br.y,1,cbl,cbr);
+            batch_draw_line_color(batch,tl.x,tl.y,tr.x,tr.y,1,ctl,ctr);
+            batch_draw_line_color(batch,tl.x,tl.y,bl.x,bl.y,1,ctl,cbl);
+            batch_draw_line_color(batch,tr.x,tr.y,br.x,br.y,1,ctr,cbr);
+            batch_draw_line_color(batch,bl.x,bl.y,br.x,br.y,1,cbl,cbr);
             return;
         }
         Vertex vtl = {{tl, 0}, ctl, {0,0}};
@@ -390,22 +390,26 @@ namespace NSEngine {
 
     void batch_draw_cylinder(SpriteBatch* batch, glm::vec3 pos, glm::vec3 rot, float r, float h, float a1, float a2, int texID, float u1, float u2, int repetitions)
     {
+
         double circleStep = abs(a2-a1)/(float)circleverteces;
         float vStep = repetitions / (float)circleverteces;
         Vertex v0 = {{}, defaultDrawColor, {u1,0}}, v1 = {{}, defaultDrawColor, {u2,0}},
                v2 = {{}, defaultDrawColor, {u2,vStep}}, v3 = {{}, defaultDrawColor, {u1,vStep}};
         int i = 0;
         glm::vec4 pos4 = glm::vec4(pos, 0);
-        if (Inputs::Keyboard().Down(NSK_kp1)) rot.x += PI1_2;
-        if (Inputs::Keyboard().Down(NSK_kp2)) rot.y += PI1_2;
-        if (Inputs::Keyboard().Down(NSK_kp3)) rot.z += PI1_2;
-        if (Inputs::Keyboard().Down(NSK_kp4)) rot.x += PI;
-        if (Inputs::Keyboard().Down(NSK_kp5)) rot.y += PI;
-        if (Inputs::Keyboard().Down(NSK_kp6)) rot.z += PI;
-        if (Inputs::Keyboard().Down(NSK_kp7)) rot.x -= PI1_2;
-        if (Inputs::Keyboard().Down(NSK_kp8)) rot.y -= PI1_2;
-        if (Inputs::Keyboard().Down(NSK_kp9)) rot.z -= PI1_2;
-        glm::mat4 rotation = glm::eulerAngleZYX(-rot.z, rot.y, rot.x);
+        // if (Inputs::Keyboard().Down(NSK_kp1)) rot.x += PI1_2;
+        // if (Inputs::Keyboard().Down(NSK_kp2)) rot.y += PI1_2;
+        // if (Inputs::Keyboard().Down(NSK_kp3)) rot.z += PI1_2;
+        // if (Inputs::Keyboard().Down(NSK_kp4)) rot.x += PI;
+        // if (Inputs::Keyboard().Down(NSK_kp5)) rot.y += PI;
+        // if (Inputs::Keyboard().Down(NSK_kp6)) rot.z += PI;
+        // if (Inputs::Keyboard().Down(NSK_kp7)) rot.x -= PI1_2;
+        // if (Inputs::Keyboard().Down(NSK_kp8)) rot.y -= PI1_2;
+        // if (Inputs::Keyboard().Down(NSK_kp9)) rot.z -= PI1_2;
+        glm::mat4 rotation(1.f);
+        if (rot.z != 0.0) rotation *= glm::rotate(glm::mat4(1.f), rot.z, {0, 0, -1});
+        if (rot.y != 0.0) rotation *= glm::rotate(glm::mat4(1.f), rot.y, {0, 1, 0});
+        if (rot.x != 0.0) rotation *= glm::rotate(glm::mat4(1.f), rot.x, {-1, 0, 0});
         for (double a = a1; a < a2; a += circleStep)
         {
             float aa2 = fmin(a2,a+circleStep);

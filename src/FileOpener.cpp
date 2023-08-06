@@ -1,6 +1,7 @@
 
 #include "FileOpener.h"
 #include "Error.h"
+#include <cstdlib>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -21,6 +22,31 @@ namespace NSEngine {
         f.write(reinterpret_cast<const char*>(&bs[0]), bs.size());
         f.close();
         info("Writing", bs.size(), "bytes to file :", file);
+        return true;
+    }
+
+    bool FileOpener::readFileToBuffer(const std::string& filename, void* &data, int& size)
+    {
+        std::ifstream f(filename, std::ios::binary);
+        if (f.fail()) {
+            return false;
+        }
+
+        //seek to the end
+        f.seekg(0, std::ios::end);
+
+        //Get the file size
+        std::streamoff fileSize = f.tellg();
+        f.seekg(0, std::ios::beg);
+
+        //Reduce the file size by any header bytes
+        fileSize -= f.tellg();
+
+        size = fileSize;
+        data = malloc(fileSize);
+        f.read(reinterpret_cast<char*>(data), fileSize);
+        f.close();
+
         return true;
     }
 

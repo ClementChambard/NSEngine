@@ -111,8 +111,15 @@ namespace NSEngine {
             SDL_GL_SwapWindow(m_window);
             return;
         }
-        for (auto& l : engineData::layers)
+        const int* drawOrder = engineData::layerDrawOrder;
+        if (!engineData::layerDrawOrder) {
+            static const int drawOrderr[] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,
+        19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42};
+            drawOrder = drawOrderr;
+        }
+        for (size_t i = 0; i < engineData::layers.size(); i++)
         {
+            auto l = engineData::layers[drawOrder[i]];
             float mi=1000000.f, ma=1000000.f;
             glm::vec4 col = {0,0,0,0};
             l.end();
