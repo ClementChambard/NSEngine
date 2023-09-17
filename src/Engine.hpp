@@ -71,6 +71,9 @@ class IEngine {
         void setRenderFunc(void (*render_func)(Window*)) { this->render_func = render_func; }
 
         float fps() const { return m_fps.GetFPS(); }
+        float gameSpeed() const { return m_gameSpeed; }
+
+        void setGameSpeed(float gs) { m_gameSpeed = gs; }
     private:
 
         void on_create_engine();
@@ -83,6 +86,8 @@ class IEngine {
         Window m_window;
 
         SDL_Event m_event;
+
+        float m_gameSpeed = 1.0f;
 
         void (*render_func)(Window*) = nullptr;
 

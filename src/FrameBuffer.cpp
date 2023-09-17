@@ -88,20 +88,6 @@ namespace NSEngine {
         return *this;
     }
 
-    void FrameBuffer::bind()
-    {
-        //glBindTexture(GL_TEXTURE_2D, 0);
-        glBindFramebuffer(GL_FRAMEBUFFER, m_frameBufferID);
-        glViewport(0, 0, m_width, m_height);
-    }
-
-    void FrameBuffer::unbind()
-    {
-        auto windata = getInstance()->window().getWindowData();
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        glViewport(0, 0, windata.bwidth, windata.bheight);
-    }
-
     void FrameBuffer::resolveToFBO(FrameBuffer* fbo)
     {
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo->m_frameBufferID);
@@ -194,4 +180,20 @@ namespace NSEngine {
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
+    const FrameBuffer* FrameBuffer::BOUND_FRAMEBUFFER = nullptr;
+
+    void FrameBuffer::bindFramebuffer(const FrameBuffer* fb) {
+        BOUND_FRAMEBUFFER = fb;
+        if (!fb) {
+            getInstance()->window().BindAsRenderTarget();
+            return;
+        }
+        glBindFramebuffer(GL_FRAMEBUFFER, fb->m_frameBufferID);
+        glViewport(0, 0, fb->m_width, fb->m_height);
+    }
+
+    void FrameBuffer::unbindFramebuffer() {
+        BOUND_FRAMEBUFFER = nullptr;
+        getInstance()->window().BindAsRenderTarget();
+    }
 }

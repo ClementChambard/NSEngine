@@ -87,6 +87,8 @@ namespace NSEngine {
     #define c_green NSEngine::Color(0,255,0,255)
     #define c_blue NSEngine::Color(0,0,255,255)
     #define c_cyan NSEngine::Color(0,255,255,255)
+    #define c_yellow NSEngine::Color(255,255,0,255)
+    #define c_hgray NSEngine::Color(128,128,128,255)
 
 }
 

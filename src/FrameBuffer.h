@@ -18,8 +18,8 @@ namespace NSEngine {
             FrameBuffer& operator=(FrameBuffer const& fb);
             FrameBuffer& operator=(FrameBuffer&& fb);
 
-            void bind();
-            void unbind();
+            void bind() const { bindFramebuffer(this); }
+            void unbind() const { unbindFramebuffer(); }
 
             void resolveToFBO(FrameBuffer* fbo);
             void resolveToScreen();
@@ -31,6 +31,10 @@ namespace NSEngine {
 
             unsigned int getWidth () const { return m_width ; }
             unsigned int getHeight() const { return m_height; }
+
+            static const FrameBuffer* BOUND_FRAMEBUFFER;
+            static void bindFramebuffer(const FrameBuffer* fb);
+            static void unbindFramebuffer();
 
         private:
             unsigned int m_width;

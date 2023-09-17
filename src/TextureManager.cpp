@@ -1,6 +1,7 @@
 #include "TextureManager.h"
 #include "NSEngine.h"
 #include "Engine.hpp"
+#include "FrameBuffer.h"
 
 #include <iostream>
 
@@ -8,28 +9,21 @@
 
 namespace NSEngine {
 
-    std::vector<GLTexture> TextureManager::textures;
-    std::vector<GLSurface> TextureManager::surfaces;
+    std::vector<Texture> TextureManager::textures;
     size_t TextureManager::currentTexture = 0;
 
-    size_t TextureManager::RegisterTexture(const char* name, const char* name2, const char* name3, const char* name4)
-    {
-     //   for (int i = 0; i < textures.size(); i++) if (textures[i].name == name) return i;
-        if (textures.size() == 0)
-        {
-            textures.push_back({0,0,0,0,0,0,"____EMPTY____"});
+    size_t TextureManager::RegisterTexture(const char* name) {
+        if (textures.size() == 0) {
+            textures.emplace_back();
         }
-        textures.push_back(ImageLoader::loadImageFile(name,name2,name3,name4));
-        textures.back().name = name;
+        textures.emplace_back(name);
         return textures.size() -1;
     }
 
-    GLTexture* TextureManager::GetTexture(size_t i) { return &textures[i]; }
+    Texture* TextureManager::GetTexture(size_t i) { return &textures[i]; }
 
-    void TextureManager::SetBlendmode(int blendmode)
-    {
-        switch (blendmode)
-        {
+    void TextureManager::SetBlendmode(int blendmode) {
+        switch (blendmode) {
             case 0:
                 glBlendEquation(GL_FUNC_ADD);
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -72,7 +66,7 @@ namespace NSEngine {
                 break;
             case 10:
                 glBlendEquation(GL_FUNC_SUBTRACT);
-                glBlendFunc(GL_SRC_ALPHA,GL_ONE);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE);
                 break;
             default:
                 glBlendEquation(GL_FUNC_ADD);
@@ -80,86 +74,78 @@ namespace NSEngine {
         }
     }
 
-    void TextureManager::UseTexture(size_t i)
-    {
+    void TextureManager::UseTexture(size_t i) {
         if (i == 0 || i >= textures.size()) return;
-        int displaymode = getInstance()->window().getDisplayMode();
-        if (currentTexture != i) {
-            if (displaymode == 3 && textures[i].id4!=0)
-                glBindTexture(GL_TEXTURE_2D, textures[i].id4);
-            else if (displaymode == 2 && textures[i].id3!=0)
-                glBindTexture(GL_TEXTURE_2D, textures[i].id3);
-            else if (displaymode == 1 && textures[i].id2!=0)
-                glBindTexture(GL_TEXTURE_2D, textures[i].id2);
-            else
-                glBindTexture(GL_TEXTURE_2D, textures[i].id);
-        }
+        textures[i].use();
     }
 
-    void TextureManager::ResetTexture()
-    {
-        if (currentTexture != 0) glBindTexture(GL_TEXTURE_2D, 0);
+    void TextureManager::ResetTexture() {
+        Texture::unuseTexture();
     }
 
-    size_t TextureManager::AddTexture(GLuint texID, int w, int h)
-    {
-        textures.push_back({texID, w, h, 0, 0, 0, "____UNKNOWN_NAME____"});
-        return textures.size() -1;
+
+    size_t TextureManager::GetTextureNSIDByOpengl(GLuint texID) {
+        for (size_t i = 0; i < textures.size(); i++) if (textures[i].getOpenglId() == texID) return i;
+        return 0;
     }
 
-    void TextureManager::GetTextureSize(size_t i, int &w, int &h)
-    {
-        w = textures[i].width;
-        h = textures[i].height;
-    }
-
-    GLuint TextureManager::GetTextureID(size_t i)
-    {
-        return textures[i].id;
-    }
-
-    glm::vec2 TextureManager::GetUVAt(size_t i, int x, int y)
-    {
-        return {(float)x / (float)textures[i].width, (float)y / (float)textures[i].height};
-    }
-
-    size_t TextureManager::CreateSurface(int x, int y, float ratio)
-    {
-        int r = surfaces.size();
-        GLuint fb = 0; glGenFramebuffers(1,&fb);
-        GLTexture tex = ImageLoader::emptyTexture(x,y);
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fb);
-        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,tex.id,0);
-        GLuint rb = 0; glGenRenderbuffers(1, &rb);
-        glBindRenderbuffer(GL_RENDERBUFFER,rb);
-        glRenderbufferStorage(GL_RENDERBUFFER,GL_DEPTH_COMPONENT,x,y);
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rb);
-        GLenum db[1] = {GL_COLOR_ATTACHMENT0};
-        glDrawBuffers(2,db);
-        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) NSEngine::error("error creating surface");
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER,0);
-        int t = AddTexture(tex.id,x,y);
-        surfaces.push_back({t,fb,ratio});
+    size_t TextureManager::AddTexture(GLuint texID, int w, int h) {
+        Texture* t = Texture::fromOpenGL(texID, w, h);
+        size_t r = TextureManager::AddTexture(std::move(*t));
+        delete t;
         return r;
     }
 
-    void TextureManager::SetSurfaceTarget(size_t i, int x1, int y1, int x2, int y2)
-    {
-        if (i >= surfaces.size()) return;
-        glBindTexture(GL_TEXTURE_2D,0);
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER,surfaces[i].framebuffer);
-        if (x1 == -1)
-        {
-            x1 = 0;y1 = 0;
-            x2 = textures[surfaces[i].surf].width;y2 = textures[surfaces[i].surf].height;
-        }
-        glViewport(x1,y1,x2,y2);
-        setCamBoundaries(x2-x1,y2-y1);
+    size_t TextureManager::AddTexture(Texture&& t) {
+        textures.emplace_back(std::move(t));
+        return textures.size() -1;
     }
 
-    GLuint TextureManager::GetSurfaceTexID(size_t i)
-    {
-        return surfaces[i].surf;
+    void TextureManager::GetTextureSize(size_t i, int &w, int &h) {
+        auto s = textures[i].getSize();
+        w = s.x;
+        h = s.y;
+    }
+
+    GLuint TextureManager::GetTextureID(size_t i) {
+        return textures[i].getOpenglId();
+    }
+
+    glm::vec2 TextureManager::GetUVAt(size_t i, int x, int y) {
+        return textures[i].getUvAt(x, y);
+    }
+
+    Texture* TextureManager::GetTextureByOpengl(GLuint texID) {
+        for (auto& t : textures) if (t.getOpenglId() == texID) return &t;
+        return nullptr;
+    }
+
+    size_t TextureManager::CreateSurface(int x, int y,
+                 [[maybe_unused]] float ratio) {
+        Texture* t = Texture::asFramebuffer(x, y);
+        size_t r = TextureManager::AddTexture(std::move(*t));
+        delete t;
+        return r;
+    }
+
+    void TextureManager::SetSurfaceTarget(size_t i,
+                        int x1, int y1, int x2, int y2) {
+        if (i >= textures.size()) return;
+        if (textures[i].getFramebuffer() == nullptr) return;
+        Texture::unuseTexture();
+        textures[i].getFramebuffer()->bind();
+        if (x1 == -1) {
+            x1 = 0;
+            y1 = 0;
+            x2 = textures[i].getWidth();
+            y2 = textures[i].getHeight();
+        }
+        glViewport(x1, y1, x2, y2);
+        setCamBoundaries(x2-x1, y2-y1);
+    }
+
+    GLuint TextureManager::GetSurfaceTexID(size_t i) {
+        return textures[i].getOpenglId();
     }
 
 }

@@ -168,6 +168,11 @@ namespace math {
     inline float point_distance(glm::vec3 const& p1, glm::vec3 const& p2) { return point_distance(p1.x, p1.y, p1.z, p2.x, p2.y, p2.z); }
     inline float point_direction(glm::vec2 const& p1, glm::vec2 const& p2) { return point_direction(p1.x, p1.y, p2.x, p2.y); }
 
+    inline float veclensq(glm::vec2 const& v) { return point_distance_sq({0,0}, v); }
+    inline float veclen(glm::vec2 const& v) { return point_distance({0,0}, v); }
+    inline float veclensq(glm::vec3 const& v) { return point_distance_sq({0,0,0}, v); }
+    inline float veclen(glm::vec3 const& v) { return point_distance({0,0,0}, v); }
+
     extern float lengthdir_x(float length, float direction);
     extern float lengthdir_y(float length, float direction);
     extern glm::vec2 lengthdir_vec(float length, float direction);
