@@ -1,4 +1,7 @@
 #include "DrawFuncs.h"
+
+#define GLM_ENABLE_EXPERIMENTAL
+
 #include <glm/gtx/euler_angles.hpp>
 #include "NSEngine.h"
 
