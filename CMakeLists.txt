@@ -1,7 +1,5 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.20)
 
-set(CXX_STANDARD 17)
-set(CXX_STANDARD_REQUIRED ON)
 set(CMAKE_BUILD_TYPE "Debug")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(PROJECT_URL "https://github.com/ClementChambard/NSEngine")
@@ -20,7 +18,10 @@ find_package(GLEW REQUIRED)
 
 add_library("${PROJECT_NAME}" ${SRCS} ${HEADERS})
 
-target_link_libraries(NSEngine PUBLIC
+set_property(TARGET "${PROJECT_NAME}" PROPERTY CXX_STANDARD 20)
+set_property(TARGET "${PROJECT_NAME}" PROPERTY CXX_STANDARD_REQUIRED True)
+
+target_link_libraries("${PROJECT_NAME}" PUBLIC
                        ${OPENGL_gl_LIBRARY}
                        ${GLEW_LIBRARIES}
                        -lSDL2
@@ -29,4 +30,4 @@ target_link_libraries(NSEngine PUBLIC
                        -pthread
                      )
 
-target_include_directories(NSEngine INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/src")
+target_include_directories("${PROJECT_NAME}" INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/src")

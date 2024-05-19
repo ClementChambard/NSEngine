@@ -2,6 +2,8 @@
 #define TIMER_INCLUDED_H
 
 #include "./defines.h"
+#include <compare>
+#include <functional>
 
 namespace ns {
 
@@ -17,8 +19,21 @@ struct Timer_t {
   void decrement();
   void reset();
   void reset_neg999999();
+  bool ticked();
+  bool had_value(f32 value);
+  u32 was_modulo(u32 value);
+  bool had_true(std::function<bool(i32)> f);
+  u32 count_true(std::function<bool(i32)> f);
 
   Timer_t &operator=(i32 c) {
+    set(c);
+    return *this;
+  }
+  Timer_t &operator=(u32 c) {
+    set(c);
+    return *this;
+  }
+  Timer_t &operator=(f32 c) {
     set(c);
     return *this;
   }
@@ -41,6 +56,30 @@ struct Timer_t {
     decrement();
     return o;
   }
+  Timer_t& operator+=(i32 v) {
+    add(v);
+    return *this;
+  }
+  Timer_t& operator+=(u32 v) {
+    add(v);
+    return *this;
+  }
+  Timer_t& operator+=(f32 v) {
+    add(v);
+    return *this;
+  }
+  Timer_t& operator-=(i32 v) {
+    add(-v);
+    return *this;
+  }
+  Timer_t& operator-=(u32 v) {
+    add(-static_cast<i32>(v));
+    return *this;
+  }
+  Timer_t& operator-=(f32 v) {
+    add(-v);
+    return *this;
+  }
 
   i32 previous = -1;
   i32 current = 0;
@@ -49,48 +88,15 @@ struct Timer_t {
   // i32 control = 0;
 };
 
-inline bool operator==(Timer_t const &t1, Timer_t const &t2) {
-  return t1.current == t2.current;
-}
-inline bool operator==(Timer_t const &t1, i32 t2) {
-  return t1.current == t2;
-}
-inline bool operator==(i32 t1, Timer_t const &t2) { return t2 == t1; }
-inline bool operator!=(Timer_t const &t1, Timer_t const &t2) {
-  return t1.current != t2.current;
-}
-inline bool operator!=(Timer_t const &t1, i32 t2) {
-  return t1.current != t2;
-}
-inline bool operator!=(i32 t1, Timer_t const &t2) { return t2 != t1; }
-inline bool operator<=(Timer_t const &t1, Timer_t const &t2) {
-  return t1.current <= t2.current;
-}
-inline bool operator<=(Timer_t const &t1, i32 t2) {
-  return t1.current <= t2;
-}
-inline bool operator<=(i32 t1, Timer_t const &t2) {
-  return t1 <= t2.current;
-}
-inline bool operator>=(Timer_t const &t1, Timer_t const &t2) {
-  return t1.current >= t2.current;
-}
-inline bool operator>=(Timer_t const &t1, i32 t2) {
-  return t1.current >= t2;
-}
-inline bool operator>=(i32 t1, Timer_t const &t2) {
-  return t1 >= t2.current;
-}
-inline bool operator<(Timer_t const &t1, Timer_t const &t2) {
-  return t1.current < t2.current;
-}
-inline bool operator<(Timer_t const &t1, i32 t2) { return t1.current < t2; }
-inline bool operator<(i32 t1, Timer_t const &t2) { return t1 < t2.current; }
-inline bool operator>(Timer_t const &t1, Timer_t const &t2) {
-  return t1.current > t2.current;
-}
-inline bool operator>(Timer_t const &t1, i32 t2) { return t1.current > t2; }
-inline bool operator>(i32 t1, Timer_t const &t2) { return t1 > t2.current; }
+inline auto operator<=>(Timer_t const &t1, Timer_t const &t2) { return t1.current<=>t2.current; }
+inline auto operator<=>(Timer_t const &t1, i32 t2) { return t1.current<=>t2; }
+inline auto operator<=>(i32 t1, Timer_t const &t2) { return t1<=>t2.current; }
+inline auto operator<=>(Timer_t const &t1, u32 t2) { return t1.current<=>static_cast<i32>(t2); }
+inline auto operator<=>(u32 t1, Timer_t const &t2) { return static_cast<i32>(t1)<=>t2.current; }
+// inline auto operator==(Timer_t const &t1, i32 t2) { return t1.current==t2; }
+// inline auto operator==(i32 t1, Timer_t const &t2) { return t1==t2.current; }
+// inline auto operator==(Timer_t const &t1, u32 t2) { return t1.current==static_cast<i32>(t2); }
+// inline auto operator==(u32 t1, Timer_t const &t2) { return static_cast<i32>(t1)==t2.current; }
 inline bool operator!(Timer_t const &t) { return !t.current; }
 
 }  // namespace NSEngine

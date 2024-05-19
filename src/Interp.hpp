@@ -3,6 +3,7 @@
 
 #include "./math/Interpolation.h"
 #include "./defines.h"
+#include "./Timer.hpp"
 
 namespace ns {
 
@@ -13,7 +14,7 @@ struct Interp {
     T bezier_1 = T{};
     T bezier_2 = T{};
     T current = T{};
-    i32 time = 0;
+    Timer_t time = 0;
     i32 end_time = 0;
     i32 method = 0;
 
@@ -62,7 +63,7 @@ struct Interp {
                     bezier_2 += goal;
                     current = initial;
                 } else if (method == 8) {
-                    f32 x = static_cast<f32>(time) /
+                    f32 x = time.current_f /
                               static_cast<f32>(end_time);
                     T a0 = initial;
                     T a1 = bezier_1;
@@ -71,7 +72,7 @@ struct Interp {
                     current = a0 + a1 * x + a2 * x * x + a3 * x * x * x;
                 } else {
                     current = (goal - initial) * ns::FuncGetVal(method)(
-                        static_cast<f32>(time) / static_cast<f32>(end_time))
+                        time.current_f / static_cast<f32>(end_time))
                         + initial;
                 }
                 return current;
@@ -94,7 +95,7 @@ struct InterpStrange {
     glm::vec3 goal;
     glm::vec3 bezier_1;
     glm::vec3 bezier_2;
-    i32 time;
+    Timer_t time;
     i32 end_time;
     i32 method_for_1d[3];
     i32 method_for_3d;
@@ -149,7 +150,7 @@ struct InterpStrange {
                         bezier_2 += goal;
                         current = initial;
                     } else if (method_for_3d == 8) {
-                        f32 x = static_cast<f32>(time) /
+                        f32 x = time.current_f /
                                   static_cast<f32>(end_time);
                         glm::vec3 a0 = initial;
                         glm::vec3 a1 = bezier_1;
@@ -161,7 +162,7 @@ struct InterpStrange {
                     } else {
                         current = (goal - initial) *
                             ns::FuncGetVal(method_for_3d)(
-                                static_cast<f32>(time) /
+                                time.current_f /
                                 static_cast<f32>(end_time)) + initial;
                     }
                 } else {
@@ -174,7 +175,7 @@ struct InterpStrange {
                             bezier_2[i] += goal[i];
                             current[i] = initial[i];
                         } else if (method_for_1d[i] == 8) {
-                            f32 x = static_cast<f32>(time) /
+                            f32 x = time.current_f /
                                       static_cast<f32>(end_time);
                             f32 a0 = initial[i];
                             f32 a2 = 3.f * (goal[i] - initial[i]);
@@ -183,7 +184,7 @@ struct InterpStrange {
                         } else {
                             current[i] = (goal[i] - initial[i]) *
                                 ns::FuncGetVal(method_for_1d[i])(
-                                static_cast<f32>(time) /
+                                time.current_f /
                                 static_cast<f32>(end_time)) + initial[i];
                         }
                     }
