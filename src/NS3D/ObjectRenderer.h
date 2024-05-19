@@ -9,23 +9,23 @@
 
 namespace NS3D {
 
-    class ObjectRenderer {
-        public:
-            ObjectRenderer(StaticShader* shad) : shader(shad), oshader(new OutlineShader()) {}
-            ~ObjectRenderer() { delete shader; delete oshader; }
+class ObjectRenderer {
+    public:
+        ObjectRenderer(StaticShader* shad) : shader(shad), oshader(new OutlineShader()) {}
+        ~ObjectRenderer() { delete shader; delete oshader; }
 
-            void render(const std::map<const TexturedModel*, std::vector<const Object3D*>>& objects, const std::vector<const Light*>& light);
-            void renderOutlined(const Object3D* obj);
+        void render(const std::map<const TexturedModel*, std::vector<const Object3D*>>& objects, const std::vector<const Light*>& light);
+        void renderOutlined(const Object3D* obj);
 
-        private:
-            StaticShader* shader;
-            OutlineShader* oshader;
+    private:
+        StaticShader* shader;
+        OutlineShader* oshader;
 
-            void prepareTexturedModel(const TexturedModel* model);
-            void prepareInstance(const Object3D* object);
-            void unbindTexturedModel();
-        friend class Renderer3D;
-    };
+        void prepareTexturedModel(const TexturedModel* model);
+        void prepareInstance(const Object3D* object);
+        void unbindTexturedModel();
+    friend class Renderer3D;
+};
 
 }
 

@@ -1,15 +1,17 @@
 #include "Window.h"
-#include "Engine.hpp"
+#include "NSEngine.hpp"
 #include "Error.h"
-#include "NSEngine.h"
+#include "./TextureManager.h"
+#include "./Camera3D.h"
+#include "./SpriteBatch.h"
 #include <glm/fwd.hpp>
 
-namespace NSEngine {
+namespace ns {
 
 Window::Window() {}
 Window::~Window() {}
 
-void Window::Init(const char *name, int width, int height, int flag) {
+void Window::Init(cstr name, i32 width, i32 height, i32 flag) {
   baseWindowWidth = windowWidth = width;
   baseWindowHeight = windowHeight = height;
   windowFlags = flag | SDL_WINDOW_OPENGL;
@@ -48,12 +50,12 @@ void Window::destroy() {
   SDL_DestroyWindow(m_window);
 }
 
-int Window::addDisplayMode(NS_DisplayMode mode) {
+i32 Window::addDisplayMode(NS_DisplayMode mode) {
   modes.push_back(mode);
   return modes.size() - 1;
 }
 
-void Window::setDisplayMode(size_t modeID) {
+void Window::setDisplayMode(usize modeID) {
   if (modeID >= modes.size()) {
     error("Invalid display mode", modeID);
     return;
@@ -69,13 +71,13 @@ void Window::setDisplayMode(size_t modeID) {
   displayMode = modeID;
 }
 void Window::nextDisplaymode() {
-  int m = (displayMode + 1) % modes.size();
+  i32 m = (displayMode + 1) % modes.size();
   setDisplayMode(m);
 }
 
 void Window::InitDrawing(bool clear) {
   if (clear) {
-    glm::vec3 c = activeCamera3D()->getClearColor();
+    glm::vec3 c = activeCamera3D() ? activeCamera3D()->getClearColor() : glm::vec3{0.f,0.f,0.f};
     glClearColor(c.r, c.g, c.b, 1.f);
     if (getInstance()->flags().flags.wireframe)
       glClearColor(0.5f, 0.5f, 0.5f, 1.f);
@@ -83,7 +85,7 @@ void Window::InitDrawing(bool clear) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   }
 
-  for (auto &l : engineData::layers)
+  for (auto &l : getGameLayers())
     l.begin();
 }
 
@@ -93,7 +95,7 @@ void Window::EndDrawing(void (*func)(Window *)) {
   baseShader->SetCameraPosition(cam3dexists ? activeCamera3D()->getPosition()
                                             : glm::vec3(0, 0, 0));
   glActiveTexture(GL_TEXTURE0);
-  toggleCulling(false);
+  glDisable(GL_CULL_FACE);
 
   if (getInstance()->flags().flags.wireframe) {
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -107,17 +109,10 @@ void Window::EndDrawing(void (*func)(Window *)) {
     SDL_GL_SwapWindow(m_window);
     return;
   }
-  const int *drawOrder = engineData::layerDrawOrder;
-  if (!engineData::layerDrawOrder) {
-    static const int drawOrderr[] = {0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10,
-                                     11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
-                                     22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32,
-                                     33, 34, 35, 36, 37, 38, 39, 40, 41, 42};
-    drawOrder = drawOrderr;
-  }
-  for (size_t i = 0; i < engineData::layers.size(); i++) {
-    auto l = engineData::layers[drawOrder[i]];
-    float mi = 1000000.f, ma = 1000000.f;
+
+  for (size_t i = 0; i < getGameLayers().size(); i++) {
+    auto& l = getGameLayers()[i];
+    f32 mi = 1000000.f, ma = 1000000.f;
     glm::vec4 col = {0, 0, 0, 0};
     l.end();
     if (l.is_static) {
@@ -132,12 +127,13 @@ void Window::EndDrawing(void (*func)(Window *)) {
                                     ? activeCamera3D()->getView(l.is_static)
                                     : glm::mat4(1.f));
     }
-    if (engineData::cam3d != nullptr && !l.is_static)
-      col = engineData::cam3d->getFog(mi, ma);
+    if (activeCamera3D() != nullptr && !l.is_static)
+      col = activeCamera3D()->getFog(mi, ma);
     baseShader->SetFog(mi, ma, col);
     l.renderBatch();
   }
-  toggleCulling(true);
+  glEnable(GL_CULL_FACE);
+  glCullFace(GL_BACK);
 
   baseShader->stop();
   TextureManager::ResetTexture();
@@ -151,7 +147,7 @@ void Window::EndDrawing(void (*func)(Window *)) {
 void Window::BindAsRenderTarget() {
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
   glViewport(0, 0, windowWidth, windowHeight);
-  setCamBoundaries(baseWindowWidth, baseWindowHeight);
+  if (activeCamera3D() != nullptr) activeCamera3D()->setWH(baseWindowWidth, baseWindowHeight, 1.f);
 }
 
 } // namespace NSEngine

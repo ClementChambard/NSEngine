@@ -1,15 +1,19 @@
 #ifndef ENGINE_H_
 #define ENGINE_H_
 
+#include "Camera3D.h"
+#include "Error.h"
+#include "EventProcessor.h"
+#include "SpriteBatch.h"
 #include "Timing.h"
 #include "Window.h"
-#include "Error.h"
+#include "./defines.h"
 
-namespace NSEngine {
+namespace ns {
 
 class IEngine {
     public:
-        IEngine(int width, int height, std::string name);
+        IEngine(i32 width, i32 height, cstr name);
         virtual ~IEngine();
         IEngine(IEngine const&) = delete;
         IEngine(IEngine&&) = delete;
@@ -51,7 +55,7 @@ class IEngine {
         /**
          * Changes the maximum amount of frame per seconds
          */
-        void setMaxFps(int fps) { m_fps.setMaxFps(fps); }
+        void setMaxFps(i32 fps) { m_fps.setMaxFps(fps); }
 
         /**
          * Instance of the game engine
@@ -70,10 +74,16 @@ class IEngine {
 
         void setRenderFunc(void (*render_func)(Window*)) { this->render_func = render_func; }
 
-        float fps() const { return m_fps.GetFPS(); }
-        float gameSpeed() const { return m_gameSpeed; }
+        f32 fps() const { return m_fps.GetFPS(); }
+        f32 gameSpeed() const { return m_gameSpeed; }
 
-        void setGameSpeed(float gs) { m_gameSpeed = gs; }
+        void setGameSpeed(f32 gs) { m_gameSpeed = gs; }
+
+        void createCamera(i32 width, i32 height) { m_cam3d = new Camera3D(width, height); }
+
+        void addEventProcessor(IEventProcessor* ip) { m_eventProcessors.push_back(ip); }
+
+        i32 addGameLayer(bool depthTest = false, bool is_static = false);
     private:
 
         void on_create_engine();
@@ -87,36 +97,47 @@ class IEngine {
 
         SDL_Event m_event;
 
-        float m_gameSpeed = 1.0f;
+        f32 m_gameSpeed = 1.0f;
 
         void (*render_func)(Window*) = nullptr;
 
         union {
-            uint32_t val;
+            u32 val;
             struct {
-                uint32_t running:1;
-                uint32_t debugInfo:1;
-                uint32_t wireframe:1;
-                uint32_t framebyframe:1;
-                uint32_t freecam:1;
+                u32 running:1;
+                u32 debugInfo:1;
+                u32 wireframe:1;
+                u32 framebyframe:1;
+                u32 freecam:1;
             } flags;
         } m_gameflags;
 
-            //Camera2D* cam2d;
-            //Camera3D* cam3d;
+        Camera3D* m_cam3d = nullptr;
 
-            //std::vector<SpriteBatch*> layers;
-            //int targetLayer;
+        std::vector<IEventProcessor*> m_eventProcessors;
 
-            //int debugLayer;
+        std::vector<SpriteBatch> m_layers;
 
-            //std::vector<EventProcessor*> eventProcessors;
+        friend Camera3D* activeCamera3D();
+        friend std::vector<SpriteBatch>& getGameLayers();
 };
 
 /**
  * Get the engine instance
  */
 inline IEngine* getInstance() { return IEngine::instance; }
+
+/**
+* Gets the current active camera3d
+*/
+Camera3D* activeCamera3D();
+
+/**
+* Gets the layer list
+*/
+std::vector<SpriteBatch>& getGameLayers();
+
+extern i32 DEBUG_LAYER_ID;
 
 }
 

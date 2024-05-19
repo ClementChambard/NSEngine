@@ -7,22 +7,22 @@
 
 namespace NS3D {
 
-    class TerrainRenderer {
-        public:
-            TerrainRenderer(TerrainShader* shad);
-            ~TerrainRenderer() { delete shader; }
+class TerrainRenderer {
+    public:
+        TerrainRenderer(TerrainShader* shad);
+        ~TerrainRenderer() { delete shader; }
 
-            void render(const std::vector<const Terrain*>& terrains, const std::vector<const Light*>& light);
+        void render(const std::vector<const Terrain*>& terrains, const std::vector<const Light*>& light);
 
-        private:
-            TerrainShader* shader;
+    private:
+        TerrainShader* shader;
 
-            void prepareTerrain(const Terrain* terrain);
-            void bindTextures(const Terrain* terrain);
-            void unbindTerrain();
-            void loadModelMatrix(const Terrain* terrain);
-        friend class Renderer3D;
-    };
+        void prepareTerrain(const Terrain* terrain);
+        void bindTextures(const Terrain* terrain);
+        void unbindTerrain();
+        void loadModelMatrix(const Terrain* terrain);
+    friend class Renderer3D;
+};
 
 }
 

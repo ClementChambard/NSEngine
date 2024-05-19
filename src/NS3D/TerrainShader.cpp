@@ -1,9 +1,10 @@
 #include "TerrainShader.h"
+#include <string>
 
 namespace NS3D {
 
-    const std::string TerrainShader::VERTEX_SHADER_PATH = "assets/engine/shaders/terrainVertexShader";
-    const std::string TerrainShader::FRAGMENT_SHADER_PATH = "assets/engine/shaders/terrainFragmentShader";
+    cstr TerrainShader::VERTEX_SHADER_PATH = "assets/engine/shaders/terrainVertexShader";
+    cstr TerrainShader::FRAGMENT_SHADER_PATH = "assets/engine/shaders/terrainFragmentShader";
 
     void TerrainShader::bindAttributes()
     {
@@ -29,9 +30,9 @@ namespace NS3D {
 
         for (size_t i = 0; i < MAX_LIGHTS; i++)
         {
-            location_lightPosition[i] = getUniformLocation("lightPosition["+std::to_string(i)+"]");
-            location_lightColor[i]    = getUniformLocation("lightColor["+std::to_string(i)+"]"   );
-            location_attenuation[i]   = getUniformLocation("attenuation["+std::to_string(i)+"]"  );
+            location_lightPosition[i] = getUniformLocation(("lightPosition["+std::to_string(i)+"]").c_str());
+            location_lightColor[i]    = getUniformLocation(("lightColor["+std::to_string(i)+"]"   ).c_str());
+            location_attenuation[i]   = getUniformLocation(("attenuation["+std::to_string(i)+"]"  ).c_str());
         }
     }
 
@@ -74,7 +75,7 @@ namespace NS3D {
             }
         }
     }
-    void TerrainShader::SetShineVars(float damper, float reflect)
+    void TerrainShader::SetShineVars(f32 damper, f32 reflect)
     {
         loadFloat(location_shineDamper, damper);
         loadFloat(location_reflectivity, reflect);

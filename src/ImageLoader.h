@@ -3,23 +3,24 @@
 
 #include "GLTexture.h"
 #include <vector>
+#include "./defines.h"
 
-namespace NSEngine {
+namespace ns {
 
-    class ImageLoader {
+class ImageLoader {
 
-        public:
-            static NSEngine::GLTexture emptyTexture(int w, int h);//filters
-            static NSEngine::GLTexture loadTexture(const char* filename);
-            static NSEngine::GLTexture loadImageFile(const char* filename, const char* filename2="", const char* filename3="", const char* filename4="");
-            static NSEngine::GLTexture loadImageBuffer(const uint8_t* buffer, std::vector<int> lengths);
+    public:
+        static GLTexture emptyTexture(i32 w, i32 h);//filters
+        static GLTexture loadTexture(cstr filename);
+        static GLTexture loadImageFile(cstr filename, cstr filename2="", cstr filename3="", cstr filename4="");
+        static GLTexture loadImageBuffer(robytes buffer, std::vector<i32> lengths);
 
-            static void freeImageBuffer(uint8_t* buffer);
+        static void freeImageBuffer(bytes buffer);
 
-            static uint8_t* imageToBuffer(const char* filename, int& w, int& h, int& nrChannels);
+        static bytes imageToBuffer(cstr filename, i32& w, i32& h, i32& nrChannels);
 
-            static void textureParameters(GLTexture tex, std::vector<GLenum> params, std::vector<GLint> options);
-    };
+        static void textureParameters(GLTexture tex, std::vector<GLenum> params, std::vector<GLint> options);
+};
 
 }
 

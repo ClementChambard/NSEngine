@@ -2,9 +2,9 @@
 #include "FileOpener.h"
 #include "Error.h"
 
-namespace NSEngine {
+namespace ns {
 
-    ShaderProgram::ShaderProgram(std::string vertexFile, std::string fragmentFile)
+    ShaderProgram::ShaderProgram(cstr vertexFile, cstr fragmentFile)
     {
         vertexShaderID = loadShader(vertexFile, GL_VERTEX_SHADER);
         fragmentShaderID = loadShader(fragmentFile, GL_FRAGMENT_SHADER);
@@ -27,14 +27,14 @@ namespace NSEngine {
         glDeleteProgram(programID);
     }
 
-    void ShaderProgram::bindAttribute(GLuint attribute, std::string attributeName)
+    void ShaderProgram::bindAttribute(GLuint attribute, cstr attributeName)
     {
-        glBindAttribLocation(programID, attribute, attributeName.c_str());
+        glBindAttribLocation(programID, attribute, attributeName);
     }
 
-    GLuint ShaderProgram::getUniformLocation(std::string uniformName)
+    GLuint ShaderProgram::getUniformLocation(cstr uniformName)
     {
-        return glGetUniformLocation(programID, uniformName.c_str());
+        return glGetUniformLocation(programID, uniformName);
     }
 
     void ShaderProgram::loadFloat(GLuint location, GLfloat value) { glUniform1f(location, value); }
@@ -44,10 +44,10 @@ namespace NSEngine {
     void ShaderProgram::loadMat4(GLuint location, const glm::mat4& value) { glUniformMatrix4fv(location, 1, GL_FALSE, &(value[0][0])); }
     void ShaderProgram::loadInt(GLuint location, GLint value) { glUniform1i(location, value); }
 
-    GLuint ShaderProgram::loadShader(std::string file, GLenum type)
+    GLuint ShaderProgram::loadShader(cstr file, GLenum type)
     {
         std::string shaderSource;
-        NSEngine::FileOpener::readFileToBuffer(file, shaderSource);
+        FileOpener::readFileToBuffer(file, shaderSource);
         GLuint id = glCreateShader(type);
         const char* shaderSourceCstr = shaderSource.c_str();
         glShaderSource(id, 1, &shaderSourceCstr, nullptr);
@@ -62,7 +62,7 @@ namespace NSEngine {
             glGetShaderInfoLog(id, maxLength, &maxLength, &errorLog[0]);
             glDeleteShader(id); //Don't leak the shader.
             std::printf("%s\n", &(errorLog[0]));
-            NSEngine::fatalError("Shader failed to compile");
+            fatalError("Shader failed to compile");
         }
         return id;
     }

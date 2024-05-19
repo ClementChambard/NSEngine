@@ -1,41 +1,37 @@
 #include "WaterFrameBuffers.h"
-#include "../Engine.hpp"
+#include "../NSEngine.hpp"
 
 namespace NS3D { 
 
-    const int WaterFrameBuffers::REFLECTION_WIDTH = 320;
-    const int WaterFrameBuffers::REFLECTION_HEIGHT = 180;
-    const int WaterFrameBuffers::REFRACTION_WIDTH = 1280;
-    const int WaterFrameBuffers::REFRACTION_HEIGHT = 720;
-    NSEngine::FrameBuffer* WaterFrameBuffers::reflectionFrameBuffer;
-    NSEngine::FrameBuffer* WaterFrameBuffers::refractionFrameBuffer;
+ns::FrameBuffer* WaterFrameBuffers::reflectionFrameBuffer;
+ns::FrameBuffer* WaterFrameBuffers::refractionFrameBuffer;
 
-    void WaterFrameBuffers::Init()
-    {
-        reflectionFrameBuffer = new NSEngine::FrameBuffer(REFLECTION_WIDTH, REFLECTION_HEIGHT, NSEngine::FrameBuffer::DEPTH_RENDER_BUFFER);
-        refractionFrameBuffer = new NSEngine::FrameBuffer(REFLECTION_WIDTH, REFLECTION_HEIGHT, NSEngine::FrameBuffer::DEPTH_TEXTURE);
-    }
+void WaterFrameBuffers::Init()
+{
+    reflectionFrameBuffer = new ns::FrameBuffer(REFLECTION_WIDTH, REFLECTION_HEIGHT, ns::FrameBuffer::DEPTH_RENDER_BUFFER);
+    refractionFrameBuffer = new ns::FrameBuffer(REFLECTION_WIDTH, REFLECTION_HEIGHT, ns::FrameBuffer::DEPTH_TEXTURE);
+}
 
-    void WaterFrameBuffers::cleanUp()
-    {
-        delete reflectionFrameBuffer;
-        delete refractionFrameBuffer;
-    }
+void WaterFrameBuffers::cleanUp()
+{
+    delete reflectionFrameBuffer;
+    delete refractionFrameBuffer;
+}
 
-    void WaterFrameBuffers::bindReflectionFrameBuffer()
-    {
-        reflectionFrameBuffer->bind();
-    }
+void WaterFrameBuffers::bindReflectionFrameBuffer()
+{
+    reflectionFrameBuffer->bind();
+}
 
-    void WaterFrameBuffers::bindRefractionFrameBuffer()
-    {
-        refractionFrameBuffer->bind();
-    }
+void WaterFrameBuffers::bindRefractionFrameBuffer()
+{
+    refractionFrameBuffer->bind();
+}
 
-    void WaterFrameBuffers::unbindCurrentFrameBuffer()
-    {
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        glViewport(0, 0, NSEngine::getInstance()->window().getWindowData().bwidth, NSEngine::getInstance()->window().getWindowData().bheight);
-    }
+void WaterFrameBuffers::unbindCurrentFrameBuffer()
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glViewport(0, 0, ns::getInstance()->window().getWindowData().bwidth, ns::getInstance()->window().getWindowData().bheight);
+}
 
 }

@@ -16,7 +16,7 @@ inline void cleanup()
     Loader3D::cleanUp();
 }
 
-inline GLuint Tex(std::string tex) { return TexManager::addGLTexture(tex); }
+inline GLuint Tex(cstr tex) { return TexManager::addGLTexture(tex); }
 inline TerrainTexture* TTex(GLuint t1, GLuint t2, GLuint t3, GLuint t4) { return TexManager::genTerrainTexture(t1,t2,t3,t4); }
 inline ModelTexture* MTex(GLuint t) { return TexManager::genModelTexture(t); }
 

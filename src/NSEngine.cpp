@@ -1,123 +1,129 @@
-#include "NSEngine.h"
-#include <cmath>
-#include <glm/fwd.hpp>
-#include "Engine.hpp"
+#include "NSEngine.hpp"
+#include <SDL2/SDL.h>
+#include "InputManager.h"
+#include "TextureManager.h"
 
-namespace NSEngine {
+namespace ns {
 
-    Camera2D* engineData::cam2d = nullptr;
-    Camera3D* engineData::cam3d = nullptr;
-    std::vector<SpriteBatch> engineData::layers;
-    int* engineData::layerDrawOrder = nullptr;
-    size_t engineData::targetLayer = 0;
-    int engineData::debugLayer;
-    std::vector<IEventProcessor*> engineData::eventProcessors;
+i32 DEBUG_LAYER_ID = 0;
 
-    void toggleCulling(bool use)
-    {
-        if (use)
+IEngine* IEngine::instance = nullptr;
+
+IEngine::IEngine(i32 w, i32 h, cstr name)
+{
+    if (instance) fatalError("Can't have multiple instances of Engine");
+
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER) != 0) fatalError("Failed to initialize SDL");
+
+    m_window.Init(name, w, h, 0);
+
+    TextureManager::RegisterTexture("assets/engine/textures/defaultTexture.png");
+
+    m_gameflags.val = 1;
+    info("NSEngine Initialized !");
+
+    instance = this;
+}
+
+IEngine::~IEngine()
+{
+    m_window.destroy();
+    SDL_Quit();
+    info("Quit engine");
+}
+
+void IEngine::run()
+{
+    on_create_engine();
+    while (m_gameflags.flags.running) {
+        m_fps.begin();
+        on_update_engine();
+        on_render_engine();
+        m_fps.end();
+    }
+    on_destroy_engine();
+}
+
+void IEngine::on_create_engine()
+{
+    on_create();
+    DEBUG_LAYER_ID = addGameLayer(false, true);
+}
+
+void IEngine::on_update_engine()
+{
+    InputManager::UpdateKeys();
+
+        //Process events
+        while(SDL_PollEvent(&m_event))
         {
-            glEnable(GL_CULL_FACE);
-            glCullFace(GL_BACK);
+            switch (m_event.type)
+            {
+                case SDL_QUIT:
+                    m_gameflags.flags.running = false;
+                    break;
+                default:
+                    break;
+            }
+            InputManager::CheckEvents(m_event);
+
+            bool noMouse = false;
+            bool noKeyboard = false;
+            for (auto e : m_eventProcessors)
+            {
+                if (m_event.type == SDL_MOUSEMOTION) noMouse = false;
+                e->ProcessEvent(&m_event, noKeyboard, noMouse);
+            }
         }
-        else glDisable(GL_CULL_FACE);
-    }
 
-    void createCamera(int mode, int width, int height)
-    {
-        if (mode == 0) engineData::cam2d = new Camera2D(width, height);
-        if (mode == 1) engineData::cam3d = new Camera3D(width,height);
-        info("created new camera of type", mode);
-    }
+    //Update debug commands
+    if (Inputs::Keyboard().Pressed(NSK_f1)) m_gameflags.flags.debugInfo = !m_gameflags.flags.debugInfo;
+    if (Inputs::Keyboard().Pressed(NSK_f2)) m_gameflags.flags.wireframe = !m_gameflags.flags.wireframe;
+    if (Inputs::Keyboard().Pressed(NSK_f3)) m_gameflags.flags.framebyframe = !m_gameflags.flags.framebyframe;
+    if (Inputs::Keyboard().Pressed(NSK_f4)) m_gameflags.flags.freecam = !m_gameflags.flags.freecam;
+    if (Inputs::Keyboard().Pressed(NSK_f10)) m_window.nextDisplaymode();
+    if (m_gameflags.flags.framebyframe && !Inputs::Keyboard().Pressed(NSK_backspace) && !Inputs::Keyboard().Down(NSK_equals)) return;
 
-    Camera2D* activeCamera()
-    {
-        if (engineData::cam2d != nullptr)
-            return engineData::cam2d;
-        else return nullptr;
-    }
+    on_update();
 
-    Camera3D* activeCamera3D()
-    {
-        if (engineData::cam3d != nullptr) return engineData::cam3d;
-        else return nullptr;
-    }
+    //Update camera
+    if (m_cam3d) m_cam3d->Update(m_gameflags.flags.freecam);
+}
 
-    glm::mat4 getCameraUniform(bool isstatic)
-    {
-        if (engineData::cam3d != nullptr)
-        {
-            return isstatic?engineData::cam3d->getCamStatic():engineData::cam3d->getCam();
-        }
-        else if (engineData::cam2d != nullptr)
-        {
-            return isstatic?engineData::cam2d->getCamStatic():engineData::cam2d->getCam();
-        }
-        return glm::mat4(1);
-    }
+void IEngine::on_render_engine()
+{
+    on_render_pre();
+    m_window.InitDrawing();
+    on_render();
+    m_window.EndDrawing(render_func);
+    on_render_post();
+    SDL_GL_SwapWindow(m_window.getSdlWindow());
+}
 
-    glm::mat4 getViewMatrix()
-    {
-        if (engineData::cam3d != nullptr)
-        {
-            return engineData::cam3d->getView();
-        }
-        return glm::mat4(1);
-    }
-    glm::vec3 camPos()
-    {
-        if (engineData::cam3d != nullptr)
-        {
-            return engineData::cam3d->getPosition();
-        }
-        return glm::vec3(0,0,0);
-    }
+void IEngine::on_destroy_engine()
+{
+    on_destroy();
+    m_layers.clear();
+    m_eventProcessors.clear();
+    if (m_cam3d != nullptr) delete m_cam3d;
+    m_cam3d = nullptr;
+}
 
-    void setCamBoundaries(int w, int h)
-    {
-        auto data = getInstance()->window().getWindowData();
-        if (engineData::cam3d != nullptr) engineData::cam3d->setWH(w,h,(float)w/(float)data.bwidth);
-    }
+i32 IEngine::addGameLayer(bool depthTest, bool is_static) {
+  i32 id = m_layers.size();
+  m_layers.emplace_back();
+  m_layers.back().is_static = is_static;
+  m_layers.back().depthTest = depthTest;
+  info("added new graphics layer", id, "of type", is_static, depthTest);
+  return id;
+}
 
-    int addGameLayer(bool depthTest, bool is_static)
-    {
-        int id = engineData::layers.size();
-        engineData::layers.emplace_back();
-        engineData::layers.back().is_static = is_static;
-        engineData::layers.back().depthTest = depthTest;
-        info("added new graphics layer", id, "of type", std::to_string(is_static) + std::to_string(depthTest));
-        return id;
-    }
+Camera3D* activeCamera3D() {
+    return IEngine::instance->m_cam3d;
+}
 
-    void draw_set_layer(size_t layerID)
-    {
-        if (layerID >= engineData::layers.size())
-        {
-            error("no such graphics layer");
-            return;
-        }
-        engineData::targetLayer = layerID;
-    }
+std::vector<SpriteBatch>& getGameLayers() {
+    return IEngine::instance->m_layers;
+}
 
-    void moveCameraTo(glm::vec3 position)
-    {
-        if (activeCamera() != nullptr) activeCamera()->setPosition(position);
-        else if (activeCamera3D() != nullptr) activeCamera3D()->setPosition(position.x,position.y,position.z);
-        else warning("no camera available");
-    }
-
-    SpriteBatch* getLayer(size_t i)
-    {
-        if (i >= engineData::layers.size())
-        {
-            error("no such graphics layer");
-            return nullptr;
-        }
-        return &engineData::layers[i];
-    }
-
-    SpriteBatch* getTargetLayer()
-    {
-        return &engineData::layers[engineData::targetLayer];
-    }
 }

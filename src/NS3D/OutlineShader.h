@@ -2,12 +2,10 @@
 #define OUTLINESHADER_H_
 
 #include "../ShaderProgram.h"
-#include "Light.h"
-#include <vector>
 
 namespace NS3D {
 
-    class OutlineShader : public NSEngine::ShaderProgram {
+    class OutlineShader : public ns::ShaderProgram {
         public:
             OutlineShader() : ShaderProgram(VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH) { bindAttributes(); getAllUniformLocation(); }
 
@@ -22,8 +20,8 @@ namespace NS3D {
             void getAllUniformLocation() override;
 
         private:
-            static const std::string VERTEX_SHADER_PATH;
-            static const std::string FRAGMENT_SHADER_PATH;
+            static cstr VERTEX_SHADER_PATH;
+            static cstr FRAGMENT_SHADER_PATH;
 
             GLuint location_projectionMatrix;
             GLuint location_viewMatrix;

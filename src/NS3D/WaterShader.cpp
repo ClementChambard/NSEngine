@@ -2,8 +2,8 @@
 
 namespace NS3D {
 
-    const std::string WaterShader::VERTEX_SHADER_PATH = "assets/engine/shaders/waterVertexShader";
-    const std::string WaterShader::FRAGMENT_SHADER_PATH = "assets/engine/shaders/waterFragmentShader";
+    cstr WaterShader::VERTEX_SHADER_PATH = "assets/engine/shaders/waterVertexShader";
+    cstr WaterShader::FRAGMENT_SHADER_PATH = "assets/engine/shaders/waterFragmentShader";
 
     void WaterShader::bindAttributes()
     {

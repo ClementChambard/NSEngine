@@ -1,6 +1,5 @@
 #include "Loader3D.h"
 #include "../ImageLoader.h"
-#include <iostream>
 
 namespace NS3D {
 
@@ -8,12 +7,12 @@ namespace NS3D {
     std::vector<GLuint> Loader3D::createdVbos;
     std::vector<GLuint> Loader3D::createdTexs;
 
-    RawModel* Loader3D::loadToVAO(float*        positions,     unsigned int positionsL,
-                                  float*        textureCoords, unsigned int textureCoordsL,
-                                  float*        normals,       unsigned int normalsL,
-                                  unsigned int* indices,       unsigned int indicesL)
+    RawModel* Loader3D::loadToVAO(f32*        positions,     u32 positionsL,
+                                  f32*        textureCoords, u32 textureCoordsL,
+                                  f32*        normals,       u32 normalsL,
+                                  u32* indices,       u32 indicesL)
     {
-        int vaoID = createVAO();
+        i32 vaoID = createVAO();
         bindIndicesBuffer(indices, indicesL);
         storeDataInAttributeList(0, 3, positions, positionsL);
         storeDataInAttributeList(1, 2, textureCoords, textureCoordsL);
@@ -26,9 +25,9 @@ namespace NS3D {
         return new RawModel(vaoID, indicesL);
     }
 
-    RawModel* Loader3D::loadToVAO(float* positions, unsigned int positionsL, unsigned int dimensions)
+    RawModel* Loader3D::loadToVAO(f32* positions, u32 positionsL, u32 dimensions)
     {
-        int vaoID = createVAO();
+        i32 vaoID = createVAO();
         storeDataInAttributeList(0, dimensions, positions, positionsL);
         unbindVAO();
         return new RawModel(vaoID, positionsL / dimensions);
@@ -36,9 +35,9 @@ namespace NS3D {
 
     RawModel* Loader3D::loadToVAO(ModelData* md)
     {
-        int vaoID = createVAO();
-        unsigned int nI = md->getNumIndices();
-        unsigned int nV = md->getNumVertices();
+        i32 vaoID = createVAO();
+        u32 nI = md->getNumIndices();
+        u32 nV = md->getNumVertices();
         bindIndicesBuffer(md->getIndices(), nI);
         storeDataInAttributeList(0, 3, md->getVertices(), nV*3);
         storeDataInAttributeList(1, 2, md->getTextureCoords(), nV*2);
@@ -49,16 +48,16 @@ namespace NS3D {
     }
 
 
-    GLuint Loader3D::loadCubeMap(const std::vector<std::string> images)
+    GLuint Loader3D::loadCubeMap(const std::vector<cstr> images)
     {
         GLuint texID;
         glGenTextures(1, &texID);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_CUBE_MAP, texID);
-        for (unsigned int i = 0; i < images.size(); i++)
+        for (u32 i = 0; i < images.size(); i++)
         {
-            int w, h, n;
-            uint8_t* buf = NSEngine::ImageLoader::imageToBuffer(images[i].c_str(), w, h, n);
+            i32 w, h, n;
+            bytes buf = ns::ImageLoader::imageToBuffer(images[i], w, h, n);
             glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, w, h, 0,
                     GL_RGBA, GL_UNSIGNED_BYTE, buf);
         }
@@ -92,13 +91,13 @@ namespace NS3D {
 
     }
 
-    void Loader3D::storeDataInAttributeList(int attributeNumber, unsigned int dimensions, float* data, unsigned int dataL)
+    void Loader3D::storeDataInAttributeList(i32 attributeNumber, u32 dimensions, f32* data, u32 dataL)
     {
         GLuint vboID;
         glGenBuffers(1, &vboID);
         createdVbos.push_back(vboID);
         glBindBuffer(GL_ARRAY_BUFFER, vboID);
-        glBufferData(GL_ARRAY_BUFFER, dataL*sizeof(float), data, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, dataL*sizeof(f32), data, GL_STATIC_DRAW);
         glVertexAttribPointer(attributeNumber, dimensions, GL_FLOAT, GL_FALSE, 0, 0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
@@ -108,13 +107,13 @@ namespace NS3D {
         glBindVertexArray(0);
     }
 
-    void Loader3D::bindIndicesBuffer(unsigned int* indices, unsigned int indicesL)
+    void Loader3D::bindIndicesBuffer(u32* indices, u32 indicesL)
     {
         GLuint vboID;
         glGenBuffers(1, &vboID);
         createdVbos.push_back(vboID);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboID);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesL*sizeof(int), indices, GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesL*sizeof(i32), indices, GL_STATIC_DRAW);
     }
 
 }

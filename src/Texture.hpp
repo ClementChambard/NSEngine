@@ -3,16 +3,17 @@
 
 #include <GL/glew.h>
 #include <glm/glm.hpp>
+#include "./defines.h"
 
-namespace NSEngine {
+namespace ns {
 
 class FrameBuffer;
 
 class Texture {
 public:
     Texture() {}
-    Texture(uint32_t width, uint32_t height, uint8_t* data);
-    explicit Texture(const char* name);
+    Texture(u32 width, u32 height, bytes data);
+    explicit Texture(cstr name);
     ~Texture();
     Texture(Texture const& other) = delete;
     Texture(Texture&& other);
@@ -40,26 +41,26 @@ public:
     static void setMinMagFilter(Filter minFilter, Filter magFilter);
     static void setMinMagFilter(Filter filterBoth);
 
-    static Texture* fromOpenGL(GLuint id, uint32_t w, uint32_t h);
-    static Texture* asFramebuffer(uint32_t w, uint32_t h);
+    static Texture* fromOpenGL(GLuint id, u32 w, u32 h);
+    static Texture* asFramebuffer(u32 w, u32 h);
 
     void use();
     void unuse();
     static void unuseTexture();
 
     glm::vec2 getSize() const { return {m_width, m_height}; }
-    uint32_t getWidth() const { return m_width; }
-    uint32_t getHeight() const { return m_height; }
+    u32 getWidth() const { return m_width; }
+    u32 getHeight() const { return m_height; }
     FrameBuffer* getFramebuffer() const { return m_framebuffer; }
     GLuint getOpenglId() const { return m_textureId; }
 
-    glm::vec2 getUvAt(float x, float y);
+    glm::vec2 getUvAt(f32 x, f32 y);
     glm::vec2 getUvAt(glm::vec2 pos);
 
 private:
     GLuint m_textureId = 0;
-    uint32_t m_width = 0;
-    uint32_t m_height = 0;
+    u32 m_width = 0;
+    u32 m_height = 0;
 
     // associated FrameBuffer if the texture is part of a FrameBuffer attachment
     FrameBuffer* m_framebuffer = nullptr;

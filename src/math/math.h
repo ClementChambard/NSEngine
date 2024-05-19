@@ -1,13 +1,11 @@
 #ifndef MATH_H
 #define MATH_H
 
-#include <iostream>
 #include <math.h>
 #include <vector>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-
-#include <functional>
+#include "../defines.h"
 
 #define PI 3.141592653589793f
 #define PI2 6.283185307179586f
@@ -73,11 +71,11 @@ namespace math {
         if (var1 > var3) return var3;
         return var1;
     }
-    inline float vec3maxval(glm::vec3 in)
+    inline f32 vec3maxval(glm::vec3 in)
     {
         return fmax(in.x,fmax(in.y,in.z));
     }
-    inline float vecAxisVal(glm::vec3 v, glm::vec3 axis)
+    inline f32 vecAxisVal(glm::vec3 v, glm::vec3 axis)
     {
         v *= axis;
         if (v.x != 0) return v.x;
@@ -87,7 +85,7 @@ namespace math {
     }
     inline glm::vec3 vec3max(glm::vec3 in)
     {
-        float m = vec3maxval(in);
+        f32 m = vec3maxval(in);
         if (in.x == m) return in * glm::vec3(1,0,0);
         else if (in.y == m) return in * glm::vec3(0,1,0);
         else return in * glm::vec3(0,0,1);
@@ -118,20 +116,20 @@ namespace math {
         if (var > T(0)) return T(1);
         return var;
     }
-    inline float mod(float var1, float var2)
+    inline f32 mod(f32 var1, f32 var2)
     {
-        float a = var1/var2;
-        float b = a-(float)floor(a);
-        float r = var2*b;
+        f32 a = var1/var2;
+        f32 b = a-(f32)floor(a);
+        f32 r = var2*b;
         return r;
     }
 
-    inline float barycentric(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, glm::vec2 pos)
+    inline f32 barycentric(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, glm::vec2 pos)
     {
-        float det = (p2.z-p3.z)*(p1.x-p3.x)+(p3.x-p2.x)*(p1.z-p3.z);
-        float l1 = ((p2.z-p3.z)*(pos.x-p3.x)+(p3.x-p2.x)*(pos.y-p3.z))/det;
-        float l2 = ((p3.z-p1.z)*(pos.x-p3.x)+(p1.x-p3.x)*(pos.y-p3.z))/det;
-        float l3 = 1-l1-l2;
+        f32 det = (p2.z-p3.z)*(p1.x-p3.x)+(p3.x-p2.x)*(p1.z-p3.z);
+        f32 l1 = ((p2.z-p3.z)*(pos.x-p3.x)+(p3.x-p2.x)*(pos.y-p3.z))/det;
+        f32 l2 = ((p3.z-p1.z)*(pos.x-p3.x)+(p1.x-p3.x)*(pos.y-p3.z))/det;
+        f32 l3 = 1-l1-l2;
         return l1*p1.y+l2*p2.y+l3*p3.y;
     }
 
@@ -149,44 +147,44 @@ namespace math {
         while(val < min && i--) val += (max-min);
         return val;
     }
-    inline void angle_normalize(float& a) { a = wrap(a, -PI, PI); }
+    inline void angle_normalize(f32& a) { a = wrap(a, -PI, PI); }
 
-    extern float point_distance_to_segment(glm::vec2 s1, glm::vec2 s2, glm::vec2 p);
+    extern f32 point_distance_to_segment(glm::vec2 s1, glm::vec2 s2, glm::vec2 p);
     extern bool segment_intersect(glm::vec2 a1, glm::vec2 a2, glm::vec2 b1, glm::vec2 b2);
-    extern float segment_distance_x(glm::vec2 a1, glm::vec2 a2, glm::vec2 b1, glm::vec2 b2,bool min);
-    extern float segment_distance_y(glm::vec2 a1, glm::vec2 a2, glm::vec2 b1, glm::vec2 b2,bool min);
+    extern f32 segment_distance_x(glm::vec2 a1, glm::vec2 a2, glm::vec2 b1, glm::vec2 b2,bool min);
+    extern f32 segment_distance_y(glm::vec2 a1, glm::vec2 a2, glm::vec2 b1, glm::vec2 b2,bool min);
 
-    extern float point_distance_sq(float x1, float y1, float x2, float y2);
-    extern float point_distance_sq(float x1, float y1, float z1, float x2, float y2, float z2);
-    extern float point_distance(float x1, float y1, float x2, float y2);
-    extern float point_distance(float x1, float y1, float z1, float x2, float y2, float z2);
-    extern float point_direction(float x1, float y1, float x2, float y2);
+    extern f32 point_distance_sq(f32 x1, f32 y1, f32 x2, f32 y2);
+    extern f32 point_distance_sq(f32 x1, f32 y1, f32 z1, f32 x2, f32 y2, f32 z2);
+    extern f32 point_distance(f32 x1, f32 y1, f32 x2, f32 y2);
+    extern f32 point_distance(f32 x1, f32 y1, f32 z1, f32 x2, f32 y2, f32 z2);
+    extern f32 point_direction(f32 x1, f32 y1, f32 x2, f32 y2);
 
-    inline float point_distance_sq(glm::vec2 const& p1, glm::vec2 const& p2) { return point_distance_sq(p1.x, p1.y, p2.x, p2.y); }
-    inline float point_distance(glm::vec2 const& p1, glm::vec2 const& p2) { return point_distance(p1.x, p1.y, p2.x, p2.y); }
-    inline float point_distance_sq(glm::vec3 const& p1, glm::vec3 const& p2) { return point_distance_sq(p1.x, p1.y, p1.z, p2.x, p2.y, p2.z); }
-    inline float point_distance(glm::vec3 const& p1, glm::vec3 const& p2) { return point_distance(p1.x, p1.y, p1.z, p2.x, p2.y, p2.z); }
-    inline float point_direction(glm::vec2 const& p1, glm::vec2 const& p2) { return point_direction(p1.x, p1.y, p2.x, p2.y); }
+    inline f32 point_distance_sq(glm::vec2 const& p1, glm::vec2 const& p2) { return point_distance_sq(p1.x, p1.y, p2.x, p2.y); }
+    inline f32 point_distance(glm::vec2 const& p1, glm::vec2 const& p2) { return point_distance(p1.x, p1.y, p2.x, p2.y); }
+    inline f32 point_distance_sq(glm::vec3 const& p1, glm::vec3 const& p2) { return point_distance_sq(p1.x, p1.y, p1.z, p2.x, p2.y, p2.z); }
+    inline f32 point_distance(glm::vec3 const& p1, glm::vec3 const& p2) { return point_distance(p1.x, p1.y, p1.z, p2.x, p2.y, p2.z); }
+    inline f32 point_direction(glm::vec2 const& p1, glm::vec2 const& p2) { return point_direction(p1.x, p1.y, p2.x, p2.y); }
 
-    inline float veclensq(glm::vec2 const& v) { return point_distance_sq({0,0}, v); }
-    inline float veclen(glm::vec2 const& v) { return point_distance({0,0}, v); }
-    inline float veclensq(glm::vec3 const& v) { return point_distance_sq({0,0,0}, v); }
-    inline float veclen(glm::vec3 const& v) { return point_distance({0,0,0}, v); }
+    inline f32 veclensq(glm::vec2 const& v) { return point_distance_sq({0,0}, v); }
+    inline f32 veclen(glm::vec2 const& v) { return point_distance({0,0}, v); }
+    inline f32 veclensq(glm::vec3 const& v) { return point_distance_sq({0,0,0}, v); }
+    inline f32 veclen(glm::vec3 const& v) { return point_distance({0,0,0}, v); }
 
-    extern float lengthdir_x(float length, float direction);
-    extern float lengthdir_y(float length, float direction);
-    extern glm::vec2 lengthdir_vec(float length, float direction);
-    extern glm::vec3 lengthdir_vec3(float length, float direction);
+    extern f32 lengthdir_x(f32 length, f32 direction);
+    extern f32 lengthdir_y(f32 length, f32 direction);
+    extern glm::vec2 lengthdir_vec(f32 length, f32 direction);
+    extern glm::vec3 lengthdir_vec3(f32 length, f32 direction);
 
-    extern bool point_in_rectangle(float x, float y, float x1, float y1, float x2, float y2);
-    extern bool rectangle_intersect(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4, bool equal = false);
+    extern bool point_in_rectangle(f32 x, f32 y, f32 x1, f32 y1, f32 x2, f32 y2);
+    extern bool rectangle_intersect(f32 x1, f32 y1, f32 x2, f32 y2, f32 x3, f32 y3, f32 x4, f32 y4, bool equal = false);
     inline bool rectangle_intersect(glm::vec4 r1, glm::vec4 r2, bool equal = false)
     {
         return rectangle_intersect(r1.x,r1.y,r1.z,r1.w,r2.x,r2.y,r2.z,r2.w,equal);
     }
 
     //template <typename T>
-    inline void shift_vector(std::vector<float>& v, float firstvalue)
+    inline void shift_vector(std::vector<f32>& v, f32 firstvalue)
     {
         for (size_t i = v.size()-1; i > 0; i--)
         {
@@ -195,7 +193,7 @@ namespace math {
         v[0] = firstvalue;
     }
 
-    extern float warp(float val, float min, float max);
+    extern f32 warp(f32 val, f32 min, f32 max);
 }
     
 #endif

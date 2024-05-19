@@ -3,13 +3,13 @@
 
 #include <SDL2/SDL.h>
 
-namespace NSEngine {
+namespace ns {
 
-    class IEventProcessor {
-        public:
-            virtual ~IEventProcessor() {};
-            virtual void ProcessEvent(SDL_Event* event, bool& capture_keyboard, bool& capture_mouse) = 0;
-    };
+class IEventProcessor {
+    public:
+        virtual ~IEventProcessor() {};
+        virtual void ProcessEvent(SDL_Event* event, bool& capture_keyboard, bool& capture_mouse) = 0;
+};
 
 }
 

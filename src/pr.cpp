@@ -1,4 +1,4 @@
 #include "pr.h"
-std::string NSEngine::prBeg = "";
-std::string NSEngine::prSep = " ";
-std::string NSEngine::prEnd = "\n";
+std::string ns::prBeg = "";
+std::string ns::prSep = " ";
+std::string ns::prEnd = "\n";

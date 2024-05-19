@@ -6,19 +6,19 @@
 
 namespace NS3D {
 
-    class TexturedModel {
-        public:
-            TexturedModel(RawModel* mod, ModelTexture* tex) : model(mod), texture(tex) {}
-            ~TexturedModel() {}
+class TexturedModel {
+    public:
+        TexturedModel(RawModel* mod, ModelTexture* tex) : model(mod), texture(tex) {}
+        ~TexturedModel() {}
 
-            RawModel* getRawModel() const { return model; }
-            ModelTexture* getModelTexture() const { return texture; }
+        RawModel* getRawModel() const { return model; }
+        ModelTexture* getModelTexture() const { return texture; }
 
-        private: 
-            RawModel* model;
-            ModelTexture* texture;
+    private: 
+        RawModel* model;
+        ModelTexture* texture;
 
-    };
+};
 
 }
 

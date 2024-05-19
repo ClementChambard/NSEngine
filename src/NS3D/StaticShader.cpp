@@ -1,9 +1,11 @@
 #include "StaticShader.h"
 
+#include <string>
+
 namespace NS3D {
 
-    const std::string StaticShader::VERTEX_SHADER_PATH = "assets/engine/shaders/vertexShader";
-    const std::string StaticShader::FRAGMENT_SHADER_PATH = "assets/engine/shaders/fragmentShader";
+    cstr StaticShader::VERTEX_SHADER_PATH = "assets/engine/shaders/vertexShader";
+    cstr StaticShader::FRAGMENT_SHADER_PATH = "assets/engine/shaders/fragmentShader";
 
     void StaticShader::bindAttributes()
     {
@@ -27,9 +29,9 @@ namespace NS3D {
 
         for (size_t i = 0; i < MAX_LIGHTS; i++)
         {
-            location_lightPosition[i] = getUniformLocation("lightPosition["+std::to_string(i)+"]");
-            location_lightColor[i]    = getUniformLocation("lightColor["+std::to_string(i)+"]"   );
-            location_attenuation[i]   = getUniformLocation("attenuation["+std::to_string(i)+"]"  );
+            location_lightPosition[i] = getUniformLocation(("lightPosition["+std::to_string(i)+"]").c_str());
+            location_lightColor[i]    = getUniformLocation(("lightColor["+std::to_string(i)+"]"   ).c_str());
+            location_attenuation[i]   = getUniformLocation(("attenuation["+std::to_string(i)+"]"  ).c_str());
         }
     }
 

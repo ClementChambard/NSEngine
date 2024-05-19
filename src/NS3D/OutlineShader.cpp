@@ -3,8 +3,8 @@
 
 namespace NS3D {
 
-    const std::string OutlineShader::VERTEX_SHADER_PATH = "assets/engine/shaders/outlineVertex";
-    const std::string OutlineShader::FRAGMENT_SHADER_PATH = "assets/engine/shaders/outlineFragment";
+    cstr OutlineShader::VERTEX_SHADER_PATH = "assets/engine/shaders/outlineVertex";
+    cstr OutlineShader::FRAGMENT_SHADER_PATH = "assets/engine/shaders/outlineFragment";
 
     void OutlineShader::bindAttributes()
     {

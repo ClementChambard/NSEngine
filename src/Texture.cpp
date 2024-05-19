@@ -2,9 +2,9 @@
 #include "./FrameBuffer.h"
 #include "./stb_image.h"
 
-namespace NSEngine {
+namespace ns {
 
-Texture* Texture::fromOpenGL(GLuint id, uint32_t w, uint32_t h) {
+Texture* Texture::fromOpenGL(GLuint id, u32 w, u32 h) {
     Texture* t = new Texture();
     t->m_framebuffer = nullptr;
     t->m_textureId = id;
@@ -13,7 +13,7 @@ Texture* Texture::fromOpenGL(GLuint id, uint32_t w, uint32_t h) {
     return t;
 }
 
-Texture* Texture::asFramebuffer(uint32_t w, uint32_t h) {
+Texture* Texture::asFramebuffer(u32 w, u32 h) {
     FrameBuffer* fb = new FrameBuffer(w, h, FrameBuffer::DEPTH_RENDER_BUFFER);
     Texture* t = new Texture();
     t->m_framebuffer = fb;
@@ -23,10 +23,10 @@ Texture* Texture::asFramebuffer(uint32_t w, uint32_t h) {
     return t;
 }
 
-Texture::Texture(const char* filename) {
-    int nrChannels;
-    int width;
-    int height;
+Texture::Texture(cstr filename) {
+    i32 nrChannels;
+    i32 width;
+    i32 height;
     unsigned char *data = stbi_load(filename,
         &width, &height, &nrChannels, 0);
     m_width = width;
@@ -46,7 +46,7 @@ Texture::Texture(const char* filename) {
     m_framebuffer = nullptr;
 }
 
-Texture::Texture(uint32_t width, uint32_t height, uint8_t* data) {
+Texture::Texture(u32 width, u32 height, u8* data) {
     m_width = width;
     m_height = height;
     glGenTextures(1, &m_textureId);
@@ -150,7 +150,7 @@ void Texture::unuseTexture() {
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-glm::vec2 Texture::getUvAt(float x, float y) {
+glm::vec2 Texture::getUvAt(f32 x, f32 y) {
     return {
         x / static_cast<float>(m_width),
         y / static_cast<float>(m_height)

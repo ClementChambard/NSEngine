@@ -2,11 +2,11 @@
 
 namespace math {
 
-    float point_distance_to_segment(glm::vec2 s1, glm::vec2 s2, glm::vec2 p)
+    f32 point_distance_to_segment(glm::vec2 s1, glm::vec2 s2, glm::vec2 p)
     {
-        float tempt = (p.x-s1.x)*(s2.x-s1.x)+(p.y-s1.y)*(s2.y-s1.y);
-        float dist = point_distance_sq(s1.x,s1.y,s2.x,s2.y);
-        float t = clamp(tempt / dist,0.f,1.f);
+        f32 tempt = (p.x-s1.x)*(s2.x-s1.x)+(p.y-s1.y)*(s2.y-s1.y);
+        f32 dist = point_distance_sq(s1.x,s1.y,s2.x,s2.y);
+        f32 t = clamp(tempt / dist,0.f,1.f);
         
         return point_distance(p.x,p.y,s1.x+(s2.x-s1.x)*t,s1.y+(s2.y-s1.y)*t);
     }
@@ -40,7 +40,7 @@ namespace math {
         return false; // Doesn't fall in any of the above cases 	
     }
 
-    float segment_distance_x(glm::vec2 a1, glm::vec2 a2, glm::vec2 b1, glm::vec2 b2, bool min)
+    f32 segment_distance_x(glm::vec2 a1, glm::vec2 a2, glm::vec2 b1, glm::vec2 b2, bool min)
     {
         if (a1.y > a2.y)
             swap(a1,a2);
@@ -49,8 +49,8 @@ namespace math {
         
         if (a1.y > b2.y || b1.y > a2.y) return 0;
 
-        float disttop = 0;
-        float distbottom = 0;
+        f32 disttop = 0;
+        f32 distbottom = 0;
         
         if (b1.y < a1.y) disttop = b1.x+(b2.x-b1.x)*(a1.y-b1.y)/(b2.y-b1.y)-a1.x;
         else disttop = b1.x - (a1.x+(a2.x-a1.x)*(b1.y-a1.y)/(a2.y-a1.y));
@@ -60,7 +60,7 @@ namespace math {
         return min?fmin(disttop,distbottom):fmax(disttop,distbottom);
     }
 
-    float segment_distance_y(glm::vec2 a1, glm::vec2 a2, glm::vec2 b1, glm::vec2 b2, bool min)
+    f32 segment_distance_y(glm::vec2 a1, glm::vec2 a2, glm::vec2 b1, glm::vec2 b2, bool min)
     {
         if (a1.x > a2.x)
             swap(a1,a2);
@@ -69,8 +69,8 @@ namespace math {
 
         if (a1.x > b2.x || b1.x > a2.x) return 0;
 
-        float distleft = 0;
-        float distright = 0;
+        f32 distleft = 0;
+        f32 distright = 0;
         
         if (b1.x < a1.x) distleft = b1.y+(b2.y-b1.y)*(a1.x-b1.x)/(b2.x-b1.x)-a1.y;
         else distleft = b1.y - a1.y+(a2.y-a1.y)*(b1.x-a1.x)/(a2.x-a1.x);
@@ -80,59 +80,59 @@ namespace math {
         return min?fmin(distleft,distright):fmax(distleft,distright);
     }
 
-    float point_direction(float x1, float y1, float x2, float y2)
+    f32 point_direction(f32 x1, f32 y1, f32 x2, f32 y2)
     {
         if (x1 == x2 && y1 == y2) return 0;
-        float a = atan((float)(y2-y1) / (float)(x2 - x1));
+        f32 a = atan((f32)(y2-y1) / (f32)(x2 - x1));
         if ((x2-x1) < 0) a -= PI;
         if (a < -PI) a+=2*PI;
         return a;
     }
 
-    float point_distance_sq(float x1, float y1, float x2, float y2)
+    f32 point_distance_sq(f32 x1, f32 y1, f32 x2, f32 y2)
     {
-        float a = (x2-x1), b = (y2-y1);
+        f32 a = (x2-x1), b = (y2-y1);
         return a*a+b*b;
     }
 
-    float point_distance_sq(float x1, float y1, float z1, float x2, float y2, float z2)
+    f32 point_distance_sq(f32 x1, f32 y1, f32 z1, f32 x2, f32 y2, f32 z2)
     {
-        float a = (x2-x1), b = (y2-y1), c = (z2-z1);
+        f32 a = (x2-x1), b = (y2-y1), c = (z2-z1);
         return a*a+b*b+c*c;
     }
 
-    float point_distance(float x1, float y1, float x2, float y2)
+    f32 point_distance(f32 x1, f32 y1, f32 x2, f32 y2)
     { return sqrt(point_distance_sq(x1,y1,x2,y2)); }
-    float point_distance(float x1, float y1, float z1, float x2, float y2, float z2)
+    f32 point_distance(f32 x1, f32 y1, f32 z1, f32 x2, f32 y2, f32 z2)
     { return sqrt(point_distance_sq(x1,y1,z1,x2,y2,z2)); }
 
-    float lengthdir_x(float length, float direction)
+    f32 lengthdir_x(f32 length, f32 direction)
     {
         return length * cos(direction);
     }
 
-    float lengthdir_y(float length, float direction)
+    f32 lengthdir_y(f32 length, f32 direction)
     {
         return length * sin(direction);
     }
 
-    glm::vec2 lengthdir_vec(float length, float direction)
+    glm::vec2 lengthdir_vec(f32 length, f32 direction)
     {
         return glm::vec2(lengthdir_x(length, direction), lengthdir_y(length, direction));
     }
-    glm::vec3 lengthdir_vec3(float length, float direction)
+    glm::vec3 lengthdir_vec3(f32 length, f32 direction)
     {
         return glm::vec3(lengthdir_x(length, direction), lengthdir_y(length, direction), 0);
     }
 
-    bool point_in_rectangle(float x, float y, float x1, float y1, float x2, float y2)
+    bool point_in_rectangle(f32 x, f32 y, f32 x1, f32 y1, f32 x2, f32 y2)
     {
         if (x2 < x1) swap(x1,x2);
         if (y2 < y1) swap(y1,y2);
         return (x <= x2 && x >= x1 && y <= y2 && y >= y1);
     }
 
-    bool rectangle_intersect(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4, bool equals)
+    bool rectangle_intersect(f32 x1, f32 y1, f32 x2, f32 y2, f32 x3, f32 y3, f32 x4, f32 y4, bool equals)
     {
         if (x2 < x1) swap(x1,x2);
         if (y2 < y1) swap(y1,y2);
@@ -150,7 +150,7 @@ namespace math {
         }
     }
 
-    float warp(float val, float min, float max)
+    f32 warp(f32 val, f32 min, f32 max)
     {
         while (val < min) val += (max-min);
         while (val >= max) val += (min-max);

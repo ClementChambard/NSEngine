@@ -2,30 +2,31 @@
 #define TIMINGDOTH
 
 #include <SDL2/SDL.h>
+#include "./defines.h"
 
-namespace NSEngine {
+namespace ns {
 
-    class FpsLimiter {
+class FpsLimiter {
 
-        public:
-            FpsLimiter();
+    public:
+        FpsLimiter();
 
-            void setMaxFps(int maxfps);
+        void setMaxFps(i32 maxfps);
 
-            void begin();
-            float end();
+        void begin();
+        f32 end();
 
-            void DrawFPS() const;
-            float GetFPS() const;
+        void DrawFPS() const;
+        f32 GetFPS() const;
 
-            int currentTexSwap = 0;
+        i32 currentTexSwap = 0;
 
-        private:
-            int maxFPS;
-            float currentFps = 0.f;
-            unsigned int begin_ticks;
-            float calculateFPS(float frameTimes);
-    };
+    private:
+        i32 maxFPS;
+        f32 currentFps = 0.f;
+        u32 begin_ticks;
+        f32 calculateFPS(f32 frameTimes);
+};
 
 }
 

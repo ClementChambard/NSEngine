@@ -1,47 +1,41 @@
 #ifndef FILEOPENER
 #define FILEOPENER
 
-
 #include <vector>
-#include <iostream>
-#include <fstream>
+#include <string>
 #include "Bytestreams.h"
+#include "./defines.h"
 
-namespace NSEngine {
+namespace ns {
 
-    class FileOpener
-    {
-        public:
-            static bool Read(Bytestream& bs, std::string const& file);
-            static bool Write(Bytestream const& bs, std::string const& file);
+class FileOpener
+{
+    public:
+        static bool Read(Bytestream& bs, cstr file);
+        static bool Write(Bytestream const& bs, cstr file);
 
+        static bool readFileToBuffer(cstr filename, ptr &data, i32& size);
+        static bool readFileToBuffer(cstr filename, std::vector<char>& buffer);
+        static bool readFileToBuffer(cstr filename, std::vector<u8>& buffer);
+        static bool readFileToBuffer(cstr filename, std::string& buffer);
+        static bool readFileLines(cstr filename, std::vector<std::string>& lines);
 
-            static bool readFileToBuffer(const std::string& filename, void* &data, int& size);
-            static bool readFileToBuffer(const std::string& filename, std::vector<char>& buffer);
-            static bool readFileToBuffer(const std::string& filename, std::vector<uint8_t>& buffer);
-            static bool readFileToBuffer(const std::string& filename, std::string& buffer);
-            static bool readFileLines(const std::string& filename, std::vector<std::string>& lines);
+        static bool openFile(cstr filename);
+        static bool openFileLines(cstr filename);
+        static void closeFile();
+        static u32 getSize();
 
-            static bool openFile(const std::string& filename);
-            static bool openFileLines(const std::string& filename);
-            static void closeFile();
-            static uint32_t getSize();
-
-            static bool readLine(std::string& l);
-            static uint8_t readUint8(int offset);
-            static int8_t readInt8(int offset);
-            static uint16_t readUint16(int offset);
-            static int16_t readInt16(int offset);
-            static uint32_t readUint32(int offset);
-            static int32_t readInt32(int offset);
-            static float readFloat(int offset);
-        
-            static std::string readString(int offset, int& offsetEnd);
-
-        private:
-            static std::ifstream file;
-
-    };
+        static bool readLine(std::string& l);
+        static u8 readUint8(i32 offset);
+        static i8 readInt8(i32 offset);
+        static u16 readUint16(i32 offset);
+        static i16 readInt16(i32 offset);
+        static u32 readUint32(i32 offset);
+        static i32 readInt32(i32 offset);
+        static f32 readFloat(i32 offset);
+    
+        static std::string readString(int offset, int& offsetEnd);
+};
 
 }
 

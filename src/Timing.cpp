@@ -1,28 +1,25 @@
 #include "Timing.h"
 #include "Error.h"
 
-#include <iostream>
-#include <string>
-
-namespace NSEngine {
+namespace ns {
 
 FpsLimiter::FpsLimiter() {}
 
 void FpsLimiter::begin() { begin_ticks = SDL_GetTicks(); }
 
-float FpsLimiter::end() {
-  int frameTicks = SDL_GetTicks() - begin_ticks;
+f32 FpsLimiter::end() {
+  i32 frameTicks = SDL_GetTicks() - begin_ticks;
   if (frameTicks < 1000 / 60)
     SDL_Delay(1000 / 60 - frameTicks);
 
-  float frameTime = SDL_GetTicks() - begin_ticks;
+  f32 frameTime = SDL_GetTicks() - begin_ticks;
 
   calculateFPS(frameTime);
 
-  return static_cast<int>(1000 / frameTime);
+  return static_cast<i32>(1000 / frameTime);
 }
 
-void FpsLimiter::setMaxFps(int maxfps) {
+void FpsLimiter::setMaxFps(i32 maxfps) {
   maxFPS = maxfps;
   info("max FPS set to", maxfps);
 }
@@ -31,17 +28,17 @@ void FpsLimiter::DrawFPS() const {
   // currentTexSwap = 0;
 }
 
-float FpsLimiter::GetFPS() const { return currentFps; }
+f32 FpsLimiter::GetFPS() const { return currentFps; }
 
-float FpsLimiter::calculateFPS(float frameTime) {
-  static const int NUM_SAMPLES = 20;
-  static float frameTimes[NUM_SAMPLES];
-  static int currentFrame = 1;
+f32 FpsLimiter::calculateFPS(f32 frameTime) {
+  static const i32 NUM_SAMPLES = 20;
+  static f32 frameTimes[NUM_SAMPLES];
+  static i32 currentFrame = 1;
   frameTimes[currentFrame % NUM_SAMPLES] = frameTime;
 
   if (currentFrame == 0) {
-    float tim = 0;
-    for (int i = 0; i < NUM_SAMPLES; i++)
+    f32 tim = 0;
+    for (i32 i = 0; i < NUM_SAMPLES; i++)
       tim += frameTimes[i];
     tim /= NUM_SAMPLES;
     // std::to_string(tim);

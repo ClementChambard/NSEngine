@@ -1,8 +1,6 @@
 #ifndef COLOR_H
 #define COLOR_H
 
-#include <iostream>
-
 struct Color {
     union {
         struct {
@@ -80,7 +78,7 @@ struct Color {
         Color res;
         float sa = 1.f - over.a;
         res.a = a * sa + over.a;
-        if (res.a == 0) return {0, 0, 0, 0};
+        if (res.a == 0) return Color{0, 0, 0, 0};
         else {
             res.r = (r * a * sa + over.r * over.a) / res.a;
             res.g = (g * a * sa + over.g * over.a) / res.a;

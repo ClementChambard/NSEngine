@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-namespace NSEngine {
+namespace ns {
 
     extern std::string prBeg;
     extern std::string prEnd;

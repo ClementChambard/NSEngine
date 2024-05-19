@@ -2,8 +2,8 @@
 
 namespace NS3D {
 
-    const std::string SkyboxShader::VERTEX_SHADER_PATH = "assets/engine/shaders/skyboxVertexShader";
-    const std::string SkyboxShader::FRAGMENT_SHADER_PATH = "assets/engine/shaders/skyboxFragmentShader";
+    cstr SkyboxShader::VERTEX_SHADER_PATH = "assets/engine/shaders/skyboxVertexShader";
+    cstr SkyboxShader::FRAGMENT_SHADER_PATH = "assets/engine/shaders/skyboxFragmentShader";
 
     void SkyboxShader::bindAttributes()
     {

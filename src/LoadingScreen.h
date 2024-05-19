@@ -4,21 +4,21 @@
 #include <functional>
 #include <future>
 
-namespace NSEngine {
+namespace ns {
 
-    extern void nsLoadScreen(std::atomic_bool& run, std::atomic_bool& done);
-    extern void blackLoadScreen(std::atomic_bool& run, std::atomic_bool& done);
+extern void nsLoadScreen(std::atomic_bool& run, std::atomic_bool& done);
+extern void blackLoadScreen(std::atomic_bool& run, std::atomic_bool& done);
 
-    class LoadingScreen {
+class LoadingScreen {
 
-        public:
-            static void Load(std::function<void(void)> load, std::function<void(std::atomic_bool&, std::atomic_bool&)> draw);
+    public:
+        static void Load(std::function<void(void)> load, std::function<void(std::atomic_bool&, std::atomic_bool&)> draw);
 
-        private:
-            static std::future<void> drawing_task;
-            static std::atomic_bool loading;
-            static std::atomic_bool done;
-    };
+    private:
+        static std::future<void> drawing_task;
+        static std::atomic_bool loading;
+        static std::atomic_bool done;
+};
 
 }
 

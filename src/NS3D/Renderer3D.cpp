@@ -1,12 +1,14 @@
 #include "Renderer3D.h"
-#include "../NSEngine.h"
+#include "../NSEngine.hpp"
 #include "WaterFrameBuffers.h"
 
 namespace NS3D {
 
     Renderer3D::Renderer3D()
     {
-        NSEngine::toggleCulling(true);
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
+
         objRenderer = new ObjectRenderer(new StaticShader());
         terRenderer = new TerrainRenderer(new TerrainShader());
         skyRenderer = new SkyboxRenderer(new SkyboxShader());
@@ -67,7 +69,7 @@ namespace NS3D {
         lights.push_back(l);
     }
 
-    void Renderer3D::render(NSEngine::FrameBuffer* fbo)
+    void Renderer3D::render(ns::FrameBuffer* fbo)
     {
         if (!waterToRender.empty())
         {
@@ -78,14 +80,14 @@ namespace NS3D {
             objRenderer->shader->start();
             objRenderer->shader->SetClipPlane({0,1,0,-waterToRender[0]->getHeight()-0.8f});
             objRenderer->shader->stop();
-            NSEngine::activeCamera3D()->InvertY(waterToRender[0]->getHeight());
+            ns::activeCamera3D()->InvertY(waterToRender[0]->getHeight());
             WaterFrameBuffers::bindReflectionFrameBuffer();
             prepare();
             objRenderer->render(objectsToRender, lights);
             terRenderer->render(terrainsToRender, lights);
             skyRenderer->render();
             WaterFrameBuffers::unbindCurrentFrameBuffer();
-            NSEngine::activeCamera3D()->InvertY(waterToRender[0]->getHeight());
+            ns::activeCamera3D()->InvertY(waterToRender[0]->getHeight());
             terRenderer->shader->start();
             terRenderer->shader->SetClipPlane({0,-1,0,waterToRender[0]->getHeight()+0.8f});
             terRenderer->shader->stop();
