@@ -1,0 +1,80 @@
+* Current architecture :
+** Files :
+- NSEngine                     Main
+- Window                       Very important
+- InputManager                 Important
+- Keys
+- DrawFuncs                    Lots here
+- math/                      Math ???
+  - math
+  - Random
+- EventProcessor               Nice
+- Camera3D                     Redo would be better but used
+- FrameBuffer                  Nice to have
+- ShaderProgram                Shaders
+- AnimShader
+- vertex                       Old & bad but still used a lot
+- TextureManager               Old but used
+- Timing                       Old but used
+- FileOpener                   Old but used
+- SpriteBatch                  Old but used a lot
+
+** External:
+- stb_image
+
+* Redo/Remove
+- LoadingScreen                Nice but redo better
+- PostProcessing               PostProcessings
+  - PPEffect
+  - HorizontalBlur
+  - VerticalBlur
+  - Shockwave
+  - HorizontalBlurShader
+  - VerticalBlurShader
+  - ShockwaveShader
+  - ShockwaveEffectShader
+- NS3D/                      NSEngine 3D sub library (separated)
+  -
+- NSGui/                     NSEngine Gui sub library (separated)
+  - not done
+- NSRig/                     NSEngine Rigging sub library (separated)
+  - NSRig.h
+  - NSRigAnim.h
+  - NSRigBone.h
+  - NSRigEditor
+  - NSRigGraphics
+  - NSRigGraphicsLine
+
+* Bloat
+- taskSchedule                   Old, not used but interesting
+- LayerRenderer                  Renderer to go with 3d, think it is used
+- Bytestreams                    Nice, redo?
+
+* New architecture :
+
+You can create an instance of engine / extends -> init + window (given sizes)
+from here, override on_create, on_update, on_render, and on_destroy
+
+
+* TODO LIST:
+** TODO Move things used only by a few projects
+** TODO Main architecture [1/2]
+- [X] define engine interface
+- [ ] replace old engine by engine interface
+** TODO Camera system [0/5]
+- [ ] base camera class/interface
+- [ ] redo camera3d
+- [ ] redo camera2d
+- [ ] redo functions that use those
+- [ ] go in projects / modules to fix
+
+** TODO Logging system [1/1]
+- [X] replace Error & pr by logging system
+** TODO Audio module [0/3]
+- [ ] Load sound files
+- [ ] Play sound effect [0/2]
+  - [ ] Play a sound
+  - [ ] Sound sources
+- [ ] Play music [0/2]
+  - [ ] Play continuous music
+  - [ ] Place loopPoints -> seamless loop
