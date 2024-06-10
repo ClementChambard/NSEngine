@@ -61,7 +61,7 @@ namespace ns {
             std::vector<char> errorLog(maxLength);
             glGetShaderInfoLog(id, maxLength, &maxLength, &errorLog[0]);
             glDeleteShader(id); //Don't leak the shader.
-            NS_FATAL("Shader failed to compile: %s", &(errorLog[0]));
+            NS_FATAL("Shader '%s' failed to compile: %s", file, &(errorLog[0]));
             exit(1);
         }
         return id;

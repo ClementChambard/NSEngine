@@ -6,17 +6,15 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_BUILD_TYPE "Debug")
 set(PROJECT_URL "https://github.com/ClementChambard/NSEngine")
 
-add_compile_options(
-    -Wall
-    -Wextra 
-    -Werror 
-    -O4)
+add_compile_options(-Wall -Wextra -Werror)
 
 if(CMAKE_BUILD_TYPE EQUAL "Debug")
   add_compile_options(-D_DEBUG)
+else()
+  add_compile_options(-O4)
 endif()
 
-project(NSEngine VERSION 1.0)
+project(NSEngine VERSION 1.1)
 
 add_subdirectory(engine)
 add_subdirectory(testbed)

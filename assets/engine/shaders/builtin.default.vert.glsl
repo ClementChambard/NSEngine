@@ -5,17 +5,15 @@ in vec4 vertexColor;
 in vec2 vertexTexCoords;
 
 out vec4 fragmentColor;
-out vec3 fragmentPosition;
 out vec2 fragmentTexCoords;
 
-uniform mat4 NSCamera;
+uniform mat4 viewMatrix;
+uniform mat4 projectionMatrix
 
 void main()
 {
-    gl_Position = (NSCamera * vec4(vertexPosition, 1.0));
-    //gl_Position.w = 1.f;
+    gl_Position = projectionMatrix * viewMatrix * vec4(vertexPosition, 1.0);
 
     fragmentColor = vertexColor;
-    fragmentPosition = vertexPosition.xyz;
     fragmentTexCoords = vertexTexCoords;
 }

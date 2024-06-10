@@ -78,3 +78,6 @@ from here, override on_create, on_update, on_render, and on_destroy
 - [ ] Play music [0/2]
   - [ ] Play continuous music
   - [ ] Place loopPoints -> seamless loop
+
+** TODO Asset system
+- assets should be loaded from a path, add loader system ?

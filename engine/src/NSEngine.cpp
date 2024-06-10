@@ -1,13 +1,10 @@
 #include "NSEngine.hpp"
-#include <SDL2/SDL.h>
-#include "InputManager.h"
+#include "input.hpp"
 #include "TextureManager.h"
 #include "./logger.h"
 #include "./memory.h"
-
-#ifdef NS_USE_IMGUI
-#include <ImGuiContext.hpp>
-#endif
+#include <cstdio>
+#include "platform/platform.h"
 
 namespace ns {
 
@@ -16,9 +13,13 @@ i32 DEBUG_LAYER_ID = 0;
 IEngine* IEngine::instance = nullptr;
 
 static usize log_req = 0;
-static void* log_mem = 0;
+static ptr log_mem = 0;
+static usize im_req = 0;
+static ptr im_mem = 0;
 
-IEngine::IEngine(i32 w, i32 h, cstr name)
+extern void NSMOD_initModules();
+
+IEngine::IEngine(u32 w, u32 h, cstr name)
 {
     if (instance) {
         NS_FATAL("Can't have multiple instances of Engine");
@@ -30,17 +31,22 @@ IEngine::IEngine(i32 w, i32 h, cstr name)
     initialize_logging(&log_req, log_mem);
     log_mem = ns::alloc(log_req, MemTag::APPLICATION);
     initialize_logging(&log_req, log_mem);
+    ns::InputManager::initialize(&im_req, im_mem);
+    im_mem = ns::alloc(im_req, MemTag::APPLICATION);
+    ns::InputManager::initialize(&im_req, im_mem);
 
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER) != 0) {
-        NS_FATAL("Failed to initialize SDL");
-        exit(1);
+    m_mainWindow.configure({name, w, h, 0});
+    m_mainWindow.open();
+    ns::InputManager::capture_window_events(&m_mainWindow);
+    NS_INFO("Main window successfuly initialized");
+
+    GLenum Error = glewInit();
+    if (Error != GLEW_OK) {
+      NS_FATAL("Failed to initialize GLEW: %s", glewGetErrorString(Error));
+      exit(1);
     }
 
-    m_window.Init(name, w, h, 0);
-
-#ifdef NS_USE_IMGUI
-    new ImGuiContext(m_window.getPlatformWindow());
-#endif
+    NSMOD_initModules();
 
     TextureManager::RegisterTexture("assets/engine/textures/defaultTexture.png");
 
@@ -53,10 +59,13 @@ IEngine::~IEngine()
 #ifdef NS_USE_IMGUI
     delete ImGuiContext::getInstance();
 #endif
-    m_window.destroy();
-    SDL_Quit();
+
+    if (m_mainWindow.isOpen()) m_mainWindow.close();
+
     NS_INFO("Quit engine");
 
+    ns::InputManager::cleanup(im_mem);
+    ns::free(im_mem, im_req, MemTag::APPLICATION);
     shutdown_logging(log_mem);
     ns::free(log_mem, log_req, MemTag::APPLICATION);
 
@@ -68,16 +77,39 @@ IEngine::~IEngine()
     instance = nullptr;
 }
 
-void IEngine::run()
+i32 IEngine::run()
 {
     on_create_engine();
-    while (m_gameflags.flags.running) {
-        m_fps.begin();
+
+    // TODO: Should be able to update this value when updating m_maxFps
+    f64 target_frame_time = 1.0 / static_cast<f64>(m_maxFps);
+
+    while (m_gameflags.running) {
+        f64 frame_start_time = platform::get_absolute_time();
+
+        // Game loop
         on_update_engine();
+        if (!m_gameflags.running) break;
         on_render_engine();
-        m_fps.end();
+        
+        // Post game loop
+        f64 frame_end_time = platform::get_absolute_time();
+        f64 frame_elapsed_time = frame_end_time - frame_start_time;
+        m_lastFrameTime = static_cast<f32>(frame_elapsed_time);
+        f64 remaining_seconds = target_frame_time - frame_elapsed_time;
+
+        // TODO: Better fps calculations
+        if (remaining_seconds > 0.0) {
+            m_currentFps = m_maxFps;
+            u64 remaining_ms = static_cast<u64>(remaining_seconds * 1000);
+            if (remaining_ms > 0) platform::sleep(remaining_ms - 1);
+        } else {
+            m_currentFps = 1.0 / frame_elapsed_time;
+        }
     }
     on_destroy_engine();
+    // TODO: return exitcode ?
+    return 0;
 }
 
 void IEngine::on_create_engine()
@@ -88,63 +120,57 @@ void IEngine::on_create_engine()
 
 void IEngine::on_update_engine()
 {
-    InputManager::UpdateKeys();
+    // InputManager::UpdateKeys();
+    ns::InputManager::update(m_lastFrameTime);
 
-    SDL_Event event;
+    // SDL_Event event;
 
     //Process events
-    while(SDL_PollEvent(&event))
-    {
-        switch (event.type)
-        {
-            case SDL_QUIT:
-                m_gameflags.flags.running = false;
-                break;
-            default:
-                break;
-        }
-        InputManager::CheckEvents(event);
 
-        bool noMouse = false;
-        bool noKeyboard = false;
-        for (auto e : m_eventProcessors)
-        {
-            if (event.type == SDL_MOUSEMOTION) noMouse = false;
-            e->ProcessEvent(&event, noKeyboard, noMouse);
-        }
-    }
+    if (m_mainWindow.isOpen()) m_mainWindow.processEvents();
+    if (!m_mainWindow.isOpen()) { m_gameflags.running = false; return; }
+
+    // while(SDL_PollEvent(&event))
+    // {
+    //     switch (event.type)
+    //     {
+    //         case SDL_QUIT:
+    //             m_gameflags.flags.running = false;
+    //             break;
+    //         default:
+    //             break;
+    //     }
+    //     InputManager::CheckEvents(event);
+    // 
+    //     bool noMouse = false;
+    //     bool noKeyboard = false;
+    //     for (auto e : m_eventProcessors)
+    //     {
+    //         if (event.type == SDL_MOUSEMOTION) noMouse = false;
+    //         e->ProcessEvent(&event, noKeyboard, noMouse);
+    //     }
+    // }
 
     //Update debug commands
-    if (Inputs::Keyboard().Pressed(NSK_f1)) m_gameflags.flags.debugInfo = !m_gameflags.flags.debugInfo;
-    if (Inputs::Keyboard().Pressed(NSK_f2)) m_gameflags.flags.wireframe = !m_gameflags.flags.wireframe;
-    if (Inputs::Keyboard().Pressed(NSK_f3)) m_gameflags.flags.framebyframe = !m_gameflags.flags.framebyframe;
-    if (Inputs::Keyboard().Pressed(NSK_f4)) m_gameflags.flags.freecam = !m_gameflags.flags.freecam;
-    if (Inputs::Keyboard().Pressed(NSK_f10)) m_window.nextDisplaymode();
-    if (m_gameflags.flags.framebyframe && !Inputs::Keyboard().Pressed(NSK_backspace) && !Inputs::Keyboard().Down(NSK_equals)) return;
+    if (keyboard::pressed(Key::F1)) m_gameflags.debugInfo = !m_gameflags.debugInfo;
+    if (keyboard::pressed(Key::F2)) m_gameflags.wireframe = !m_gameflags.wireframe;
+    if (keyboard::pressed(Key::F3)) m_gameflags.framebyframe = !m_gameflags.framebyframe;
+    if (keyboard::pressed(Key::F4)) m_gameflags.freecam = !m_gameflags.freecam;
+    if (m_gameflags.framebyframe && !keyboard::pressed(Key::BACKSPACE) && !keyboard::down(Key::NUMPAD_EQUAL)) return;
 
     on_update();
-
-    //Update camera
-    if (m_cam3d) m_cam3d->Update(m_gameflags.flags.freecam);
 }
 
 void IEngine::on_render_engine()
 {
-    on_render_pre();
-    m_window.InitDrawing();
     on_render();
-    m_window.EndDrawing(render_func);
-    on_render_post();
-    m_window.swapBuffers();
+    m_mainWindow.swapBuffers();
 }
 
 void IEngine::on_destroy_engine()
 {
     on_destroy();
     m_layers.clear();
-    m_eventProcessors.clear();
-    if (m_cam3d != nullptr) delete m_cam3d;
-    m_cam3d = nullptr;
 }
 
 i32 IEngine::addGameLayer(bool depthTest, bool is_static) {
@@ -154,10 +180,6 @@ i32 IEngine::addGameLayer(bool depthTest, bool is_static) {
   m_layers.back().depthTest = depthTest;
   NS_INFO("added new graphics layer %d of type %d%d", id, is_static, depthTest);
   return id;
-}
-
-Camera3D* activeCamera3D() {
-    return IEngine::instance->m_cam3d;
 }
 
 std::vector<SpriteBatch>& getGameLayers() {

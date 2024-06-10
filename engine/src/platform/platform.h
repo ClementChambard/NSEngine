@@ -4,14 +4,7 @@
 #include "../defines.h"
 
 namespace ns::platform {
-/*
-bool startup(usize *memory_requirement, ptr state, cstr application_name, i32 x,
-             i32 y, i32 width, i32 height);
 
-void shutdown(ptr state);
-
-bool pump_messages();
-*/
 ptr allocate_memory(usize size, bool aligned);
 ptr reallocate_memory(ptr block, usize new_size, bool aligned);
 void free_memory(ptr block, bool aligned);

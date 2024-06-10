@@ -5,7 +5,6 @@
 #include <glm/gtx/euler_angles.hpp>
 #include "math/math.h"
 #include "TextureManager.h"
-#include "Camera3D.h"
 #include "logger.h"
 #include "NSEngine.hpp"
 
@@ -17,15 +16,6 @@
 #endif
 
 namespace ns {
-
-static glm::mat4 getViewMatrix()
-{
-    if (activeCamera3D() != nullptr)
-    {
-        return activeCamera3D()->getView();
-    }
-    return glm::mat4(1);
-}
 
 static Color defaultDrawColor = c_white;
 static i32 defaultBlendMode = 0;
@@ -139,25 +129,17 @@ void batch_draw_rectangle_rotated_color(SpriteBatch* batch, f32 cx, f32 cy, f32 
     batch_draw_quad_color_2d(batch, tl, tr, br, bl, ctl, ctr, cbr, cbl, outline);
 }
 
-void draw_quad(glm::vec3 tl, glm::vec3 tr, glm::vec3 br, glm::vec3 bl, bool outline)
-{ batch_draw_quad(&getGameLayers()[targetLayer], tl, tr, br, bl, outline); }
+void draw_quad(glm::vec3 tl, glm::vec3 tr, glm::vec3 br, glm::vec3 bl, bool)
+{ batch_draw_quad(&getGameLayers()[targetLayer], tl, tr, br, bl); }
 
-void batch_draw_quad(SpriteBatch* batch, glm::vec3 tl, glm::vec3 tr, glm::vec3 br, glm::vec3 bl, bool outline)
-{ batch_draw_quad_color(batch, tl, tr, br, bl, defaultDrawColor, defaultDrawColor, defaultDrawColor, defaultDrawColor, outline); }
+void batch_draw_quad(SpriteBatch* batch, glm::vec3 tl, glm::vec3 tr, glm::vec3 br, glm::vec3 bl, bool)
+{ batch_draw_quad_color(batch, tl, tr, br, bl, defaultDrawColor, defaultDrawColor, defaultDrawColor, defaultDrawColor); }
 
-void draw_quad_color(glm::vec3 tl, glm::vec3 tr, glm::vec3 br, glm::vec3 bl, Color ctl, Color ctr, Color cbr, Color cbl, bool outline)
-{ batch_draw_quad_color(&getGameLayers()[targetLayer], tl, tr, br, bl, ctl, ctr, cbr, cbl, outline); }
+void draw_quad_color(glm::vec3 tl, glm::vec3 tr, glm::vec3 br, glm::vec3 bl, Color ctl, Color ctr, Color cbr, Color cbl, bool)
+{ batch_draw_quad_color(&getGameLayers()[targetLayer], tl, tr, br, bl, ctl, ctr, cbr, cbl); }
 
-void batch_draw_quad_color(SpriteBatch* batch, glm::vec3 tl, glm::vec3 tr, glm::vec3 br, glm::vec3 bl, Color ctl, Color ctr, Color cbr, Color cbl, bool outline)
+void batch_draw_quad_color(SpriteBatch* batch, glm::vec3 tl, glm::vec3 tr, glm::vec3 br, glm::vec3 bl, Color ctl, Color ctr, Color cbr, Color cbl, bool)
 {
-    if (outline)
-    {
-        draw_line_color_3d(tl.x,tl.y,tl.z,tr.x,tr.y,tr.z,1,ctl,ctr);
-        draw_line_color_3d(tl.x,tl.y,tl.z,bl.x,bl.y,bl.z,1,ctl,cbl);
-        draw_line_color_3d(tr.x,tr.y,tr.z,br.x,br.y,br.z,1,ctr,cbr);
-        draw_line_color_3d(bl.x,bl.y,bl.z,br.x,br.y,br.z,1,cbl,cbr);
-        return;
-    }
     Vertex vtl = {tl, ctl, {0,0}};
     Vertex vtr = {tr, ctr, {1,0}};
     Vertex vbr = {br, cbr, {1,1}};
@@ -216,10 +198,10 @@ void batch_draw_triangle_color(SpriteBatch* batch, glm::vec3 t1, glm::vec3 t2, g
 { batch_draw_quad_color(batch, t1,t1,t2,t3,ct1,ct1,ct2,ct3,outline); }
 
 
-void draw_AA_box(glm::vec3 p1, glm::vec3 p2, Color c, bool outline, bool shade)
-{ batch_draw_AA_box(&getGameLayers()[targetLayer], p1, p2, c, outline, shade); }
+void draw_AA_box(glm::vec3 p1, glm::vec3 p2, Color c, bool, bool shade)
+{ batch_draw_AA_box(&getGameLayers()[targetLayer], p1, p2, c, false, shade); }
 
-void batch_draw_AA_box(SpriteBatch* batch, glm::vec3 p1, glm::vec3 p2, Color c, bool outline, bool shade)
+void batch_draw_AA_box(SpriteBatch* batch, glm::vec3 p1, glm::vec3 p2, Color c, bool, bool shade)
 {
     f32 x1 = p1.x;
     f32 y1 = p1.y;
@@ -234,10 +216,6 @@ void batch_draw_AA_box(SpriteBatch* batch, glm::vec3 p1, glm::vec3 p2, Color c, 
         c1.a = c.a;
         c2 /= 2;
         c2.a = c.a;
-    }
-    if (outline)
-    {
-
     }
     batch_draw_quad_color(batch, {x1,y1,z1},{x1,y2,z1},{x2,y2,z1},{x2,y1,z1},c1,c1,c1,c1,false);
     batch_draw_quad_color(batch, {x1,y1,z2},{x1,y2,z2},{x2,y2,z2},{x2,y1,z2},c1,c1,c1,c1,false);
@@ -385,30 +363,44 @@ void draw_surface(i32 i, f32 x1, f32 y1, f32 x2, f32 y2, SpriteBatch* b, i32 bm)
     bm);
 }
 
-void draw_line_3d(f32 x1, f32 y1, f32 z1, f32 x2, f32 y2, f32 z2, f32 width)
-{ batch_draw_line_3d(&getGameLayers()[targetLayer], x1, y1, z1, x2, y2, z2, width); }
+void draw_line_3d(f32 x1, f32 y1, f32, f32 x2, f32 y2, f32, f32 width)
+{ batch_draw_line_color(&getGameLayers()[targetLayer], x1, y1, x2, y2, width, defaultDrawColor, defaultDrawColor); }
 
-void batch_draw_line_3d(SpriteBatch* batch, f32 x1, f32 y1, f32 z1, f32 x2, f32 y2, f32 z2, f32 width)
-{ batch_draw_line_color_3d(batch, x1, y1, z1, x2, y2, z2, width, defaultDrawColor, defaultDrawColor); }
+void batch_draw_line_3d(SpriteBatch* batch, f32 x1, f32 y1, f32, f32 x2, f32 y2, f32, f32 width)
+{ batch_draw_line_color(batch, x1, y1, x2, y2, width, defaultDrawColor, defaultDrawColor); }
 
-void draw_line_color_3d(f32 x1, f32 y1, f32 z1, f32 x2, f32 y2, f32 z2, f32 width, Color c1, Color c2)
-{ batch_draw_line_color_3d(&getGameLayers()[targetLayer], x1, y1, z1, x2, y2, z2, width, c1, c2); }
+void draw_line_color_3d(f32 x1, f32 y1, f32, f32 x2, f32 y2, f32, f32 width, Color c1, Color c2)
+{ batch_draw_line_color(&getGameLayers()[targetLayer], x1, y1, x2, y2, width, c1, c2); }
 
-void batch_draw_line_color_3d(SpriteBatch* batch, f32 x1, f32 y1, f32 z1, f32 x2, f32 y2, f32 z2, f32 width, Color c1, Color c2)
+void batch_draw_line_color_3d(SpriteBatch* batch, f32 x1, f32 y1, f32, f32 x2, f32 y2, f32, f32 width, Color c1, Color c2)
 {
-    glm::vec3 pos = glm::vec3((x1+x2)/2, (y1+y2)/2, (z1+z2)/2);
-    glm::vec3 axis = glm::vec3(x1-x2, y1-y2, z1-z2);
-    glm::vec2 size = glm::vec2(width, sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2)+(z1-z2)*(z1-z2)));
-    batch_draw_billboard_axis(batch, pos, axis, size, 1, glm::vec4(0,0,1,1), c1, c1, c2, c2);
+    // glm::vec3 pos = glm::vec3((x1+x2)/2, (y1+y2)/2, (z1+z2)/2);
+    // glm::vec3 axis = glm::vec3(x1-x2, y1-y2, z1-z2);
+    // glm::vec2 size = glm::vec2(width, sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2)+(z1-z2)*(z1-z2)));
+    batch_draw_line_color(batch, x1, y1, x2, y2, width, c1, c2);
+    // batch_draw_billboard_axis(batch, pos, axis, size, 1, glm::vec4(0,0,1,1), c1, c1, c2, c2);
 }
 
 void draw_billboard(glm::vec3 pos, glm::vec2 size, i32 texID, glm::vec4 uvs, Color tl, Color tr, Color br, Color bl)
-{ batch_draw_billboard(&getGameLayers()[targetLayer], pos, size, texID, uvs, tl, tr, br, bl); }
+{
+    glm::vec3 ViewX = glm::vec3(1.0, 0.0, 0.0);
+    glm::vec3 ViewY = glm::vec3(0.0, 1.0, 0.0);
+    glm::vec3 postl = pos - size.x/2 * ViewX + size.y/2 * ViewY;
+    glm::vec3 postr = pos + size.x/2 * ViewX + size.y/2 * ViewY;
+    glm::vec3 posbr = pos + size.x/2 * ViewX - size.y/2 * ViewY;
+    glm::vec3 posbl = pos - size.x/2 * ViewX - size.y/2 * ViewY;
+    getGameLayers()[targetLayer].draw(texID,
+            {postl, tl, {uvs.x,uvs.y}},
+            {postr, tr, {uvs.z,uvs.y}},
+            {posbr, br, {uvs.z,uvs.w}},
+            {posbl, bl, {uvs.x,uvs.w}},
+        defaultBlendMode);
+}
 
 void batch_draw_billboard(SpriteBatch* batch, glm::vec3 pos, glm::vec2 size, i32 texID, glm::vec4 uvs, Color tl, Color tr, Color br, Color bl)
 {
-    glm::vec3 ViewX = glm::vec3(getViewMatrix()[0][0], getViewMatrix()[1][0], getViewMatrix()[2][0]);
-    glm::vec3 ViewY = glm::vec3(getViewMatrix()[0][1], getViewMatrix()[1][1], getViewMatrix()[2][1]);
+    glm::vec3 ViewX = glm::vec3(1.0, 0.0, 0.0);
+    glm::vec3 ViewY = glm::vec3(0.0, 1.0, 0.0);
     glm::vec3 postl = pos - size.x/2 * ViewX + size.y/2 * ViewY;
     glm::vec3 postr = pos + size.x/2 * ViewX + size.y/2 * ViewY;
     glm::vec3 posbr = pos + size.x/2 * ViewX - size.y/2 * ViewY;
@@ -422,7 +414,34 @@ void batch_draw_billboard(SpriteBatch* batch, glm::vec3 pos, glm::vec2 size, i32
 }
 
 void draw_billboard_axis(glm::vec3 pos, glm::vec3 axis, glm::vec2 size, i32 texID, glm::vec4 uvs, Color tl, Color tr, Color br, Color bl)
-{ batch_draw_billboard_axis(&getGameLayers()[targetLayer], pos, axis, size, texID, uvs, tl, tr, br, bl); }
+{ 
+    axis = glm::normalize(axis);
+    glm::vec3 frontvec;
+    if (axis.x != 0 && axis.y != 0) frontvec = glm::normalize(glm::vec3(axis.y,-axis.x,0));
+    else if (axis.x != 0 && axis.z != 0) frontvec = glm::normalize(glm::vec3(axis.z,0,-axis.x));
+    else if (axis.z != 0 && axis.y != 0) frontvec = glm::normalize(glm::vec3(0,-axis.z,axis.y));
+    else if (axis.x != 0) frontvec = glm::vec3(0,axis.x,0);
+    else if (axis.y != 0) frontvec = glm::vec3(axis.y,0,0);
+    else if (axis.z != 0) frontvec = glm::vec3(0,axis.z,0);
+    glm::vec3 rightvec = glm::cross(axis, frontvec);
+    glm::vec3 camPos = glm::vec3(0,0,0);
+    glm::vec3 objtocam = glm::normalize(camPos - pos);
+    objtocam = glm::normalize(objtocam - (axis * glm::dot(objtocam,axis)));
+    glm::vec3 axisRot = glm::cross(frontvec,objtocam);
+    glm::vec4 p = glm::vec4(pos,0);
+    f32 ang = acos(glm::dot(frontvec,objtocam));
+    glm::mat4 rot = glm::rotate(glm::mat4(1), ang, axisRot);
+    glm::vec4 postl = p + rot * glm::vec4(-size.x/2 * rightvec + size.y/2 * axis,0);
+    glm::vec4 postr = p + rot * glm::vec4(size.x/2 * rightvec + size.y/2 * axis,0);
+    glm::vec4 posbr = p + rot * glm::vec4(size.x/2 * rightvec - size.y/2 * axis,0);
+    glm::vec4 posbl = p + rot * glm::vec4(-size.x/2 * rightvec - size.y/2 * axis,0);
+    getGameLayers()[targetLayer].draw(texID,
+            {postl, tl, {uvs.x,uvs.y}},
+            {postr, tr, {uvs.z,uvs.y}},
+            {posbr, br, {uvs.z,uvs.w}},
+            {posbl, bl, {uvs.x,uvs.w}},
+        defaultBlendMode);
+    }
 
 void batch_draw_billboard_axis(SpriteBatch* batch, glm::vec3 pos, glm::vec3 axis, glm::vec2 size, i32 texID, glm::vec4 uvs, Color tl, Color tr, Color br, Color bl)
 {
@@ -436,7 +455,6 @@ void batch_draw_billboard_axis(SpriteBatch* batch, glm::vec3 pos, glm::vec3 axis
     else if (axis.z != 0) frontvec = glm::vec3(0,axis.z,0);
     glm::vec3 rightvec = glm::cross(axis, frontvec);
     glm::vec3 camPos = glm::vec3(0,0,0);
-    if (activeCamera3D() != nullptr) camPos = activeCamera3D()->getPosition();
     glm::vec3 objtocam = glm::normalize(camPos - pos);
     objtocam = glm::normalize(objtocam - (axis * glm::dot(objtocam,axis)));
     glm::vec3 axisRot = glm::cross(frontvec,objtocam);

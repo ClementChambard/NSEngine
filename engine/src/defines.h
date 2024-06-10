@@ -52,6 +52,9 @@ NS_STATIC_ASSERT(sizeof(f64) == 8, "Expected f64 to be 8 byte.");
 
 #define INVALID_ID 4294967295U
 
+#define NS_PLATFORM_WND_SDL2
+#define NS_RENDERER_OPENGL
+
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__)
 #define NS_PLATFORM_WINDOWS 1
 #ifndef _WIN64
@@ -103,5 +106,7 @@ NS_STATIC_ASSERT(sizeof(f64) == 8, "Expected f64 to be 8 byte.");
 #define NS_INLINE static inline
 #define NS_NOINLINE
 #endif
+
+#define _ARG [[maybe_unused]]
 
 #endif // DEFINES_HEADER_INCLUDED

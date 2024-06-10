@@ -101,8 +101,8 @@ void FrameBuffer::resolveToScreen()
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     glBindFramebuffer(GL_READ_FRAMEBUFFER, m_frameBufferID);
     glDrawBuffer(GL_BACK);
-    auto windata = getInstance()->window().getWindowData();
-    glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, windata.bwidth, windata.bheight,
+    auto wincfg = getMainWindow()->getConfig();
+    glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, wincfg.width, wincfg.height,
             GL_COLOR_BUFFER_BIT, GL_NEAREST);
     this->unbind();
 }
@@ -184,7 +184,7 @@ const FrameBuffer* FrameBuffer::BOUND_FRAMEBUFFER = nullptr;
 void FrameBuffer::bindFramebuffer(const FrameBuffer* fb) {
     BOUND_FRAMEBUFFER = fb;
     if (!fb) {
-        getInstance()->window().BindAsRenderTarget();
+        getMainWindow()->BindAsRenderTarget();
         return;
     }
     glBindFramebuffer(GL_FRAMEBUFFER, fb->m_frameBufferID);
@@ -193,7 +193,7 @@ void FrameBuffer::bindFramebuffer(const FrameBuffer* fb) {
 
 void FrameBuffer::unbindFramebuffer() {
     BOUND_FRAMEBUFFER = nullptr;
-    getInstance()->window().BindAsRenderTarget();
+    getMainWindow()->BindAsRenderTarget();
 }
 
 }
