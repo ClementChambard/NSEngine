@@ -1,8 +1,7 @@
-#ifndef TEXTURE_INCLUDED_H
-#define TEXTURE_INCLUDED_H
+#ifndef TEXTURE_HEADER_INCLUDED
+#define TEXTURE_HEADER_INCLUDED
 
-#include <GL/glew.h>
-#include <glm/glm.hpp>
+#include "./math/types/vec/vec2.hpp"
 #include "./defines.h"
 
 namespace ns {
@@ -21,46 +20,53 @@ public:
     Texture& operator=(Texture&& other);
 
     enum class Wrapping {
-        REPEAT = GL_REPEAT,
-        CLAMP = GL_CLAMP,
-        MIRROR = GL_MIRRORED_REPEAT,
+        CLAMP = 0x2900, // GL_CLAMP
+        REPEAT = 0x2901, // GL_REPEAT
+        MIRROR = 0x8370, // GL_MIRRORED_REPEAT
+        UNKNOWN = 0,
     };
 
-    static void setWrappingU(Wrapping wrapU);
-    static void setWrappingV(Wrapping wrapV);
-    static void setWrapping(Wrapping wrapU, Wrapping wrapV);
-    static void setWrapping(Wrapping wrapBoth);
+    void set_wrapping_u(Wrapping wrap_u);
+    void set_wrapping_v(Wrapping wrap_v);
+    void set_wrapping(Wrapping wrap_u, Wrapping wrap_v);
+    void set_wrapping(Wrapping wrap_both);
 
     enum class Filter {
-        NEAREST = GL_NEAREST,
-        LINEAR = GL_LINEAR,
+        NEAREST = 0x2600, // GL_NEAREST
+        LINEAR = 0x2601, // GL_LINEAR
+        UNKNOWN = 0,
     };
 
-    static void setMinFilter(Filter minFilter);
-    static void setMagFilter(Filter magFilter);
-    static void setMinMagFilter(Filter minFilter, Filter magFilter);
-    static void setMinMagFilter(Filter filterBoth);
+    void set_min_filter(Filter min_filter);
+    void set_mag_filter(Filter mag_filter);
+    void set_min_mag_filter(Filter min_filter, Filter mag_filter);
+    void set_min_mag_filter(Filter filter_both);
 
-    static Texture* fromOpenGL(GLuint id, u32 w, u32 h);
-    static Texture* asFramebuffer(u32 w, u32 h);
+    static Texture* from_opengl(u32 id, u32 w, u32 h);
+    static Texture* as_framebuffer(u32 w, u32 h);
 
     void use();
     void unuse();
-    static void unuseTexture();
+    static void unuse_texture();
 
-    glm::vec2 getSize() const { return {m_width, m_height}; }
-    u32 getWidth() const { return m_width; }
-    u32 getHeight() const { return m_height; }
-    FrameBuffer* getFramebuffer() const { return m_framebuffer; }
-    GLuint getOpenglId() const { return m_textureId; }
+    vec2 get_size() const { return vec2(m_width, m_height); }
+    u32 get_width() const { return m_width; }
+    u32 get_height() const { return m_height; }
+    FrameBuffer* get_framebuffer() const { return m_framebuffer; }
+    u32 get_opengl_id() const { return m_textureId; }
 
-    glm::vec2 getUvAt(f32 x, f32 y);
-    glm::vec2 getUvAt(glm::vec2 pos);
+    vec2 get_uv_at(f32 x, f32 y);
+    vec2 get_uv_at(vec2 pos);
 
 private:
-    GLuint m_textureId = 0;
+    u32 m_textureId = 0; // TODO: Move gl out of API
     u32 m_width = 0;
     u32 m_height = 0;
+    Filter m_minFilter = Filter::UNKNOWN;
+    Filter m_magFilter = Filter::UNKNOWN;
+    Wrapping m_wrappingU = Wrapping::UNKNOWN;
+    Wrapping m_wrappingV = Wrapping::UNKNOWN;
+
 
     // associated FrameBuffer if the texture is part of a FrameBuffer attachment
     FrameBuffer* m_framebuffer = nullptr;
@@ -68,4 +74,4 @@ private:
 
 } // namespace NSEngine
 
-#endif // !TEXTURE_INCLUDED_H
+#endif // TEXTURE_HEADER_INCLUDED

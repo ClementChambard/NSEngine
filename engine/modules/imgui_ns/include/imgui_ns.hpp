@@ -1,11 +1,14 @@
-#ifndef IMGUIWRAPPER_H_
-#define IMGUIWRAPPER_H_
+#ifndef IMGUINS_HEADER_INCLUDED
+#define IMGUINS_HEADER_INCLUDED
 
-#include <glm/glm.hpp>
+#include <math/types/types.hpp>
 #include <imgui.h>
 #include <imgui_internal.h>
 
 namespace ns {
+
+void NSMOD_INIT_imgui();
+void NSMOD_SHUTDOWN_imgui();
 
 namespace platform { struct Wnd; }
 
@@ -21,12 +24,12 @@ public:
 } // namespace ns
 
 #define IM_VEC2_CLASS_EXTRA \
-    ImVec2(glm::vec2 const& v) : x(v.x), y(v.y) {} \
-    operator glm::vec2() { return {x, y}; }
+    ImVec2(ns::vec2 const& v) : x(v.x), y(v.y) {} \
+    operator ns::vec2() { return {x, y}; }
 
 #define IM_VEC4_CLASS_EXTRA \
-    ImVec4(glm::vec4 const& v) : x(v.x), y(v.y), z(v.z), w(v.w) {} \
-    operator glm::vec4() { return {x, y, z, w}; }
+    ImVec4(ns::vec4 const& v) : x(v.x), y(v.y), z(v.z), w(v.w) {} \
+    operator ns::vec4() { return {x, y, z, w}; }
 
 
 inline ImVec2 operator+(ImVec2 const& v1, ImVec2 const& v2) {
@@ -61,4 +64,4 @@ inline ImVec2 operator/(ImVec2 const& v1, float const f) {
     return ImVec2(v1.x / f, v1.y / f);
 }
 
-#endif // IMGUIWRAPPER_H_
+#endif // IMGUINS_HEADER_INCLUDED

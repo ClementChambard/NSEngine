@@ -1,11 +1,37 @@
-#ifndef INTERP_H
-#define INTERP_H
+#ifndef INTERP_HEADER_INCLUDED
+#define INTERP_HEADER_INCLUDED
 
-#include "./math/Interpolation.h"
 #include "./defines.h"
 #include "./Timer.hpp"
+#include "./math/types/vec/vec3.hpp"
 
 namespace ns {
+
+using PFN_InterpFunc = f32 (*)(f32) ;
+
+enum class InterpMethod : u8 {
+    LINEAR = 0,
+    EASEIN2,
+    EASEIN3,
+    EASEIN4,
+    EASEOUT2,
+    EASEOUT3,
+    EASEOUT4,
+    CSTSPEED,
+    BEZIER,
+    EASEINOUT2,
+    EASEINOUT3,
+    EASEINOUT4,
+    EASEOUTIN2,
+    EASEOUTIN3,
+    EASEOUTIN4,
+    _15,
+    _16,
+    CSTACCEL,
+    // ... 
+};
+
+PFN_InterpFunc getInterpFunc(InterpMethod mode);
 
 template<typename T>
 struct Interp {
@@ -16,16 +42,16 @@ struct Interp {
     T current = T{};
     Timer_t time = 0;
     i32 end_time = 0;
-    i32 method = 0;
+    InterpMethod method = InterpMethod::LINEAR;
 
     void start(T begin, T end, i32 time, i32 mode) {
         initial = begin;
         current = initial;
         goal = end;
-        bezier_1 = {};
-        bezier_2 = {};
+        bezier_1 = T{};
+        bezier_2 = T{};
         end_time = time;
-        method = mode;
+        method = InterpMethod(mode);
         this->time = 0;
     }
 
@@ -36,7 +62,7 @@ struct Interp {
         bezier_1 = b1;
         bezier_2 = b2;
         end_time = time;
-        method = mode;
+        method = InterpMethod(mode);
         this->time = 0;
     }
 
@@ -47,7 +73,7 @@ struct Interp {
         bezier_1 = b1;
         bezier_2 = b2;
         end_time = time;
-        method = 8;
+        method = InterpMethod::BEZIER;
         this->time = 0;
     }
 
@@ -55,14 +81,14 @@ struct Interp {
         if (end_time != 0) {
             time++;
             if (time < end_time || end_time < 0) {
-                if (method == 7) {
+                if (method == InterpMethod::CSTSPEED) {
                     initial += goal;
                     current = initial;
-                } else if (method == 17) {
+                } else if (method == InterpMethod::CSTACCEL) {
                     initial += bezier_2;
                     bezier_2 += goal;
                     current = initial;
-                } else if (method == 8) {
+                } else if (method == InterpMethod::BEZIER) {
                     f32 x = time.current_f /
                               static_cast<f32>(end_time);
                     T a0 = initial;
@@ -71,7 +97,7 @@ struct Interp {
                     T a3 = 2.f * (initial - goal) + bezier_1 + bezier_2;
                     current = a0 + a1 * x + a2 * x * x + a3 * x * x * x;
                 } else {
-                    current = (goal - initial) * ns::FuncGetVal(method)(
+                    current = (goal - initial) * getInterpFunc(method)(
                         time.current_f / static_cast<f32>(end_time))
                         + initial;
                 }
@@ -80,101 +106,99 @@ struct Interp {
             time = end_time;
             end_time = 0;
         }
-        if (method != 7 && method != 17) {
+        if (method != InterpMethod::CSTSPEED && method != InterpMethod::CSTACCEL) {
             return goal;
         }
         return initial;
     }
 };
 
-#include <glm/glm.hpp>
-
 struct InterpStrange {
-    glm::vec3 current;
-    glm::vec3 initial;
-    glm::vec3 goal;
-    glm::vec3 bezier_1;
-    glm::vec3 bezier_2;
+    vec3 current;
+    vec3 initial;
+    vec3 goal;
+    vec3 bezier_1;
+    vec3 bezier_2;
     Timer_t time;
     i32 end_time;
-    i32 method_for_1d[3];
-    i32 method_for_3d;
+    InterpMethod method_for_1d[3];
+    InterpMethod method_for_3d;
     i32 flags;
 
-    void start(glm::vec3 begin, glm::vec3 end, i32 time, i32 mode) {
+    void start(vec3 begin, vec3 end, i32 time, i32 mode) {
         initial = begin;
         goal = end;
-        bezier_1 = {};
-        bezier_2 = {};
+        bezier_1 = vec3();
+        bezier_2 = vec3();
         end_time = time;
-        method_for_3d = mode;
+        method_for_3d = InterpMethod(mode);
         this->time = 0;
         flags = 0;
     }
 
-    void start_curve(glm::vec3 begin, glm::vec3 end, i32 time,
+    void start_curve(vec3 begin, vec3 end, i32 time,
                      i32 mode_x, i32 mode_y, i32 mode_z) {
         initial = begin;
         goal = end;
-        bezier_1 = {};
-        bezier_2 = {};
+        bezier_1 = vec3();
+        bezier_2 = vec3();
         end_time = time;
-        method_for_1d[0] = mode_x;
-        method_for_1d[1] = mode_y;
-        method_for_1d[2] = mode_z;
+        method_for_1d[0] = InterpMethod(mode_x);
+        method_for_1d[1] = InterpMethod(mode_y);
+        method_for_1d[2] = InterpMethod(mode_z);
         this->time = 0;
         flags = 1;
     }
 
-    void start_bezier(glm::vec3 begin, glm::vec3 end, glm::vec3 b1,
-                      glm::vec3 b2, i32 time) {
+    void start_bezier(vec3 begin, vec3 end, vec3 b1,
+                      vec3 b2, i32 time) {
         initial = begin;
         goal = end;
         bezier_1 = b1;
         bezier_2 = b2;
         end_time = time;
-        method_for_3d = 8;
+        method_for_3d = InterpMethod::BEZIER;
         this->time = 0;
         flags = 0;
     }
 
-    glm::vec3 step() {
+    vec3 step() {
         if (end_time != 0) {
             if (end_time < 0 || ++time < end_time) {
                 if (flags == 0) {
-                    if (method_for_3d == 7) {
+                    if (method_for_3d == InterpMethod::CSTSPEED) {
                         initial += goal;
                         current = initial;
-                    } else if (method_for_3d == 17) {
+                    } else if (method_for_3d == InterpMethod::CSTACCEL) {
                         initial += bezier_2;
                         bezier_2 += goal;
                         current = initial;
-                    } else if (method_for_3d == 8) {
+                    } else if (method_for_3d == InterpMethod::BEZIER) {
                         f32 x = time.current_f /
                                   static_cast<f32>(end_time);
-                        glm::vec3 a0 = initial;
-                        glm::vec3 a1 = bezier_1;
-                        glm::vec3 a2 = 3.f * (goal - initial) - 2.f *
-                                       bezier_1 - bezier_2;
-                        glm::vec3 a3 = 2.f * (initial - goal)
+                        vec3 a0 = initial;
+                        vec3 a1 = bezier_1;
+                        vec3 a2 = (goal - initial) * 3.f - 
+                                       bezier_1 * 2.f - bezier_2;
+                        vec3 a3 = (initial - goal) * 2.f
                                      + bezier_1 + bezier_2;
                         current = a0 + a1 * x + a2 * x * x + a3 * x * x * x;
                     } else {
                         current = (goal - initial) *
-                            ns::FuncGetVal(method_for_3d)(
+                            getInterpFunc(method_for_3d)(
                                 time.current_f /
                                 static_cast<f32>(end_time)) + initial;
                     }
                 } else {
                     for (int i = 0; i < 3; i++) {
-                        if (method_for_1d[i] == 7) {
+                        if (method_for_1d[i] == InterpMethod::CSTSPEED) {
                             initial[i] += goal[i];
                             current[i] = initial[i];
-                        } else if (method_for_1d[i] == 17) {
+                        } else if (method_for_1d[i] == InterpMethod::CSTACCEL) {
                             initial[i] += bezier_2[i];
                             bezier_2[i] += goal[i];
                             current[i] = initial[i];
-                        } else if (method_for_1d[i] == 8) {
+                        } else if (method_for_1d[i] == InterpMethod::BEZIER) {
                             f32 x = time.current_f /
                                       static_cast<f32>(end_time);
                             f32 a0 = initial[i];
@@ -183,7 +207,7 @@ struct InterpStrange {
                             current[i] = a0 + a2 * x * x + a3 * x * x * x;
                         } else {
                             current[i] = (goal[i] - initial[i]) *
-                                ns::FuncGetVal(method_for_1d[i])(
+                                getInterpFunc(method_for_1d[i])(
                                 time.current_f /
                                 static_cast<f32>(end_time)) + initial[i];
                         }
@@ -194,13 +218,13 @@ struct InterpStrange {
             time = end_time;
             end_time = 0;
         }
-        if (method_for_3d != 7 && method_for_3d != 17) {
+        if (method_for_3d != InterpMethod::CSTSPEED && method_for_3d != InterpMethod::CSTACCEL) {
             return goal;
         }
         return initial;
     }
 };
 
-}  // namespace NSEngine
+} // namespace ns
 
-#endif
+#endif // INTERP_HEADER_INCLUDED

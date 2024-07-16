@@ -1,5 +1,5 @@
-#ifndef TIMER_INCLUDED_H
-#define TIMER_INCLUDED_H
+#ifndef TIMER_HEADER_INCLUDED
+#define TIMER_HEADER_INCLUDED
 
 #include "./defines.h"
 #include <compare>
@@ -99,6 +99,6 @@ inline auto operator<=>(u32 t1, Timer_t const &t2) { return static_cast<i32>(t1)
 // inline auto operator==(u32 t1, Timer_t const &t2) { return static_cast<i32>(t1)==t2.current; }
 inline bool operator!(Timer_t const &t) { return !t.current; }
 
-}  // namespace NSEngine
+} // namespace ns
 
-#endif // !TIMER_INCLUDED_H
+#endif // TIMER_HEADER_INCLUDED

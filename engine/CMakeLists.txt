@@ -16,18 +16,28 @@ add_compile_options(-DNS_EXPORT -fPIC)
 
 add_library(NSEngine ${SRCS} ${HEADERS})
 
+set(NS_PLATFORM_WND "X11")
 
 # nsengine submodules
 add_subdirectory(modules)
 
+if(NS_PLATFORM_WND STREQUAL "SDL2")
+  message("Using SDL2 as windowing backend")
+  set(NS_PLATFORM_WND_LIBS "-lSDL2")
+  target_compile_definitions(NSEngine PRIVATE -DNS_WND_BACKEND_SDL2)
+elseif(NS_PLATFORM_WND STREQUAL "X11")
+  message("Using X11 as windowing backend")
+  set(NS_PLATFORM_WND_LIBS "-lX11")
+  target_compile_definitions(NSEngine PRIVATE -DNS_WND_BACKEND_X11)
+else()
+  message("Unknown windowing backend")
+endif()
 
 # link and includes
 target_link_libraries(NSEngine PUBLIC
                        ${OPENGL_gl_LIBRARY}
                        ${GLEW_LIBRARIES}
-                       -lSDL2
-                       -lSDL2_image
-                       -lSDL2_ttf
+                       ${NS_PLATFORM_WND_LIBS}
                        -pthread
                      )
 

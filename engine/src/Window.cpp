@@ -35,7 +35,7 @@ void Window::close() {
   m_isOpen = false;
 }
 
-void Window::addEventHandler(IEventHandler *eh, u32 priority) {
+void Window::add_event_handler(IEventHandler *eh, u32 priority) {
   if (!m_isOpen) {
     NS_WARN("Event handler will not be added to closed window.   (TODO)");
     return;
@@ -43,7 +43,7 @@ void Window::addEventHandler(IEventHandler *eh, u32 priority) {
   platform::wnd_add_event_handler(m_platform, eh, priority);
 }
 
-void Window::processEvents() {
+void Window::process_events() {
   if (!m_isOpen) {
     NS_WARN("Not processing event of closed window.");
   }
@@ -54,21 +54,21 @@ void Window::processEvents() {
   }
 }
 
-void Window::BindAsRenderTarget() {
+void Window::bind_as_render_target() {
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
   glViewport(0, 0, m_width, m_height);
 }
 
-void Window::swapBuffers() const {
+void Window::swap_buffers() const {
   platform::wnd_swap(m_platform);
 }
 
-bool Window::WindowHandler::handleQuit() {
+bool Window::WindowHandler::on_quit() {
   w->m_shouldClose = true;
   return false;
 }
 
-bool Window::WindowHandler::handleResize(u32 w, u32 h) {
+bool Window::WindowHandler::on_resize(u32 w, u32 h) {
   this->w->m_width = w;
   this->w->m_height = h;
   return false;

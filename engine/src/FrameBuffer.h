@@ -1,16 +1,15 @@
-#ifndef FRAMEBUFFER_INCLUDED_H
-#define FRAMEBUFFER_INCLUDED_H
+#ifndef FRAMEBUFFER_HEADER_INCLUDED
+#define FRAMEBUFFER_HEADER_INCLUDED
 
-#include <GL/glew.h>
 #include "./defines.h"
 
 namespace ns {
 
 class FrameBuffer {
     public:
-        enum type { NONE = 0, DEPTH_TEXTURE, DEPTH_RENDER_BUFFER };
+        enum class Type { NONE = 0, DEPTH_TEXTURE, DEPTH_RENDER_BUFFER };
 
-        FrameBuffer(u32 width, u32 height, type db);
+        FrameBuffer(u32 width, u32 height, Type db);
         FrameBuffer(u32 width, u32 height);
         FrameBuffer(FrameBuffer const& fb);
         FrameBuffer(FrameBuffer&& fb);
@@ -19,45 +18,45 @@ class FrameBuffer {
         FrameBuffer& operator=(FrameBuffer const& fb);
         FrameBuffer& operator=(FrameBuffer&& fb);
 
-        void bind() const { bindFramebuffer(this); }
-        void unbind() const { unbindFramebuffer(); }
+        void bind() const { bind_framebuffer(this); }
+        void unbind() const { unbind_framebuffer(); }
 
-        void resolveToFBO(FrameBuffer* fbo);
-        void resolveToScreen();
+        void resolve_to_fbo(FrameBuffer* fbo);
+        void resolve_to_screen();
 
         void resize(u32 width, u32 height);
 
-        GLuint getColorTexture() const { return m_colorTextureID; }
-        GLuint getDepthTexture() const { return m_depthTextureID; }
+        u32 get_color_texture() const { return m_colorTextureID; }
+        u32 get_depth_texture() const { return m_depthTextureID; }
 
-        u32 getWidth () const { return m_width ; }
-        u32 getHeight() const { return m_height; }
+        u32 get_width () const { return m_width ; }
+        u32 get_height() const { return m_height; }
 
         static const FrameBuffer* BOUND_FRAMEBUFFER;
-        static void bindFramebuffer(const FrameBuffer* fb);
-        static void unbindFramebuffer();
+        static void bind_framebuffer(const FrameBuffer* fb);
+        static void unbind_framebuffer();
 
     private:
         u32 m_width;
         u32 m_height;
 
-        GLuint m_frameBufferID = 0;
-        GLuint m_colorTextureID = 0;
-        GLuint m_depthTextureID = 0;
-        GLuint m_depthBufferID = 0;
-        GLuint m_colorBufferID = 0;
+        u32 m_frameBufferID = 0;
+        u32 m_colorTextureID = 0;
+        u32 m_depthTextureID = 0;
+        u32 m_depthBufferID = 0;
+        u32 m_colorBufferID = 0;
 
-        type m_type;
+        Type m_type;
         bool m_multisample = false;
 
-        void initialiseFrameBuffer(type dbType);
-        void createFrameBuffer();
-        void createTextureAttachment();
-        void createDepthTextureAttachment();
-        void createMultisampleColorAttachement();
-        void createDepthBufferAttachment();
+        void initialise_framebuffer(Type dbType);
+        void create_framebuffer();
+        void create_texture_attachment();
+        void create_depth_texture_attachment();
+        void create_multisample_color_attachement();
+        void create_depth_buffer_attachment();
 };
 
-}
+} // namespace ns
 
-#endif
+#endif // FRAMEBUFFER_HEADER_INCLUDED

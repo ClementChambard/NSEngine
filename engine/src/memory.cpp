@@ -8,7 +8,7 @@
 
 namespace ns {
 
-struct memory_stats {
+struct MemoryStats {
   u64 total_allocated;
   u64 tagged_allocations[static_cast<usize>(MemTag::MAX_TAGS)];
 };
@@ -21,19 +21,20 @@ static cstr memory_tag_strings[static_cast<usize>(MemTag::MAX_TAGS)] = {
     "TEXTURE    ", "MAT_INST   ", "RENDERER   ", "GAME       ", "TRANSFORM  ",
     "ENTITY     ", "ENTITY_NODE", "SCENE      ",
 };
+// TODO: Make it so that the user can add custom memory tags to avoid putting all in GAME
 
 struct memory_system_state {
-  memory_system_configuration config;
-  struct memory_stats stats;
+  MemoryConfiguration config;
+  MemoryStats stats;
   u64 alloc_count;
   usize allocator_memory_requirement;
   // dynamic_allocator allocator;
-  void *allocator_block;
+  ptr allocator_block;
 };
 
-static memory_system_state *state_ptr;
+static memory_system_state *g_state;
 
-bool memory_system_initialize(memory_system_configuration config) {
+bool memory_system_initialize(MemoryConfiguration config) {
   usize state_memory_requirement = sizeof(memory_system_state);
   usize alloc_requirement = 0;
   // dynamic_allocator_create(config.total_alloc_size, &alloc_requirement, 0, 0);
@@ -44,13 +45,13 @@ bool memory_system_initialize(memory_system_configuration config) {
     return false;
   }
 
-  state_ptr = reinterpret_cast<memory_system_state *>(block);
-  state_ptr->config = config;
-  state_ptr->stats = {};
-  state_ptr->alloc_count = 0;
-  state_ptr->allocator_memory_requirement = alloc_requirement;
-  platform::zero_memory(&state_ptr->stats, sizeof(state_ptr->stats));
-  state_ptr->allocator_block =
+  g_state = reinterpret_cast<memory_system_state *>(block);
+  g_state->config = config;
+  g_state->stats = {};
+  g_state->alloc_count = 0;
+  g_state->allocator_memory_requirement = alloc_requirement;
+  platform::zero_memory(&g_state->stats, sizeof(g_state->stats));
+  g_state->allocator_block =
       reinterpret_cast<u8 *>(block) + state_memory_requirement;
   // if (!dynamic_allocator_create(
   //         config.total_alloc_size, &state_ptr->allocator_memory_requirement,
@@ -66,15 +67,15 @@ bool memory_system_initialize(memory_system_configuration config) {
 }
 
 void memory_system_shutdown() {
-  if (state_ptr) {
+  if (g_state) {
     // dynamic_allocator_destroy(&state_ptr->allocator);
-    platform::free_memory(state_ptr, state_ptr->allocator_memory_requirement +
+    platform::free_memory(g_state, g_state->allocator_memory_requirement +
                                          sizeof(memory_system_state));
-    state_ptr = nullptr;
+    g_state = nullptr;
   }
 }
 
-ptr alloc(usize size, MemTag tag) {
+ptr alloc_raw(usize size, MemTag tag) {
   if (tag == MemTag::UNKNOWN) {
     NS_WARN("ns::alloc called using mem_tag::UNKNOWN. Re-class this "
             "allocation.");
@@ -85,10 +86,10 @@ ptr alloc(usize size, MemTag tag) {
   }
 
   ptr block = nullptr;
-  if (state_ptr) {
-    state_ptr->stats.total_allocated += size;
-    state_ptr->stats.tagged_allocations[static_cast<usize>(tag)] += size;
-    state_ptr->alloc_count++;
+  if (g_state) {
+    g_state->stats.total_allocated += size;
+    g_state->stats.tagged_allocations[static_cast<usize>(tag)] += size;
+    g_state->alloc_count++;
     // block = dynamic_allocator_allocate(&state_ptr->allocator, size);
     block = platform::allocate_memory(size, false);
   } else {
@@ -105,33 +106,7 @@ ptr alloc(usize size, MemTag tag) {
   return 0;
 }
 
-NS_API ptr realloc(ptr block, usize prev_size, usize new_size, MemTag tag) {
-  if (tag == MemTag::UNKNOWN) {
-    NS_WARN("ns::realloc called using mem_tag::UNKNOWN. Re-class this "
-            "reallocation.");
-  }
-
-  if (tag == MemTag::UNTRACKED) {
-    return platform::reallocate_memory(block, new_size, false);
-  }
-
-  ptr new_block = nullptr;
-  if (state_ptr) {
-    isize s_diff = new_size - prev_size;
-    state_ptr->stats.total_allocated += s_diff;
-    state_ptr->stats.tagged_allocations[static_cast<usize>(tag)] += s_diff;
-    // new_block = dynamic_allocator_reallocate(&state_ptr->allocator, block,
-    //                                          prev_size, new_size);
-    new_block = platform::reallocate_memory(block, new_size, false);
-  } else {
-    NS_WARN("ns::realloc called before the memory system is initialized.");
-    new_block = platform::reallocate_memory(block, new_size, false);
-  }
-
-  return new_block;
-}
-
-void free(ptr block, usize size, MemTag tag) {
+void free_raw(ptr block, usize size, MemTag tag) {
   if (tag == MemTag::UNKNOWN) {
     NS_WARN("ns::free called using mem_tag::UNKNOWN. Re-class this "
             "free.");
@@ -142,9 +117,9 @@ void free(ptr block, usize size, MemTag tag) {
     return;
   }
 
-  if (state_ptr) {
-    state_ptr->stats.total_allocated -= size;
-    state_ptr->stats.tagged_allocations[static_cast<usize>(tag)] -= size;
+  if (g_state) {
+    g_state->stats.total_allocated -= size;
+    g_state->stats.tagged_allocations[static_cast<usize>(tag)] -= size;
     // bool result = dynamic_allocator_free(&state_ptr->allocator, block, size);
     // if (!result) { // block was not created with the dynamic_allocator
     platform::free_memory(block, false);
@@ -168,7 +143,7 @@ ptr mem_set(ptr dest, i32 value, usize size) {
 }
 
 pstr get_memory_usage_str() {
-  if (!state_ptr)
+  if (!g_state)
     return nullptr;
   const usize gib = 1024 * 1024 * 1024;
   const usize mib = 1024 * 1024;
@@ -179,19 +154,19 @@ pstr get_memory_usage_str() {
   for (u32 i = 0; i < static_cast<u32>(MemTag::MAX_TAGS); ++i) {
     char unit[4] = "XiB";
     f32 amount = 1.0f;
-    if (state_ptr->stats.tagged_allocations[i] >= gib) {
+    if (g_state->stats.tagged_allocations[i] >= gib) {
       unit[0] = 'G';
-      amount = state_ptr->stats.tagged_allocations[i] / static_cast<f32>(gib);
-    } else if (state_ptr->stats.tagged_allocations[i] >= mib) {
+      amount = g_state->stats.tagged_allocations[i] / static_cast<f32>(gib);
+    } else if (g_state->stats.tagged_allocations[i] >= mib) {
       unit[0] = 'M';
-      amount = state_ptr->stats.tagged_allocations[i] / static_cast<f32>(mib);
-    } else if (state_ptr->stats.tagged_allocations[i] >= kib) {
+      amount = g_state->stats.tagged_allocations[i] / static_cast<f32>(mib);
+    } else if (g_state->stats.tagged_allocations[i] >= kib) {
       unit[0] = 'K';
-      amount = state_ptr->stats.tagged_allocations[i] / static_cast<f32>(kib);
+      amount = g_state->stats.tagged_allocations[i] / static_cast<f32>(kib);
     } else {
       unit[0] = 'B';
       unit[1] = '\0';
-      amount = static_cast<f32>(state_ptr->stats.tagged_allocations[i]);
+      amount = static_cast<f32>(g_state->stats.tagged_allocations[i]);
     }
 
     offset += snprintf(buffer + offset, sizeof(buffer) - offset,
@@ -203,8 +178,8 @@ pstr get_memory_usage_str() {
 }
 
 u64 get_memory_alloc_count() {
-  if (state_ptr)
-    return state_ptr->alloc_count;
+  if (g_state)
+    return g_state->alloc_count;
   return 0;
 }
 

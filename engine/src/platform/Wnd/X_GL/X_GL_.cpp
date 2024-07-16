@@ -1,15 +1,17 @@
 #include "../Wnd.h"
 
-#if WND_BACKEND == WND_BACKEND_X11
+#ifdef NS_WND_BACKEND_X11
 
+#include "../Wnd.h"
 #include "X_GL_.h"
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+
+#include "../../../key.hpp"
+#include "../../../memory.h"
 
 namespace ns::platform {
 
@@ -19,7 +21,7 @@ typedef GLXContext (*glXCreateContextAttribsARBProc)(Display *, GLXFBConfig,
                                                      GLXContext, Bool,
                                                      const int *);
 static bool ctxErrorOccured = false;
-static int ctxErrorHandler(_ARG Display *dpy, _ARG XErrorEvent *ev) {
+static int ctxErrorHandler([[maybe_unused]] Display *dpy, [[maybe_unused]] XErrorEvent *ev) {
   ctxErrorOccured = true;
   return 0;
 }
@@ -49,9 +51,9 @@ static bool isExtensionSupported(char const *extList, char const *extension) {
 }
 
 bool wnd_init(Wnd **wnd, char const *name, unsigned int width,
-              unsigned int height, _ARG unsigned int flags) {
+              unsigned int height, [[maybe_unused]] unsigned int flags) {
   // TODO: handle flags
-  *wnd = new Wnd;
+  *wnd = ns::construct<Wnd>(MemTag::APPLICATION);
   Wnd &w = **wnd;
 
   w.w = width;
@@ -235,7 +237,7 @@ void wnd_destroy(Wnd *wnd) {
   XFreeColormap(wnd->display, wnd->cmap);
   XCloseDisplay(wnd->display);
 
-  delete wnd;
+  ns::destroy(wnd, MemTag::APPLICATION);
 }
 
 void wnd_swap(Wnd *wnd) {
@@ -245,7 +247,7 @@ void wnd_swap(Wnd *wnd) {
 }
 
 void wnd_set_size(Wnd *wnd, unsigned int width, unsigned int height,
-                  _ARG bool fullscreen) {
+                  [[maybe_unused]] bool fullscreen) {
   if (!wnd)
     return;
 
@@ -583,7 +585,7 @@ void wnd_handle_events(Wnd *wnd) {
   while (XPending(wnd->display)) {
     XNextEvent(wnd->display, &event.evt);
     for (auto n = wnd->ehlist.head.next; n != &wnd->ehlist.tail; n = n->next) {
-      if (n->eh->handlePlatformEvent(&event))
+      if (n->eh->handle_platform_event(&event))
         break;
       auto evttyp = InputEvent::RELEASE;
       switch (event.evt.type) {
@@ -592,7 +594,7 @@ void wnd_handle_events(Wnd *wnd) {
         [[fallthrough]];
       case KeyRelease: {
         KeySym key_sym = XLookupKeysym(&event.evt.xkey, 0);
-        if (n->eh->handleKey(evttyp, translate_keycode(key_sym)))
+        if (n->eh->on_key(evttyp, translate_keycode(key_sym)))
           goto end;
       } break;
       case ButtonPress:
@@ -600,18 +602,18 @@ void wnd_handle_events(Wnd *wnd) {
         [[fallthrough]];
       case ButtonRelease:
         // careful: mouse wheel is treated as button press.
-        if (n->eh->handleMouseButton(
+        if (n->eh->on_mouse_button(
                 evttyp, translate_button(event.evt.xbutton.button)))
           goto end;
         break;
       case MotionNotify:
-        if (n->eh->handleMouseMotion(event.evt.xmotion.x, event.evt.xmotion.y))
+        if (n->eh->on_mouse_motion(event.evt.xmotion.x, event.evt.xmotion.y))
           goto end;
         break;
       case ConfigureNotify:
         if (event.evt.xconfigure.width != static_cast<i32>(wnd->w) ||
             event.evt.xconfigure.height != static_cast<i32>(wnd->h)) {
-          if (n->eh->handleResize(event.evt.xconfigure.width,
+          if (n->eh->on_resize(event.evt.xconfigure.width,
                                   event.evt.xconfigure.height)) {
             wnd->w = event.evt.xconfigure.width;
             wnd->h = event.evt.xconfigure.height;
@@ -623,7 +625,7 @@ void wnd_handle_events(Wnd *wnd) {
         break;
       case ClientMessage:
         if (event.evt.xclient.data.l[0] == static_cast<long>(wnd->wm_delete)) {
-          if (n->eh->handleQuit())
+          if (n->eh->on_quit())
             goto end;
           request_quit = true;
         }

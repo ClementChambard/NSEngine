@@ -8,7 +8,7 @@
 #define WND_BACKEND_X11 0
 #define WND_BACKEND_SDL 1
 
-#define WND_BACKEND WND_BACKEND_SDL
+// #define WND_BACKEND WND_BACKEND_SDL
 
 
 namespace ns {

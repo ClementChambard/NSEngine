@@ -1,7 +1,7 @@
 #include "./Timer.hpp"
 #include "./NSEngine.hpp"
 
-#define GAME_SPEED ns::getInstance()->gameSpeed()
+#define GAME_SPEED ns::get_instance()->game_speed()
 
 namespace ns {
 

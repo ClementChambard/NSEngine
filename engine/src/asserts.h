@@ -3,7 +3,7 @@
 
 #include "./defines.h"
 
-// Disable assertions by commenting this line
+// NOTE: Disable assertions by commenting this line
 #define NS_ASSERTIONS_ENABLED
 
 #ifdef NS_ASSERTIONS_ENABLED

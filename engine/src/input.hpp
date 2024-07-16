@@ -1,5 +1,5 @@
-#ifndef INPUT_INCLUDED_H
-#define INPUT_INCLUDED_H
+#ifndef INPUT_HEADER_INCLUDED
+#define INPUT_HEADER_INCLUDED
 
 #include "./defines.h"
 #include "./key.hpp"
@@ -45,4 +45,4 @@ NS_API Window* last_window_on();
 
 } // namespace ns
 
-#endif // INPUT_INCLUDED_H
+#endif // INPUT_HEADER_INCLUDED

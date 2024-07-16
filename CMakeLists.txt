@@ -8,7 +8,7 @@ set(PROJECT_URL "https://github.com/ClementChambard/NSEngine")
 
 add_compile_options(-Wall -Wextra -Werror)
 
-if(CMAKE_BUILD_TYPE EQUAL "Debug")
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   add_compile_options(-D_DEBUG)
 else()
   add_compile_options(-O4)

@@ -8,7 +8,7 @@ namespace ns {
 
 static std::ifstream file;
 
-bool FileOpener::readFileToBuffer(cstr filename, ptr &data, i32& size)
+bool FileOpener::read_file_to_buffer(cstr filename, ptr &data, i32& size)
 {
     std::ifstream f(filename, std::ios::binary);
     if (f.fail()) {
@@ -33,7 +33,7 @@ bool FileOpener::readFileToBuffer(cstr filename, ptr &data, i32& size)
     return true;
 }
 
-bool FileOpener::readFileToBuffer(cstr filename, std::vector<char>& buffer)
+bool FileOpener::read_file_to_buffer(cstr filename, std::vector<char>& buffer)
 {
     std::ifstream f(filename, std::ios::binary);
     if (f.fail()) {
@@ -57,7 +57,7 @@ bool FileOpener::readFileToBuffer(cstr filename, std::vector<char>& buffer)
     return true;
 }
 
-bool FileOpener::readFileToBuffer(cstr filename, std::vector<u8>& buffer)
+bool FileOpener::read_file_to_buffer(cstr filename, std::vector<u8>& buffer)
 {
     std::ifstream f(filename, std::ios::binary);
     if (f.fail()) {
@@ -81,7 +81,7 @@ bool FileOpener::readFileToBuffer(cstr filename, std::vector<u8>& buffer)
     return true;
 }
 
-bool FileOpener::readFileToBuffer(cstr filename, std::string& buffer)
+bool FileOpener::read_file_to_buffer(cstr filename, std::string& buffer)
 {
     std::ifstream f(filename, std::ios::binary);
     if (f.fail()) {
@@ -105,7 +105,7 @@ bool FileOpener::readFileToBuffer(cstr filename, std::string& buffer)
     return true;
 }
 
-bool FileOpener::readFileLines(cstr filename, std::vector<std::string>& lines)
+bool FileOpener::read_file_lines(cstr filename, std::vector<std::string>& lines)
 {
     std::ifstream f(filename);
     if (f.fail()) {
@@ -116,7 +116,7 @@ bool FileOpener::readFileLines(cstr filename, std::vector<std::string>& lines)
     return true;
 }
 
-bool FileOpener::openFile(cstr filename)
+bool FileOpener::open_file(cstr filename)
 {
     file.clear();
     file.close();
@@ -127,7 +127,7 @@ bool FileOpener::openFile(cstr filename)
     return true;
 }
 
-bool FileOpener::openFileLines(cstr filename)
+bool FileOpener::open_File_lines(cstr filename)
 {
     file.clear();
     file.close();
@@ -138,18 +138,18 @@ bool FileOpener::openFileLines(cstr filename)
     return true;
 }
 
-bool FileOpener::readLine(std::string& l)
+bool FileOpener::read_line(std::string& l)
 {
     if(std::getline(file, l)) return true;
     return false;
 }
 
-void FileOpener::closeFile() { file.close(); }
+void FileOpener::close_file() { file.close(); }
 
-u32 FileOpener::getSize() { file.seekg(0, std::ios::end); return (u32) file.tellg(); }
+u32 FileOpener::get_size() { file.seekg(0, std::ios::end); return (u32) file.tellg(); }
 
 
-u8 FileOpener::readUint8(i32 offset)
+u8 FileOpener::read_u8(i32 offset)
 {
     file.seekg(offset);
     u8 result = 0;
@@ -157,7 +157,7 @@ u8 FileOpener::readUint8(i32 offset)
     return result;
 }
 
-i8 FileOpener::readInt8(i32 offset)
+i8 FileOpener::read_i8(i32 offset)
 {
     file.seekg(offset);
     i8 result = 0;
@@ -165,7 +165,7 @@ i8 FileOpener::readInt8(i32 offset)
     return result;
 }
 
-u16 FileOpener::readUint16(i32 offset)
+u16 FileOpener::read_u16(i32 offset)
 {
     file.seekg(offset);
     u16 result = 0;
@@ -173,7 +173,7 @@ u16 FileOpener::readUint16(i32 offset)
     return result;
 }
 
-i16 FileOpener::readInt16(i32 offset)
+i16 FileOpener::read_i16(i32 offset)
 {
     file.seekg(offset);
     i16 result = 0;
@@ -181,7 +181,7 @@ i16 FileOpener::readInt16(i32 offset)
     return result;
 }
 
-u32 FileOpener::readUint32(i32 offset)
+u32 FileOpener::read_u32(i32 offset)
 {
     file.seekg(offset);
     u32 result = 0;
@@ -189,7 +189,7 @@ u32 FileOpener::readUint32(i32 offset)
     return result;
 }
 
-i32 FileOpener::readInt32(i32 offset)
+i32 FileOpener::read_i32(i32 offset)
 {
     file.seekg(offset);
     i32 result = 0;
@@ -197,7 +197,7 @@ i32 FileOpener::readInt32(i32 offset)
     return result;
 }
 
-f32 FileOpener::readFloat(i32 offset)
+f32 FileOpener::read_f32(i32 offset)
 {
     union chartofloat {
         char in[4];
@@ -210,16 +210,16 @@ f32 FileOpener::readFloat(i32 offset)
     return result.out;
 }
 
-std::string FileOpener::readString(i32 offset, i32& offsetEnd)
+std::string FileOpener::read_string(i32 offset, i32& offsetEnd)
 {
     offsetEnd = offset;
     std::string thestring = {};
-    char c = FileOpener::readInt8(offsetEnd);
+    char c = FileOpener::read_i8(offsetEnd);
     while (c != '\0')
     {
         thestring += c;
         offsetEnd++;
-        c = FileOpener::readInt8(offsetEnd);
+        c = FileOpener::read_i8(offsetEnd);
     }
     return thestring;
 }

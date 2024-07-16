@@ -11,17 +11,17 @@
 
 namespace ns {
 
-struct logger_system_state {
+struct LoggerState {
   fs::File log_file_handle;
 };
 
-static logger_system_state *state_ptr;
+static LoggerState *g_state;
 
 void append_to_log_file(cstr message) {
-  if (state_ptr && state_ptr->log_file_handle.is_valid) {
+  if (g_state && g_state->log_file_handle.is_valid) {
     usize length = strlen(message);
     usize written = 0;
-    if (!fs::write(&state_ptr->log_file_handle, length, message, &written)) {
+    if (!fs::write(&g_state->log_file_handle, length, message, &written)) {
       platform::console_write_error("ERROR writing to console.log.",
                                     static_cast<u8>(LogLevel::ERROR));
     }
@@ -29,15 +29,15 @@ void append_to_log_file(cstr message) {
 }
 
 bool initialize_logging(usize *memory_requirement, ptr state) {
-  *memory_requirement = sizeof(logger_system_state);
+  *memory_requirement = sizeof(LoggerState);
   if (state == nullptr) {
     return true;
   }
 
-  state_ptr = reinterpret_cast<logger_system_state *>(state);
+  g_state = reinterpret_cast<LoggerState *>(state);
 
   if (!fs::open(LOG_FILE_NAME, fs::Mode::WRITE, false,
-                &state_ptr->log_file_handle)) {
+                &g_state->log_file_handle)) {
     platform::console_write_error(
         "ERROR: Unable to open console.log for writing.",
         static_cast<u8>(LogLevel::ERROR));
@@ -49,7 +49,7 @@ bool initialize_logging(usize *memory_requirement, ptr state) {
 
 void shutdown_logging(ptr /*state*/) {
   // TODO: cleanup logging/write queued entries
-  fs::close(&state_ptr->log_file_handle);
+  fs::close(&g_state->log_file_handle);
 }
 
 void log_output(LogLevel level, cstr message, ...) {

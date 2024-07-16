@@ -1,9 +1,10 @@
-#include "../Wnd.h"
+#ifdef NS_WND_BACKEND_SDL2
 
-#if WND_BACKEND == WND_BACKEND_SDL
-
-#include "./SDL_GL_.h"
+#include "logger.h"
 #include "../../../key.hpp"
+#include "../../../memory.h"
+#include "../Wnd.h"
+#include "./SDL_GL_.h"
 #include <SDL2/SDL_events.h>
 #include <cstdio>
 
@@ -11,38 +12,46 @@ namespace ns::platform {
 
 unsigned int translate_flags(unsigned int flags) {
   unsigned out = 0;
-  if (flags & NS_WND_FULLSCREEN) out |= SDL_WINDOW_FULLSCREEN;
+  if (flags & NS_WND_FULLSCREEN)
+    out |= SDL_WINDOW_FULLSCREEN;
 
   return out | SDL_WINDOW_OPENGL;
 }
 
 static u32 wnd_cnt;
 
-bool wnd_init(Wnd **wnd, char const* name, unsigned int width, unsigned int height, unsigned int flags) {
+bool wnd_init(Wnd **wnd, char const *name, unsigned int width,
+              unsigned int height, unsigned int flags) {
   if (wnd_cnt == 0 && SDL_Init(SDL_INIT_VIDEO) != 0) {
-    printf("Failed to initialize sdl!");
+    NS_ERROR("Failed to initialize SDL!");
     return false;
+  }
+
+  if (wnd_cnt == 0) {
+    NS_INFO("SDL initialized!");
   }
 
   wnd_cnt++;
 
-  *wnd = new Wnd;
-  Wnd& w = **wnd;
+  *wnd = ns::construct<Wnd>(MemTag::APPLICATION);
+  Wnd &w = **wnd;
 
-  w.window = SDL_CreateWindow(name, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, translate_flags(flags) | SDL_WINDOW_RESIZABLE);
+  w.window = SDL_CreateWindow(name, SDL_WINDOWPOS_UNDEFINED,
+                              SDL_WINDOWPOS_UNDEFINED, width, height,
+                              translate_flags(flags) | SDL_WINDOW_RESIZABLE);
 
   if (!w.window) {
-    printf("Failed to create SDL window!");
+    NS_ERROR("Failed to create SDL window!");
     delete *wnd;
     *wnd = nullptr;
     return false;
   }
-  
+
   w.glContext = SDL_GL_CreateContext(w.window);
   if (!w.glContext) {
-    printf("Failed to create context!");
+    NS_ERROR("Failed to create GL context!");
     SDL_DestroyWindow(w.window);
-    free(*wnd);
+    ns::destroy(*wnd, MemTag::APPLICATION);
     *wnd = nullptr;
     return false;
   }
@@ -54,19 +63,21 @@ bool wnd_init(Wnd **wnd, char const* name, unsigned int width, unsigned int heig
 }
 
 void wnd_destroy(Wnd *wnd) {
-  if (!wnd) return;
+  if (!wnd)
+    return;
   SDL_GL_DeleteContext(wnd->glContext);
   SDL_DestroyWindow(wnd->window);
-  if (--wnd_cnt == 0) SDL_Quit();
-  free(wnd);
+  if (--wnd_cnt == 0)
+    SDL_Quit();
+  ns::destroy(wnd, MemTag::APPLICATION);
 }
 
-void wnd_swap(Wnd *wnd) {
-  SDL_GL_SwapWindow(wnd->window);
-}
+void wnd_swap(Wnd *wnd) { SDL_GL_SwapWindow(wnd->window); }
 
-void wnd_set_size(Wnd *pWnd, unsigned int width, unsigned int height, bool fullscreen) {
-  if (!pWnd) return;
+void wnd_set_size(Wnd *pWnd, unsigned int width, unsigned int height,
+                  bool fullscreen) {
+  if (!pWnd)
+    return;
   if (fullscreen)
     SDL_SetWindowFullscreen(pWnd->window, SDL_WINDOW_FULLSCREEN);
   else
@@ -78,8 +89,10 @@ void wnd_set_mouse_pos(Wnd *pWnd, unsigned int x, unsigned int y) {
   SDL_WarpMouseInWindow(pWnd->window, x, y);
 }
 
-void wnd_add_event_handler(Wnd *wnd, IEventHandler* eventHandler, unsigned int priority) {
-  if (!wnd) return;
+void wnd_add_event_handler(Wnd *wnd, IEventHandler *eventHandler,
+                           unsigned int priority) {
+  if (!wnd)
+    return;
   wnd->ehlist.insert(eventHandler, priority);
 }
 
@@ -353,38 +366,51 @@ Btn translate_button(u32 sdlk) {
 }
 
 void wnd_handle_events(Wnd *pWnd) {
-  if (!pWnd) return;
+  if (!pWnd)
+    return;
   Event e;
   while (SDL_PollEvent(&e.evt)) {
-    for (auto n = pWnd->ehlist.head.next; n != &pWnd->ehlist.tail; n = n->next) {
-      if (n->eh->handlePlatformEvent(&e)) break;
+    for (auto n = pWnd->ehlist.head.next; n != &pWnd->ehlist.tail;
+         n = n->next) {
+      if (n->eh->handle_platform_event(&e))
+        break;
       switch (e.evt.type) {
-        case SDL_KEYUP:
-          if (n->eh->handleKey(InputEvent::RELEASE, translate_keycode(e.evt.key.keysym.sym))) goto end;
-          break;
-        case SDL_KEYDOWN:
-          if (n->eh->handleKey(InputEvent::PRESS, translate_keycode(e.evt.key.keysym.sym))) goto end;
-          break;
-        case SDL_MOUSEBUTTONUP:
-          if (n->eh->handleMouseButton(InputEvent::RELEASE, translate_button(e.evt.button.button))) goto end;
-          break;
-        case SDL_MOUSEBUTTONDOWN:
-          if (n->eh->handleMouseButton(InputEvent::PRESS, translate_button(e.evt.button.button))) goto end;
-          break;
-        case SDL_MOUSEMOTION:
-          if (n->eh->handleMouseMotion(e.evt.motion.x, e.evt.motion.y)) goto end;
-          break;
-        case SDL_QUIT:
-          if (n->eh->handleQuit()) goto end;
-          break;
-        case SDL_WINDOWEVENT:
-          if (e.evt.window.event == SDL_WINDOWEVENT_RESIZED) {
-            if (n->eh->handleResize(e.evt.window.data1, e.evt.window.data2)) goto end;
-          }   
-          break;
+      case SDL_KEYUP:
+        if (n->eh->on_key(InputEvent::RELEASE,
+                             translate_keycode(e.evt.key.keysym.sym)))
+          goto end;
+        break;
+      case SDL_KEYDOWN:
+        if (n->eh->on_key(InputEvent::PRESS,
+                             translate_keycode(e.evt.key.keysym.sym)))
+          goto end;
+        break;
+      case SDL_MOUSEBUTTONUP:
+        if (n->eh->on_mouse_button(InputEvent::RELEASE,
+                                     translate_button(e.evt.button.button)))
+          goto end;
+        break;
+      case SDL_MOUSEBUTTONDOWN:
+        if (n->eh->on_mouse_button(InputEvent::PRESS,
+                                     translate_button(e.evt.button.button)))
+          goto end;
+        break;
+      case SDL_MOUSEMOTION:
+        if (n->eh->on_mouse_motion(e.evt.motion.x, e.evt.motion.y))
+          goto end;
+        break;
+      case SDL_QUIT:
+        if (n->eh->on_quit())
+          goto end;
+        break;
+      case SDL_WINDOWEVENT:
+        if (e.evt.window.event == SDL_WINDOWEVENT_RESIZED) {
+          if (n->eh->on_resize(e.evt.window.data1, e.evt.window.data2))
+            goto end;
+        }
+        break;
         // TODO: more
       }
-      
     }
   end:;
   }

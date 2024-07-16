@@ -1,13 +1,15 @@
 #include "./FrameBuffer.h"
 #include "./NSEngine.hpp"
 
+#include <GL/glew.h>
+
 namespace ns {
 
-FrameBuffer::FrameBuffer(u32 width, u32 height, type db)
+FrameBuffer::FrameBuffer(u32 width, u32 height, Type db)
 {
     m_width = width;
     m_height = height;
-    initialiseFrameBuffer(db);
+    initialise_framebuffer(db);
 }
 
 FrameBuffer::FrameBuffer(u32 width, u32 height)
@@ -15,7 +17,7 @@ FrameBuffer::FrameBuffer(u32 width, u32 height)
     m_width = width;
     m_height = height;
     m_multisample = true;
-    initialiseFrameBuffer(DEPTH_RENDER_BUFFER);
+    initialise_framebuffer(Type::DEPTH_RENDER_BUFFER);
 }
 
 FrameBuffer::FrameBuffer(FrameBuffer const& fb)
@@ -23,7 +25,7 @@ FrameBuffer::FrameBuffer(FrameBuffer const& fb)
     m_width = fb.m_width;
     m_height = fb.m_height;
     m_multisample = fb.m_multisample;
-    initialiseFrameBuffer(fb.m_type);
+    initialise_framebuffer(fb.m_type);
 }
 
 FrameBuffer::FrameBuffer(FrameBuffer&& fb)
@@ -61,7 +63,7 @@ FrameBuffer& FrameBuffer::operator=(FrameBuffer const& fb)
     m_width = fb.m_width;
     m_height = fb.m_height;
     m_multisample = fb.m_multisample;
-    initialiseFrameBuffer(fb.m_type);
+    initialise_framebuffer(fb.m_type);
     return *this;
 }
 
@@ -87,7 +89,7 @@ FrameBuffer& FrameBuffer::operator=(FrameBuffer&& fb)
     return *this;
 }
 
-void FrameBuffer::resolveToFBO(FrameBuffer* fbo)
+void FrameBuffer::resolve_to_fbo(FrameBuffer* fbo)
 {
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo->m_frameBufferID);
     glBindFramebuffer(GL_READ_FRAMEBUFFER, m_frameBufferID);
@@ -96,40 +98,40 @@ void FrameBuffer::resolveToFBO(FrameBuffer* fbo)
     this->unbind();
 }
 
-void FrameBuffer::resolveToScreen()
+void FrameBuffer::resolve_to_screen()
 {
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     glBindFramebuffer(GL_READ_FRAMEBUFFER, m_frameBufferID);
     glDrawBuffer(GL_BACK);
-    auto wincfg = getMainWindow()->getConfig();
+    auto wincfg = get_main_window()->get_config();
     glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, wincfg.width, wincfg.height,
             GL_COLOR_BUFFER_BIT, GL_NEAREST);
     this->unbind();
 }
 
-void FrameBuffer::initialiseFrameBuffer(type dbType)
+void FrameBuffer::initialise_framebuffer(Type dbType)
 {
     m_type = dbType;
-    createFrameBuffer();
+    create_framebuffer();
     if (!m_multisample)
-        createTextureAttachment();
+        create_texture_attachment();
     else
-        createMultisampleColorAttachement();
-    if (dbType == DEPTH_RENDER_BUFFER)
-        createDepthBufferAttachment();
-    else if (dbType == DEPTH_TEXTURE)
-        createDepthTextureAttachment();
+        create_multisample_color_attachement();
+    if (dbType == Type::DEPTH_RENDER_BUFFER)
+        create_depth_buffer_attachment();
+    else if (dbType == Type::DEPTH_TEXTURE)
+        create_depth_texture_attachment();
     unbind();
 }
 
-void FrameBuffer::createFrameBuffer()
+void FrameBuffer::create_framebuffer()
 {
     glGenFramebuffers(1, &m_frameBufferID);
     glBindFramebuffer(GL_FRAMEBUFFER, m_frameBufferID);
     glDrawBuffer(GL_COLOR_ATTACHMENT0);
 }
 
-void FrameBuffer::createTextureAttachment()
+void FrameBuffer::create_texture_attachment()
 {
     glGenTextures(1, &m_colorTextureID);
     glBindTexture(GL_TEXTURE_2D, m_colorTextureID);
@@ -141,7 +143,7 @@ void FrameBuffer::createTextureAttachment()
     glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_colorTextureID, 0);
 }
 
-void FrameBuffer::createDepthTextureAttachment()
+void FrameBuffer::create_depth_texture_attachment()
 {
     glGenTextures(1, &m_depthTextureID);
     glBindTexture(GL_TEXTURE_2D, m_depthTextureID);
@@ -151,7 +153,7 @@ void FrameBuffer::createDepthTextureAttachment()
     glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, m_depthTextureID, 0);
 }
 
-void FrameBuffer::createMultisampleColorAttachement()
+void FrameBuffer::create_multisample_color_attachement()
 {
     glGenRenderbuffers(1, &m_colorBufferID);
     glBindRenderbuffer(GL_RENDERBUFFER, m_colorBufferID);
@@ -159,7 +161,7 @@ void FrameBuffer::createMultisampleColorAttachement()
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, m_colorBufferID);
 }
 
-void FrameBuffer::createDepthBufferAttachment()
+void FrameBuffer::create_depth_buffer_attachment()
 {
     glGenRenderbuffers(1, &m_depthBufferID);
     glBindRenderbuffer(GL_RENDERBUFFER, m_depthBufferID);
@@ -181,19 +183,19 @@ void FrameBuffer::resize(u32 width, u32 height)
 
 const FrameBuffer* FrameBuffer::BOUND_FRAMEBUFFER = nullptr;
 
-void FrameBuffer::bindFramebuffer(const FrameBuffer* fb) {
+void FrameBuffer::bind_framebuffer(const FrameBuffer* fb) {
     BOUND_FRAMEBUFFER = fb;
     if (!fb) {
-        getMainWindow()->BindAsRenderTarget();
+        get_main_window()->bind_as_render_target();
         return;
     }
     glBindFramebuffer(GL_FRAMEBUFFER, fb->m_frameBufferID);
     glViewport(0, 0, fb->m_width, fb->m_height);
 }
 
-void FrameBuffer::unbindFramebuffer() {
+void FrameBuffer::unbind_framebuffer() {
     BOUND_FRAMEBUFFER = nullptr;
-    getMainWindow()->BindAsRenderTarget();
+    get_main_window()->bind_as_render_target();
 }
 
 }

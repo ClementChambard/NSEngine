@@ -107,6 +107,6 @@ NS_STATIC_ASSERT(sizeof(f64) == 8, "Expected f64 to be 8 byte.");
 #define NS_NOINLINE
 #endif
 
-#define _ARG [[maybe_unused]]
+#define OWNED
 
 #endif // DEFINES_HEADER_INCLUDED

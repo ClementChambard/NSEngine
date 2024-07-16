@@ -1,5 +1,5 @@
-#ifndef KEY_INCLUDED_H
-#define KEY_INCLUDED_H
+#ifndef KEY_HEADER_INCLUDED
+#define KEY_HEADER_INCLUDED
 
 namespace ns {
 
@@ -163,4 +163,4 @@ enum class Key {
 
 } // namespace ns
 
-#endif // KEY_INCLUDED_H
+#endif // KEY_HEADER_INCLUDED

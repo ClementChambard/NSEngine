@@ -1,41 +1,40 @@
-#ifndef SHADERPROGRAM_INCLUDED_H
-#define SHADERPROGRAM_INCLUDED_H
+#ifndef SHADERPROGRAM_HEADER_INCLUDED
+#define SHADERPROGRAM_HEADER_INCLUDED
 
 #include <GL/glew.h>
-#include <glm/glm.hpp>
+#include "./math/types/types.hpp"
 #include "./defines.h"
 
 namespace ns {
 
 class ShaderProgram {
     public:
-        ShaderProgram(cstr vertexFile, cstr fragmentFile);
+        ShaderProgram(cstr vertex_file, cstr fragment_file);
         virtual ~ShaderProgram();
 
-        void start() { glUseProgram(programID); }
-        void stop()  { glUseProgram(0);         }
+        void use();
 
     protected:
-        virtual void bindAttributes() {}
-        virtual void getAllUniformLocation() {}
-        void bindAttribute(GLuint attribute, cstr variableName);
-        GLuint getUniformLocation(cstr uniformName);
-        void loadFloat(GLuint location, GLfloat value);
-        void loadVec2(GLuint location, const glm::vec2& value);
-        void loadVec3(GLuint location, const glm::vec3& value);
-        void loadVec4(GLuint location, const glm::vec4& value);
-        void loadMat4(GLuint location, const glm::mat4& value);
-        void loadBool(GLuint location, bool value) { loadFloat(location, (GLfloat)value); }
-        void loadInt(GLuint location, GLint value);
+        virtual void bind_attributes() {}
+        virtual void get_all_uniform_location() {}
+        void bind_attribute(GLuint attribute, cstr variable_name);
+        GLuint get_uniform_location(cstr uniform_name);
+        void load_float(GLuint location, GLfloat value);
+        void load_vec2(GLuint location, const vec2& value);
+        void load_vec3(GLuint location, const vec3& value);
+        void load_vec4(GLuint location, const vec4& value);
+        void load_mat4(GLuint location, const mat4& value);
+        void load_bool(GLuint location, bool value) { load_float(location, (GLfloat)value); }
+        void load_int(GLuint location, GLint value);
 
     private:
-        GLuint programID = 0;
-        GLuint vertexShaderID = 0;
-        GLuint fragmentShaderID = 0;
+        GLuint m_programID = 0;
+        GLuint m_vertexShaderID = 0;
+        GLuint m_fragmentShaderID = 0;
 
-        static GLuint loadShader(cstr file, GLenum type);
+        static GLuint load_shader(cstr file, GLenum type);
 };
 
-}
+} // namespace ns
 
-#endif
+#endif // SHADERPROGRAM_HEADER_INCLUDED

@@ -1,8 +1,7 @@
-#ifndef DRAWFUNCS
-#define DRAWFUNCS
+#ifndef DRAWFUNCS_HEADER_INCLUDED
+#define DRAWFUNCS_HEADER_INCLUDED
 
 #include "SpriteBatch.h"
-#include <glm/glm.hpp>
 #include "./defines.h"
 
 namespace ns {
@@ -93,23 +92,23 @@ void batch_draw_rectangle_rotated_color(SpriteBatch* batch, f32 cx, f32 cy, f32 
  * \param outline: @deprecated if enabled, draws only the outline of the quad. disabled by default
  * 2d : the z component is forced to 0
  */
-void draw_quad(glm::vec3 tl, glm::vec3 tr, glm::vec3 br, glm::vec3 bl, [[deprecated]] bool outline = false);
-void draw_quad_color(glm::vec3 tl, glm::vec3 tr, glm::vec3 br, glm::vec3 bl, Color ctl, Color ctr, Color cbr, Color cbl, [[deprecated]] bool outline = false);
-void draw_quad_2d(glm::vec2 tl, glm::vec2 tr, glm::vec2 br, glm::vec2 bl, bool outline = false);
-void draw_quad_color_2d(glm::vec2 tl, glm::vec2 tr, glm::vec2 br, glm::vec2 bl, Color ctl, Color ctr, Color cbr, Color cbl, bool outline = false);
-void draw_quad_tex_2d(GLuint texID, glm::vec4 tl, glm::vec4 tr, glm::vec4 br, glm::vec4 bl, bool outline = false);
+void draw_quad(vec3 tl, vec3 tr, vec3 br, vec3 bl, [[deprecated]] bool outline = false);
+void draw_quad_color(vec3 tl, vec3 tr, vec3 br, vec3 bl, Color ctl, Color ctr, Color cbr, Color cbl, [[deprecated]] bool outline = false);
+void draw_quad_2d(vec2 tl, vec2 tr, vec2 br, vec2 bl, bool outline = false);
+void draw_quad_color_2d(vec2 tl, vec2 tr, vec2 br, vec2 bl, Color ctl, Color ctr, Color cbr, Color cbl, bool outline = false);
+void draw_quad_tex_2d(u32 texID, vec4 tl, vec4 tr, vec4 br, vec4 bl, bool outline = false);
 
-void batch_draw_quad(SpriteBatch* batch, glm::vec3 tl, glm::vec3 tr, glm::vec3 br, glm::vec3 bl, [[deprecated]] bool outline = false);
-void batch_draw_quad_color(SpriteBatch* batch, glm::vec3 tl, glm::vec3 tr, glm::vec3 br, glm::vec3 bl, Color ctl, Color ctr, Color cbr, Color cbl, [[deprecated]] bool outline = false);
-void batch_draw_quad_2d(SpriteBatch* batch, glm::vec2 tl, glm::vec2 tr, glm::vec2 br, glm::vec2 bl, bool outline = false);
-void batch_draw_quad_color_2d(SpriteBatch* batch, glm::vec2 tl, glm::vec2 tr, glm::vec2 br, glm::vec2 bl, Color ctl, Color ctr, Color cbr, Color cbl, bool outline = false);
-void batch_draw_quad_tex_2d(SpriteBatch* batch, GLuint texID, glm::vec4 tl, glm::vec4 tr, glm::vec4 br, glm::vec4 bl, bool outline = false);
+void batch_draw_quad(SpriteBatch* batch, vec3 tl, vec3 tr, vec3 br, vec3 bl, [[deprecated]] bool outline = false);
+void batch_draw_quad_color(SpriteBatch* batch, vec3 tl, vec3 tr, vec3 br, vec3 bl, Color ctl, Color ctr, Color cbr, Color cbl, [[deprecated]] bool outline = false);
+void batch_draw_quad_2d(SpriteBatch* batch, vec2 tl, vec2 tr, vec2 br, vec2 bl, bool outline = false);
+void batch_draw_quad_color_2d(SpriteBatch* batch, vec2 tl, vec2 tr, vec2 br, vec2 bl, Color ctl, Color ctr, Color cbr, Color cbl, bool outline = false);
+void batch_draw_quad_tex_2d(SpriteBatch* batch, u32 texID, vec4 tl, vec4 tr, vec4 br, vec4 bl, bool outline = false);
 
-void draw_triangle(glm::vec3 t1, glm::vec3 t2, glm::vec3 t3, bool outline = false);
-void draw_triangle_color(glm::vec3 t1, glm::vec3 t2, glm::vec3 t3, Color ct1, Color ct2, Color ct3, bool outline = false);
+void draw_triangle(vec3 t1, vec3 t2, vec3 t3, bool outline = false);
+void draw_triangle_color(vec3 t1, vec3 t2, vec3 t3, Color ct1, Color ct2, Color ct3, bool outline = false);
 
-void batch_draw_triangle(SpriteBatch* batch, glm::vec3 t1, glm::vec3 t2, glm::vec3 t3, bool outline = false);
-void batch_draw_triangle_color(SpriteBatch* batch, glm::vec3 t1, glm::vec3 t2, glm::vec3 t3, Color ct1, Color ct2, Color ct3, bool outline = false);
+void batch_draw_triangle(SpriteBatch* batch, vec3 t1, vec3 t2, vec3 t3, bool outline = false);
+void batch_draw_triangle_color(SpriteBatch* batch, vec3 t1, vec3 t2, vec3 t3, Color ct1, Color ct2, Color ct3, bool outline = false);
 
 /** draw_circle[arc,color,textured](center, radius, [radius2, angle1, angle2], [colors, textureData], outline)
  *
@@ -129,9 +128,9 @@ void batch_draw_circle_arc(SpriteBatch* batch, i32 x, i32 y, f32 r1, f32 r2, f32
 void batch_draw_circle_arc_color(SpriteBatch* batch, i32 x, i32 y, f32 r1, f32 r2, f32 a1, f32 a2, Color c_in, Color c_out);
 void batch_draw_circle_arc_textured(SpriteBatch* batch, i32 x, i32 y, f32 r1, f32 r2, f32 a1, f32 a2, i32 texID, f32 u1, f32 u2, i32 repetitions);
 
-void draw_cylinder(glm::vec3 pos, glm::vec3 rot, f32 r, f32 h, f32 a1, f32 a2, i32 texID, f32 u1, f32 u2, i32 repetitions);
+void draw_cylinder(vec3 pos, vec3 rot, f32 r, f32 h, f32 a1, f32 a2, i32 texID, f32 u1, f32 u2, i32 repetitions);
 
-void batch_draw_cylinder(SpriteBatch* batch, glm::vec3 pos, glm::vec3 rot, f32 r, f32 h, f32 a1, f32 a2, i32 texID, f32 u1, f32 u2, i32 repetitions);
+void batch_draw_cylinder(SpriteBatch* batch, vec3 pos, vec3 rot, f32 r, f32 h, f32 a1, f32 a2, i32 texID, f32 u1, f32 u2, i32 repetitions);
 
 
 [[deprecated]]
@@ -151,22 +150,22 @@ void batch_draw_line_color_3d(SpriteBatch* batch,f32 x1, f32 y1, f32 z1, f32 x2,
  * textureData : Id of texture + uvs
  */
 [[deprecated]]
-void draw_billboard(glm::vec3 pos, glm::vec2 scale, i32 texID, glm::vec4 uvs, Color tl, Color tr, Color br, Color bl);
+void draw_billboard(vec3 pos, vec2 scale, i32 texID, vec4 uvs, Color tl, Color tr, Color br, Color bl);
 [[deprecated]]
-void draw_billboard_sized(glm::vec3 pos, glm::vec2 scale, i32 texID, glm::vec4 uvs, Color tl, Color tr, Color br, Color bl);
+void draw_billboard_sized(vec3 pos, vec2 scale, i32 texID, vec4 uvs, Color tl, Color tr, Color br, Color bl);
 [[deprecated]]
-void draw_billboard_axis(glm::vec3 pos, glm::vec3 axis, glm::vec2 scale, i32 texID, glm::vec4 uvs, Color tl, Color tr, Color br, Color bl);
+void draw_billboard_axis(vec3 pos, vec3 axis, vec2 scale, i32 texID, vec4 uvs, Color tl, Color tr, Color br, Color bl);
 [[deprecated]]
-void draw_billboard_sized_axis(glm::vec3 pos, glm::vec3 axis, glm::vec2 scale, i32 texID, glm::vec4 uvs, Color tl, Color tr, Color br, Color bl);
+void draw_billboard_sized_axis(vec3 pos, vec3 axis, vec2 scale, i32 texID, vec4 uvs, Color tl, Color tr, Color br, Color bl);
 
 [[deprecated]]
-void batch_draw_billboard(SpriteBatch* batch, glm::vec3 pos, glm::vec2 scale, i32 texID, glm::vec4 uvs, Color tl, Color tr, Color br, Color bl);
+void batch_draw_billboard(SpriteBatch* batch, vec3 pos, vec2 scale, i32 texID, vec4 uvs, Color tl, Color tr, Color br, Color bl);
 [[deprecated]]
-void batch_draw_billboard_sized(SpriteBatch* batch, glm::vec3 pos, glm::vec2 scale, i32 texID, glm::vec4 uvs, Color tl, Color tr, Color br, Color bl);
+void batch_draw_billboard_sized(SpriteBatch* batch, vec3 pos, vec2 scale, i32 texID, vec4 uvs, Color tl, Color tr, Color br, Color bl);
 [[deprecated]]
-void batch_draw_billboard_axis(SpriteBatch* batch, glm::vec3 pos, glm::vec3 axis, glm::vec2 scale, i32 texID, glm::vec4 uvs, Color tl, Color tr, Color br, Color bl);
+void batch_draw_billboard_axis(SpriteBatch* batch, vec3 pos, vec3 axis, vec2 scale, i32 texID, vec4 uvs, Color tl, Color tr, Color br, Color bl);
 [[deprecated]]
-void batch_draw_billboard_sized_axis(SpriteBatch* batch, glm::vec3 pos, glm::vec3 axis, glm::vec2 scale, i32 texID, glm::vec4 uvs, Color tl, Color tr, Color br, Color bl);
+void batch_draw_billboard_sized_axis(SpriteBatch* batch, vec3 pos, vec3 axis, vec2 scale, i32 texID, vec4 uvs, Color tl, Color tr, Color br, Color bl);
 
 /** draw_AA_box(pos1, pos2, color, outline)
  * 
@@ -174,13 +173,13 @@ void batch_draw_billboard_sized_axis(SpriteBatch* batch, glm::vec3 pos, glm::vec
  * \param outline: if enabled, draws only the outline of the box. disabled by default
  * \param shade:   if enabled, shades the sides for pseudo lighting effect
  */
-void draw_AA_box(glm::vec3 p1, glm::vec3 p2, Color c, [[deprecated]] bool outline = false, bool shade = true);
-void batch_draw_AA_box(SpriteBatch* batch, glm::vec3 p1, glm::vec3 p2, Color c, [[deprecated]] bool outline = false, bool shade = true);
+void draw_aa_box(vec3 p1, vec3 p2, Color c, [[deprecated]] bool outline = false, bool shade = true);
+void batch_draw_aa_box(SpriteBatch* batch, vec3 p1, vec3 p2, Color c, [[deprecated]] bool outline = false, bool shade = true);
 
 // draws a surface as a rectangle in batch b
 void draw_surface(i32 i, f32 x1, f32 y1, f32 x2, f32 y2, SpriteBatch* b = nullptr, i32 blendmode = 3);
 
 
-}
+} // namespace ns
 
-#endif
+#endif // DRAWFUNCS_HEADER_INCLUDED

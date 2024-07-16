@@ -1,8 +1,6 @@
-#ifndef COLOR_H
-#define COLOR_H
+#ifndef COLOR_HEADER_INCLUDED
+#define COLOR_HEADER_INCLUDED
 
-#include <glm/glm.hpp>
-#include <GL/glew.h>
 #include "./defines.h"
 
 namespace ns {
@@ -194,6 +192,6 @@ inline Color mix(Color const& c1, Color const& c2) {
 #define cf_yellow ns::Colorf(1,1,0)
 #define cf_hgray ns::Colorf(0.5,0.5,0.5)
 
-}
+} // namespace ns
 
-#endif /* COLOR_H */
+#endif // COLOR_HEADER_INCLUDED

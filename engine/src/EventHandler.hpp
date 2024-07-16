@@ -1,5 +1,5 @@
-#ifndef EVENTHANDLER_INCLUDED_H
-#define EVENTHANDLER_INCLUDED_H
+#ifndef EVENTHANDLER_HEADER_INCLUDED
+#define EVENTHANDLER_HEADER_INCLUDED
 
 #include "./defines.h"
 
@@ -20,15 +20,15 @@ enum class InputEvent {
 };
 
 struct IEventHandler {
-  virtual bool handlePlatformEvent(_ARG platform::Event* pe) { return false; } // Reserved to internal stuff since you have to know what is PlatformEvent
-  virtual bool handleMouseMotion(_ARG u32 x, _ARG u32 y) { return false; }
-  virtual bool handleMouseButton(_ARG InputEvent type, _ARG Btn button) { return false; }
-  virtual bool handleKey(_ARG InputEvent type, _ARG Key key) { return false; }
-  virtual bool handleResize(_ARG u32 w, _ARG u32 h) { return false; }
-  virtual bool handleQuit() { return false; }
+  virtual bool handle_platform_event(platform::Event* pe) { (void)pe; return false; } // Reserved to internal stuff since you have to know what is PlatformEvent
+  virtual bool on_mouse_motion(u32 x, u32 y) { (void)x, (void)y; return false; }
+  virtual bool on_mouse_button(InputEvent type, Btn button) { (void)type, (void)button; return false; }
+  virtual bool on_key(InputEvent type, Key key) { (void)type, (void)key; return false; }
+  virtual bool on_resize(u32 w, u32 h) { (void)w, (void)h; return false; }
+  virtual bool on_quit() { return false; }
   // ... Other events
 };
 
 } // namespace ns
 
-#endif // EVENTHANDLER_INCLUDED_H
+#endif // EVENTHANDLER_HEADER_INCLUDED

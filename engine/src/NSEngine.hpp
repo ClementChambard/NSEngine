@@ -1,5 +1,5 @@
-#ifndef ENGINE_H_
-#define ENGINE_H_
+#ifndef NSENGINE_HEADER_INCLUDED
+#define NSENGINE_HEADER_INCLUDED
 
 #include "./defines.h"
 #include "./logger.h"
@@ -50,7 +50,7 @@ public:
   /**
    * Changes the maximum amount of frame per seconds
    */
-  void setMaxFps(u32 fps) { 
+  void set_max_fps(u32 fps) { 
     NS_INFO("max FPS set to %u", fps);
     m_maxFps = fps;
   }
@@ -66,11 +66,11 @@ public:
   auto &flags() { return m_gameflags; }
 
   f32 fps() const { return m_currentFps; }
-  f32 gameSpeed() const { return m_gameSpeed; }
+  f32 game_speed() const { return m_gameSpeed; }
 
-  void setGameSpeed(f32 gs) { m_gameSpeed = gs; }
+  void set_game_speed(f32 gs) { m_gameSpeed = gs; }
 
-  i32 addGameLayer(bool depthTest = false, bool is_static = false);
+  i32 add_game_layer();
 
 private:
   void on_create_engine();
@@ -101,28 +101,21 @@ private:
 
   std::vector<SpriteBatch> m_layers;
 
-  friend std::vector<SpriteBatch> &getGameLayers();
+  friend std::vector<SpriteBatch> &get_game_layers();
 
-  friend Window *getMainWindow();
+  friend Window *get_main_window();
 };
 
-/**
- * Get the engine instance
- */
-inline IEngine *getInstance() { return IEngine::instance; }
+inline IEngine *get_instance() { return IEngine::instance; }
 
-/**
- * Get the main window
- */
-inline Window *getMainWindow() { return &IEngine::instance->m_mainWindow; }
+inline Window *get_main_window() { return &IEngine::instance->m_mainWindow; }
 
-/**
- * Gets the layer list
- */
-std::vector<SpriteBatch> &getGameLayers();
+std::vector<SpriteBatch> &get_game_layers();
+
+Texture *get_default_texture();
 
 extern i32 DEBUG_LAYER_ID;
 
 } // namespace ns
 
-#endif // ENGINE_H_
+#endif // NSENGINE_HEADER_INCLUDED

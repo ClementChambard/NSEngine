@@ -22,13 +22,13 @@ struct InputManagerState {
   std::vector<InputManagerEventHandler> handlers;
 };
 
-InputManagerState *g_state = nullptr;
+static InputManagerState *g_state = nullptr;
 
 struct InputManagerEventHandler : public IEventHandler {
   Window* w;
   InputManagerEventHandler(Window *w) : IEventHandler(), w(w) {}
   virtual ~InputManagerEventHandler() {}
-  bool handleKey(InputEvent t, Key k) override {
+  bool on_key(InputEvent t, Key k) override {
     if (t == InputEvent::PRESS) {
       g_state->keyboard[static_cast<usize>(k)] = true;
     }
@@ -37,7 +37,7 @@ struct InputManagerEventHandler : public IEventHandler {
     }
     return false; // don't eat the event
   }
-  bool handleMouseButton(InputEvent t, Btn b) override {
+  bool on_mouse_button(InputEvent t, Btn b) override {
     if (t == InputEvent::PRESS) {
       g_state->mouse[static_cast<usize>(b)] = true;
     }
@@ -46,7 +46,7 @@ struct InputManagerEventHandler : public IEventHandler {
     }
     return false; // don't eat the event
   }
-  bool handleMouseMotion(u32 x, u32 y) override {
+  bool on_mouse_motion(u32 x, u32 y) override {
     g_state->mouse_last_window_on = w;
     g_state->mouse_x = x;
     g_state->mouse_y = y;
@@ -79,7 +79,7 @@ void InputManager::update([[maybe_unused]] f64 delta_time) {
 
 void InputManager::capture_window_events(Window* w) {
   g_state->handlers.emplace_back(w);
-  w->addEventHandler(&g_state->handlers.back(), 50);
+  w->add_event_handler(&g_state->handlers.back(), 50);
 }
 
 namespace keyboard {

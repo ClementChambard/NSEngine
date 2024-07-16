@@ -3,9 +3,11 @@ cmake_minimum_required(VERSION 3.20)
 
 # Applications should set the variables NS_USE_[...] to activate a submodule
 # This file will add subdirectories corresponding to each activated submodules
+# NS_USE_ALL_SUBMODULES will set all variables (used for debugging the library itself)
 
-if(NS_USE_IMGUI)
+if(NS_USE_IMGUI OR NS_USE_ALL_SUBMODULES)
   add_subdirectory(imgui_ns)
+  target_compile_definitions(NSEngine PRIVATE -DNSMOD_USE_IMGUI=1)
 endif()
 
 # ...

@@ -1,5 +1,5 @@
-#ifndef WINDOW
-#define WINDOW
+#ifndef WINDOW_HEADER_INCLUDED
+#define WINDOW_HEADER_INCLUDED
 
 #include "./defines.h"
 #include "platform/Wnd/Wnd.h"
@@ -40,26 +40,26 @@ public:
     /**
      * Adds an handler to capture window events. lowest priority value runs first.
      */
-    void addEventHandler(IEventHandler* eh, u32 priority = 1);
+    void add_event_handler(IEventHandler* eh, u32 priority = 1);
 
     /**
      * Dispatches window events to the attached handlers
      */
-    void processEvents();
+    void process_events();
 
     /**
      * Sets the draw target to this window
      */
-    void BindAsRenderTarget();
+    void bind_as_render_target();
 
-    Config const& getConfig() const { return m_config; }
-    u32 getWidth() const { return m_width; }
-    u32 getHeight() const { return m_height; }
-    bool isOpen() const { return m_isOpen; }
+    Config const& get_config() const { return m_config; }
+    u32 get_width() const { return m_width; }
+    u32 get_height() const { return m_height; }
+    bool is_open() const { return m_isOpen; }
 
     operator platform::Wnd*() const { return m_platform; }
 
-    void swapBuffers() const;
+    void swap_buffers() const;
 
 private:
     Config m_config{};
@@ -74,11 +74,11 @@ private:
         Window* w;
         WindowHandler(Window* w) : IEventHandler(), w(w) {}
         virtual ~WindowHandler() {}
-        bool handleQuit() override;
-        bool handleResize(u32, u32) override;
+        bool on_quit() override;
+        bool on_resize(u32, u32) override;
     } m_handler{this};
 };
 
-}
+} // namespace ns
 
-#endif
+#endif // WINDOW_HEADER_INCLUDED

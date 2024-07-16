@@ -1,9 +1,7 @@
 #ifndef SDL_GL_H
 #define SDL_GL_H
 
-#include "../Wnd.h"
-
-#if WND_BACKEND == WND_BACKEND_SDL
+#ifdef NS_WND_BACKEND_SDL2
 
 #include "../Wnd_common.h"
 #include <SDL2/SDL.h>

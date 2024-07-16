@@ -5,23 +5,23 @@ namespace ns {
 const char * const DefaultShader::VERTEX_SHADER_PATH = "assets/engine/shaders/builtin.default.vert.glsl";
 const char * const DefaultShader::FRAGMENT_SHADER_PATH = "assets/engine/shaders/builtin.default.frag.glsl";
 
-void DefaultShader::bindAttributes() {
-  bindAttribute(0, "VertexPosition");
-  bindAttribute(1, "VertexColor");
-  bindAttribute(2, "VertexTexCoords");
+void DefaultShader::bind_attributes() {
+  bind_attribute(0, "VertexPosition");
+  bind_attribute(1, "VertexColor");
+  bind_attribute(2, "VertexTexCoords");
 }
 
-void DefaultShader::getAllUniformLocation() {
-  location_viewMatrix = getUniformLocation("viewMatrix");
-  location_projectionMatrix = getUniformLocation("projectionMatrix");
+void DefaultShader::get_all_uniform_location() {
+  m_location_viewMatrix = get_uniform_location("viewMatrix");
+  m_location_projectionMatrix = get_uniform_location("projectionMatrix");
 }
 
-void DefaultShader::setViewMatrix(glm::mat4 const& mat) {
-  loadMat4(location_viewMatrix, mat);
+void DefaultShader::set_view_matrix(mat4 const& mat) {
+  load_mat4(m_location_viewMatrix, mat);
 }
 
-void DefaultShader::setProjectionMatrix(glm::mat4 const& mat) {
-  loadMat4(location_projectionMatrix, mat);
+void DefaultShader::set_projection_matrix(mat4 const& mat) {
+  load_mat4(m_location_projectionMatrix, mat);
 }
 
 } // namespace ns

@@ -6,6 +6,10 @@
 #include <cstdio>
 #include "platform/platform.h"
 
+#include <GL/glew.h>
+
+#include <cstdlib> // for exit
+
 namespace ns {
 
 i32 DEBUG_LAYER_ID = 0;
@@ -29,10 +33,10 @@ IEngine::IEngine(u32 w, u32 h, cstr name)
 
     memory_system_initialize({});
     initialize_logging(&log_req, log_mem);
-    log_mem = ns::alloc(log_req, MemTag::APPLICATION);
+    log_mem = ns::alloc_raw(log_req, MemTag::APPLICATION);
     initialize_logging(&log_req, log_mem);
     ns::InputManager::initialize(&im_req, im_mem);
-    im_mem = ns::alloc(im_req, MemTag::APPLICATION);
+    im_mem = ns::alloc_raw(im_req, MemTag::APPLICATION);
     ns::InputManager::initialize(&im_req, im_mem);
 
     m_mainWindow.configure({name, w, h, 0});
@@ -48,7 +52,7 @@ IEngine::IEngine(u32 w, u32 h, cstr name)
 
     NSMOD_initModules();
 
-    TextureManager::RegisterTexture("assets/engine/textures/defaultTexture.png");
+    TextureManager::register_texture("assets/engine/textures/defaultTexture.png");
 
     m_gameflags.val = 1;
     NS_INFO("NSEngine Initialized !");
@@ -60,18 +64,18 @@ IEngine::~IEngine()
     delete ImGuiContext::getInstance();
 #endif
 
-    if (m_mainWindow.isOpen()) m_mainWindow.close();
+    if (m_mainWindow.is_open()) m_mainWindow.close();
 
     NS_INFO("Quit engine");
 
     ns::InputManager::cleanup(im_mem);
-    ns::free(im_mem, im_req, MemTag::APPLICATION);
+    ns::free_raw(im_mem, im_req, MemTag::APPLICATION);
     shutdown_logging(log_mem);
-    ns::free(log_mem, log_req, MemTag::APPLICATION);
+    ns::free_raw(log_mem, log_req, MemTag::APPLICATION);
 
     pstr s = get_memory_usage_str();
     printf("\033[0m%s\n", s);
-    ns::free(s, 0, MemTag::UNTRACKED);
+    ns::free_raw(s, 0, MemTag::UNTRACKED);
     memory_system_shutdown();
 
     instance = nullptr;
@@ -115,41 +119,16 @@ i32 IEngine::run()
 void IEngine::on_create_engine()
 {
     on_create();
-    DEBUG_LAYER_ID = addGameLayer(false, true);
+    DEBUG_LAYER_ID = add_game_layer();
 }
 
 void IEngine::on_update_engine()
 {
-    // InputManager::UpdateKeys();
     ns::InputManager::update(m_lastFrameTime);
 
-    // SDL_Event event;
-
     //Process events
-
-    if (m_mainWindow.isOpen()) m_mainWindow.processEvents();
-    if (!m_mainWindow.isOpen()) { m_gameflags.running = false; return; }
-
-    // while(SDL_PollEvent(&event))
-    // {
-    //     switch (event.type)
-    //     {
-    //         case SDL_QUIT:
-    //             m_gameflags.flags.running = false;
-    //             break;
-    //         default:
-    //             break;
-    //     }
-    //     InputManager::CheckEvents(event);
-    // 
-    //     bool noMouse = false;
-    //     bool noKeyboard = false;
-    //     for (auto e : m_eventProcessors)
-    //     {
-    //         if (event.type == SDL_MOUSEMOTION) noMouse = false;
-    //         e->ProcessEvent(&event, noKeyboard, noMouse);
-    //     }
-    // }
+    if (m_mainWindow.is_open()) m_mainWindow.process_events();
+    if (!m_mainWindow.is_open()) { m_gameflags.running = false; return; }
 
     //Update debug commands
     if (keyboard::pressed(Key::F1)) m_gameflags.debugInfo = !m_gameflags.debugInfo;
@@ -164,7 +143,7 @@ void IEngine::on_update_engine()
 void IEngine::on_render_engine()
 {
     on_render();
-    m_mainWindow.swapBuffers();
+    m_mainWindow.swap_buffers();
 }
 
 void IEngine::on_destroy_engine()
@@ -173,17 +152,19 @@ void IEngine::on_destroy_engine()
     m_layers.clear();
 }
 
-i32 IEngine::addGameLayer(bool depthTest, bool is_static) {
+i32 IEngine::add_game_layer() {
   i32 id = m_layers.size();
   m_layers.emplace_back();
-  m_layers.back().is_static = is_static;
-  m_layers.back().depthTest = depthTest;
-  NS_INFO("added new graphics layer %d of type %d%d", id, is_static, depthTest);
+  NS_INFO("added new graphics layer %d", id);
   return id;
 }
 
-std::vector<SpriteBatch>& getGameLayers() {
+std::vector<SpriteBatch>& get_game_layers() {
     return IEngine::instance->m_layers;
+}
+
+Texture *get_default_texture() {
+    return TextureManager::get_texture(1);
 }
 
 }

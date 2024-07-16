@@ -1,9 +1,7 @@
 #ifndef X_GL_H
 #define X_GL_H
 
-#include "../Wnd.h"
-
-#if WND_BACKEND == WND_BACKEND_X11
+#ifdef NS_WND_BACKEND_X11
 
 #include "../Wnd_common.h"
 #include <X11/Xlib.h>
@@ -15,15 +13,15 @@
 namespace ns::platform {
 
 struct Wnd {
-  Display *display;
-  Colormap cmap;
-  Window win;
-  GLXContext ctx;
-  EventHandlerList ehlist;
-  u32 w, h;
-  i32 x, y;
-  Atom wm_delete;
-  Atom wm_protocol;
+  Display *display = nullptr;
+  Colormap cmap = 0;
+  Window win = 0;
+  GLXContext ctx = nullptr;
+  EventHandlerList ehlist{};
+  u32 w = 0, h = 0;
+  i32 x = 0, y = 0;
+  Atom wm_delete = 0;
+  Atom wm_protocol = 0;
 };
 
 struct Event {
