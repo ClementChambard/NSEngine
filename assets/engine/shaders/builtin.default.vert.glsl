@@ -8,7 +8,7 @@ out vec4 fragmentColor;
 out vec2 fragmentTexCoords;
 
 uniform mat4 viewMatrix;
-uniform mat4 projectionMatrix
+uniform mat4 projectionMatrix;
 
 void main()
 {
