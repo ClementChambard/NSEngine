@@ -29,6 +29,7 @@ class DrawBatch2 {
         void draw_tri_strip(u32 v);
         u32 draw_quad_strip(Vertex v1, Vertex v2);
         void draw_quad_strip(u32 v1, u32 v2);
+        u32 get_next_vid();
 
         // old interface
         void draw(Vertex tl, Vertex tr, Vertex br, Vertex bl) { draw_quad(tl, tr, br, bl); }

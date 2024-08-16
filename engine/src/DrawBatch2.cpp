@@ -95,6 +95,10 @@ void DrawBatch2::draw_quad_strip(u32 v1, u32 v2) {
     draw_quad(v1 - 2, v2 - 2, v1, v2);
 }
 
+u32 DrawBatch2::get_next_vid() {
+    return m_vertices.size();
+}
+
 void DrawBatch2::render_batch() {
     glBindVertexArray(m_vao);
 
