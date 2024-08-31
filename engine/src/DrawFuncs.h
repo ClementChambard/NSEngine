@@ -176,10 +176,6 @@ void batch_draw_billboard_sized_axis(SpriteBatch* batch, vec3 pos, vec3 axis, ve
 void draw_aa_box(vec3 p1, vec3 p2, Color c, [[deprecated]] bool outline = false, bool shade = true);
 void batch_draw_aa_box(SpriteBatch* batch, vec3 p1, vec3 p2, Color c, [[deprecated]] bool outline = false, bool shade = true);
 
-// draws a surface as a rectangle in batch b
-void draw_surface(i32 i, f32 x1, f32 y1, f32 x2, f32 y2, SpriteBatch* b = nullptr, i32 blendmode = 3);
-
-
 } // namespace ns
 
 #endif // DRAWFUNCS_HEADER_INCLUDED

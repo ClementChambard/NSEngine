@@ -349,17 +349,6 @@ void batch_draw_cylinder(SpriteBatch* batch, vec3 pos, vec3 rot, f32 r, f32 h, f
     }
 }
 
-void draw_surface(i32 i, f32 x1, f32 y1, f32 x2, f32 y2, SpriteBatch* b, i32 bm)
-{
-    if (b == nullptr) b = &get_game_layers()[targetLayer];
-    b->draw(TextureManager::get_surface_tex_id(i),
-            {{x1,y1,0}, defaultDrawColor, {0,1}},
-            {{x2,y1,0}, defaultDrawColor, {1,1}},
-            {{x2,y2,0}, defaultDrawColor, {1,0}},
-            {{x1,y2,0}, defaultDrawColor, {0,0}},
-    bm);
-}
-
 void draw_line_3d(f32 x1, f32 y1, f32, f32 x2, f32 y2, f32, f32 width)
 { batch_draw_line_color(&get_game_layers()[targetLayer], x1, y1, x2, y2, width, defaultDrawColor, defaultDrawColor); }
 

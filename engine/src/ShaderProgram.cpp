@@ -1,6 +1,9 @@
 #include "ShaderProgram.h"
-#include "FileOpener.h"
 #include "logger.h"
+#include "platform/filesystem.h"
+
+// for std::exit
+#include <cstdlib>
 
 namespace ns {
 
@@ -57,23 +60,31 @@ namespace ns {
 
     GLuint ShaderProgram::load_shader(cstr file, GLenum type)
     {
-        std::string shaderSource;
-        FileOpener::read_file_to_buffer(file, shaderSource);
+        fs::File f;
+        fs::open(file, fs::Mode::READ, false, &f);
+        usize length;
+        fs::fsize(&f, &length);
+        pstr s = new char[length + 1];
+        fs::read_all_text(&f, s, &length);
+        fs::close(&f);
+        s[length] = 0;
         GLuint id = glCreateShader(type);
-        const char* shaderSourceCstr = shaderSource.c_str();
+        const char* shaderSourceCstr = s;
         glShaderSource(id, 1, &shaderSourceCstr, nullptr);
         glCompileShader(id);
         GLint success = 0;
         glGetShaderiv(id, GL_COMPILE_STATUS, &success);
+        delete[] s;
         if (success == GL_FALSE)
         {
             GLint maxLength = 0;
             glGetShaderiv(id, GL_INFO_LOG_LENGTH, &maxLength);
-            std::vector<char> errorLog(maxLength);
-            glGetShaderInfoLog(id, maxLength, &maxLength, &errorLog[0]);
+            pstr log = new char[maxLength];
+            glGetShaderInfoLog(id, maxLength, &maxLength, log);
             glDeleteShader(id); //Don't leak the shader.
-            NS_FATAL("Shader '%s' failed to compile: %s", file, &(errorLog[0]));
-            exit(1);
+            NS_FATAL("Shader '%s' failed to compile: %s", file, log);
+            delete[] log;
+            std::exit(1);
         }
         return id;
     }

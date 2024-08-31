@@ -5,6 +5,8 @@
 
 namespace ns {
 
+void set_blendmode(i32 i);
+
 SpriteBatch::SpriteBatch() {
     glGenVertexArrays(1, &m_vao);
     glBindVertexArray(m_vao);
@@ -62,12 +64,12 @@ void SpriteBatch::render_batch() {
             if (m_renderBatches[i-1].texture != m_renderBatches[i].texture)
                 m_renderBatches[i].texture->use();
             if (m_renderBatches[i-1].blendmode != m_renderBatches[i].blendmode)
-                TextureManager::set_blendmode(m_renderBatches[i].blendmode);
+                set_blendmode(m_renderBatches[i].blendmode);
         }
         else 
         {
             m_renderBatches[i].texture->use();
-            TextureManager::set_blendmode(m_renderBatches[i].blendmode);
+            set_blendmode(m_renderBatches[i].blendmode);
         }
         glDrawArrays(GL_TRIANGLES, m_renderBatches[i].offset, m_renderBatches[i].num_vertices);
     }
@@ -86,12 +88,12 @@ void SpriteBatch::submit(bool clear_glyphs) {
             if (m_renderBatches[i-1].texture != m_renderBatches[i].texture)
                 m_renderBatches[i].texture->use();
             if (m_renderBatches[i-1].blendmode != m_renderBatches[i].blendmode)
-                TextureManager::set_blendmode(m_renderBatches[i].blendmode);
+                set_blendmode(m_renderBatches[i].blendmode);
         }
         else 
         {
             m_renderBatches[i].texture->use();
-            TextureManager::set_blendmode(m_renderBatches[i].blendmode);
+            set_blendmode(m_renderBatches[i].blendmode);
         }
         glDrawArrays(GL_TRIANGLES, m_renderBatches[i].offset, m_renderBatches[i].num_vertices);
     }
@@ -140,6 +142,58 @@ void SpriteBatch::create_render_batches(bool)
     glBufferData(GL_ARRAY_BUFFER, n_vtx * sizeof(Vertex), vertices, GL_DYNAMIC_DRAW);
 
     delete[] vertices;
+}
+
+void set_blendmode(i32 blendmode) {
+    switch (blendmode) {
+        case 0:
+            glBlendEquation(GL_FUNC_ADD);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            break;
+        case 1:
+            glBlendEquation(GL_FUNC_ADD);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+            break;
+        case 2:
+            glBlendEquation(GL_FUNC_REVERSE_SUBTRACT);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+            break;
+        case 3:
+            glBlendEquation(GL_FUNC_ADD);
+            glBlendFunc(GL_ONE, GL_ZERO);
+            break;
+        case 4:
+            glBlendEquation(GL_FUNC_ADD);
+            glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_COLOR);
+            break;
+        case 5:
+            glBlendEquation(GL_FUNC_ADD);
+            glBlendFunc(GL_DST_COLOR, GL_ZERO);
+            break;
+        case 6:
+            glBlendEquation(GL_FUNC_ADD);
+            glBlendFunc(GL_ONE_MINUS_SRC_COLOR, GL_ONE_MINUS_SRC_ALPHA);
+            break;
+        case 7:
+            glBlendEquation(GL_FUNC_ADD);
+            glBlendFunc(GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA);
+            break;
+        case 8:
+            glBlendEquation(GL_MIN);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+            break;
+        case 9:
+            glBlendEquation(GL_MAX);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+            break;
+        case 10:
+            glBlendEquation(GL_FUNC_SUBTRACT);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+            break;
+        default:
+            glBlendEquation(GL_FUNC_ADD);
+            glBlendFunc(GL_BLEND_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    }
 }
 
 }
