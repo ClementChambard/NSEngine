@@ -97,22 +97,24 @@ private:
     };
   } m_gameflags;
 
+  Texture *m_defaultTexture = nullptr;
+
   // Camera3D *m_cam3d = nullptr;
 
   std::vector<SpriteBatch> m_layers;
 
   friend std::vector<SpriteBatch> &get_game_layers();
-
   friend Window *get_main_window();
+  friend Texture *get_default_texture();
 };
 
 inline IEngine *get_instance() { return IEngine::instance; }
 
 inline Window *get_main_window() { return &IEngine::instance->m_mainWindow; }
 
-std::vector<SpriteBatch> &get_game_layers();
+inline Texture *get_default_texture() { return IEngine::instance->m_defaultTexture;}
 
-Texture *get_default_texture();
+std::vector<SpriteBatch> &get_game_layers();
 
 extern i32 DEBUG_LAYER_ID;
 

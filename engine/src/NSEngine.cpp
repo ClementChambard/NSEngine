@@ -1,6 +1,5 @@
 #include "NSEngine.hpp"
 #include "input.hpp"
-#include "TextureManager.h"
 #include "./logger.h"
 #include "./memory.h"
 #include <cstdio>
@@ -52,7 +51,8 @@ IEngine::IEngine(u32 w, u32 h, cstr name)
 
     NSMOD_initModules();
 
-    TextureManager::register_texture("assets/engine/textures/defaultTexture.png");
+    byte data[] = {255, 255, 255, 255};
+    m_defaultTexture = construct<Texture, MemTag::TEXTURE>(1, 1, data);
 
     m_gameflags.val = 1;
     NS_INFO("NSEngine Initialized !");
@@ -67,6 +67,8 @@ IEngine::~IEngine()
     if (m_mainWindow.is_open()) m_mainWindow.close();
 
     NS_INFO("Quit engine");
+
+    ns::destroy<MemTag::TEXTURE>(m_defaultTexture);
 
     ns::InputManager::cleanup(im_mem);
     ns::free_raw(im_mem, im_req, MemTag::APPLICATION);
@@ -161,10 +163,6 @@ i32 IEngine::add_game_layer() {
 
 std::vector<SpriteBatch>& get_game_layers() {
     return IEngine::instance->m_layers;
-}
-
-Texture *get_default_texture() {
-    return TextureManager::get_texture(1);
 }
 
 }
