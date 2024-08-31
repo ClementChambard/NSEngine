@@ -76,10 +76,10 @@ void memory_system_shutdown() {
 }
 
 ptr alloc_raw(usize size, MemTag tag) {
-  if (tag == MemTag::UNKNOWN) {
-    NS_WARN("ns::alloc called using mem_tag::UNKNOWN. Re-class this "
-            "allocation.");
-  }
+  // if (tag == MemTag::UNKNOWN) {
+  //   NS_WARN("ns::alloc called using mem_tag::UNKNOWN. Re-class this "
+  //           "allocation.");
+  // }
 
   if (tag == MemTag::UNTRACKED) {
     return platform::allocate_memory(size, false);
@@ -107,10 +107,10 @@ ptr alloc_raw(usize size, MemTag tag) {
 }
 
 void free_raw(ptr block, usize size, MemTag tag) {
-  if (tag == MemTag::UNKNOWN) {
-    NS_WARN("ns::free called using mem_tag::UNKNOWN. Re-class this "
-            "free.");
-  }
+  // if (tag == MemTag::UNKNOWN) {
+  //   NS_WARN("ns::free called using mem_tag::UNKNOWN. Re-class this "
+  //           "free.");
+  // }
 
   if (tag == MemTag::UNTRACKED) {
     platform::free_memory(block, false);

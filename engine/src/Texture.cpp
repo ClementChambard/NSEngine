@@ -11,7 +11,7 @@
 namespace ns {
 
 Texture* Texture::from_opengl(u32 id, u32 w, u32 h) {
-    Texture* t = alloc<Texture>(MemTag::TEXTURE);
+    Texture* t = alloc<Texture, MemTag::TEXTURE>();
     t->m_framebuffer = nullptr;
     t->m_textureId = id;
     t->m_width = w;
@@ -20,8 +20,8 @@ Texture* Texture::from_opengl(u32 id, u32 w, u32 h) {
 }
 
 Texture* Texture::as_framebuffer(u32 w, u32 h) {
-    FrameBuffer *fb = construct<FrameBuffer>(MemTag::TEXTURE, w, h, FrameBuffer::Type::DEPTH_RENDER_BUFFER);
-    Texture* t = construct<Texture>(MemTag::TEXTURE);
+    FrameBuffer *fb = construct<FrameBuffer, MemTag::TEXTURE>(w, h, FrameBuffer::Type::DEPTH_RENDER_BUFFER);
+    Texture* t = construct<Texture, MemTag::TEXTURE>();
     t->m_framebuffer = fb;
     t->m_height = fb->get_height();
     t->m_width = fb->get_width();
@@ -68,7 +68,7 @@ Texture::Texture(u32 width, u32 height, bytes data) {
 Texture::~Texture() {
     unuse();
     if (m_framebuffer)
-        ns::destroy(m_framebuffer, MemTag::TEXTURE);
+        ns::destroy<MemTag::TEXTURE>(m_framebuffer);
     else if (m_textureId)
         glDeleteTextures(1, &m_textureId);
 }

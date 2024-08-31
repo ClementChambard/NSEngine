@@ -53,7 +53,7 @@ static bool isExtensionSupported(char const *extList, char const *extension) {
 bool wnd_init(Wnd **wnd, char const *name, unsigned int width,
               unsigned int height, [[maybe_unused]] unsigned int flags) {
   // TODO: handle flags
-  *wnd = ns::construct<Wnd>(MemTag::APPLICATION);
+  *wnd = ns::construct<Wnd, MemTag::APPLICATION>();
   Wnd &w = **wnd;
 
   w.w = width;
@@ -65,7 +65,7 @@ bool wnd_init(Wnd **wnd, char const *name, unsigned int width,
 
   if (!w.display) {
     printf("Failed to open X display\n");
-    free(*wnd);
+    ns::destroy<MemTag::APPLICATION>(*wnd);
     *wnd = nullptr;
     return false;
   }
@@ -76,7 +76,7 @@ bool wnd_init(Wnd **wnd, char const *name, unsigned int width,
       ((glx_major == 1) && (glx_minor < 3)) || glx_major < 1) {
     printf("Invalid GLX version");
     XCloseDisplay(w.display);
-    free(*wnd);
+    ns::destroy<MemTag::APPLICATION>(*wnd);
     *wnd = nullptr;
     return false;
   }
@@ -96,7 +96,7 @@ bool wnd_init(Wnd **wnd, char const *name, unsigned int width,
   if (!fbc) {
     printf("Failed to retrieve a framebuffer config\n");
     XCloseDisplay(w.display);
-    free(*wnd);
+    ns::destroy<MemTag::APPLICATION>(*wnd);
     *wnd = nullptr;
     return false;
   }
@@ -146,7 +146,7 @@ bool wnd_init(Wnd **wnd, char const *name, unsigned int width,
     printf("Failed to create window\n");
     XFreeColormap(w.display, w.cmap);
     XCloseDisplay(w.display);
-    free(*wnd);
+    ns::destroy<MemTag::APPLICATION>(*wnd);
     *wnd = nullptr;
     return false;
   }
@@ -210,7 +210,7 @@ bool wnd_init(Wnd **wnd, char const *name, unsigned int width,
     XDestroyWindow(w.display, w.win);
     XFreeColormap(w.display, w.cmap);
     XCloseDisplay(w.display);
-    free(*wnd);
+    ns::destroy<MemTag::APPLICATION>(*wnd);
     *wnd = nullptr;
     return false;
   }
@@ -237,7 +237,7 @@ void wnd_destroy(Wnd *wnd) {
   XFreeColormap(wnd->display, wnd->cmap);
   XCloseDisplay(wnd->display);
 
-  ns::destroy(wnd, MemTag::APPLICATION);
+  ns::destroy<MemTag::APPLICATION>(wnd);
 }
 
 void wnd_swap(Wnd *wnd) {

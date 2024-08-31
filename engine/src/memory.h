@@ -58,9 +58,8 @@ NS_API void free_raw(ptr block, usize size, MemTag tag = MemTag::UNKNOWN);
  * Allocate an object in memory
  * @param tag the tag of the block
  */
-template <typename T>
-NS_API T *alloc(MemTag tag = MemTag::UNKNOWN) {
-  return reinterpret_cast<T*>(alloc_raw(sizeof(T), tag));
+template <typename T, MemTag tag = MemTag::UNKNOWN> NS_API T *alloc() {
+  return reinterpret_cast<T *>(alloc_raw(sizeof(T), tag));
 }
 
 /**
@@ -68,9 +67,9 @@ NS_API T *alloc(MemTag tag = MemTag::UNKNOWN) {
  * @param count the count of elements in the block
  * @param tag the tag of the block
  */
-template <typename T>
-NS_API T *alloc_n(usize count, MemTag tag = MemTag::UNKNOWN) {
-  return reinterpret_cast<T*>(alloc_raw(sizeof(T) * count, tag));
+template <typename T, MemTag tag = MemTag::UNKNOWN>
+NS_API T *alloc_n(usize count) {
+  return reinterpret_cast<T *>(alloc_raw(sizeof(T) * count, tag));
 }
 
 /**
@@ -78,8 +77,7 @@ NS_API T *alloc_n(usize count, MemTag tag = MemTag::UNKNOWN) {
  * @param block the block to free
  * @param tag the tag of the block
  */
-template <typename T>
-NS_API void free(T* block, MemTag tag = MemTag::UNKNOWN) {
+template <MemTag tag = MemTag::UNKNOWN, typename T> NS_API void free(T *block) {
   free_raw(block, sizeof(T), tag);
 }
 
@@ -89,8 +87,8 @@ NS_API void free(T* block, MemTag tag = MemTag::UNKNOWN) {
  * @param count the count of elements in the block
  * @param tag the tag of the block
  */
-template <typename T>
-NS_API void free_n(T *block, usize count, MemTag tag = MemTag::UNKNOWN) {
+template <MemTag tag = MemTag::UNKNOWN, typename T>
+NS_API void free_n(T *block, usize count) {
   free_raw(block, count * sizeof(T), tag);
 }
 
@@ -99,10 +97,10 @@ NS_API void free_n(T *block, usize count, MemTag tag = MemTag::UNKNOWN) {
  * @param tag the tag of the memory block allocated
  * @param args... the arguments of the constructor
  */
-template <typename T, typename... Args>
-NS_API T *construct(MemTag tag, Args&&... args) {
+template <typename T, MemTag tag = MemTag::UNKNOWN, typename... Args>
+NS_API T *construct(Args &&...args) {
   ptr mem = alloc_raw(sizeof(T), tag);
-  return ::new(mem) T(static_cast<Args&&>((Args&)args)...);
+  return ::new (mem) T(static_cast<Args &&>((Args &)args)...);
 }
 
 /**
@@ -111,10 +109,11 @@ NS_API T *construct(MemTag tag, Args&&... args) {
  * @param tag the tag of the memory block allocated
  * @param args... the arguments of the constructor
  */
-template <typename T>
-NS_API T *construct_n(usize count, MemTag tag) {
-  T *mem = alloc_n<T>(count, tag);
-  for (; count; --count) ::new(&mem[count-1]) T();
+template <typename T, MemTag tag = MemTag::UNKNOWN>
+NS_API T *construct_n(usize count) {
+  T *mem = alloc_n<T, tag>(count);
+  for (; count; --count)
+    ::new (&mem[count - 1]) T();
   return mem;
 }
 
@@ -123,10 +122,10 @@ NS_API T *construct_n(usize count, MemTag tag) {
  * @param obj the object to destroy
  * @param tag the tag of the block
  */
-template <typename T>
-NS_API void destroy(T *obj, MemTag tag = MemTag::UNKNOWN) {
+template <MemTag tag = MemTag::UNKNOWN, typename T>
+NS_API void destroy(T *obj) {
   obj->~T();
-  free(obj, tag);
+  free<tag>(obj);
 }
 
 /**
@@ -135,10 +134,11 @@ NS_API void destroy(T *obj, MemTag tag = MemTag::UNKNOWN) {
  * @param count the count of elements in the array
  * @param tag the tag of the block
  */
-template <typename T>
-NS_API void destroy_n(T *arr, usize count, MemTag tag = MemTag::UNKNOWN) {
-  for (; count; --count) arr[count-1].~T();
-  free_n(arr, count, tag);
+template <MemTag tag = MemTag::UNKNOWN, typename T>
+NS_API void destroy_n(T *arr, usize count) {
+  for (; count; --count)
+    arr[count - 1].~T();
+  free_n<tag>(arr, count);
 }
 
 /**
@@ -176,16 +176,10 @@ NS_API pstr get_memory_usage_str();
  */
 NS_API u64 get_memory_alloc_count();
 
+template <MemTag tag = MemTag::UNTRACKED> struct WithOpNewDel {
+  void *operator new(unsigned long sz) { return alloc_raw(sz, tag); }
 
-template <MemTag tag = MemTag::UNTRACKED>
-struct WithOpNewDel {
-  void *operator new(unsigned long sz) {
-    return alloc_raw(sz, tag);
-  }
-
-  void operator delete(void* d, unsigned long sz) {
-    free_raw(d, sz, tag);
-  }
+  void operator delete(void *d, unsigned long sz) { free_raw(d, sz, tag); }
 };
 
 } // namespace ns

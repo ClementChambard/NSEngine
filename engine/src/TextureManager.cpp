@@ -24,7 +24,7 @@ usize TextureManager::get_texture_nsid_by_opengl(u32 texID) {
 usize TextureManager::add_texture(u32 texID, i32 w, i32 h) {
     Texture* t = Texture::from_opengl(texID, w, h);
     usize r = TextureManager::add_texture(std::move(*t));
-    ns::free(t, MemTag::TEXTURE);
+    ns::free<MemTag::TEXTURE>(t);
     return r;
 }
 

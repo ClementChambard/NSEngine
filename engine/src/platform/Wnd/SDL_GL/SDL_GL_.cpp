@@ -33,7 +33,7 @@ bool wnd_init(Wnd **wnd, char const *name, unsigned int width,
 
   wnd_cnt++;
 
-  *wnd = ns::construct<Wnd>(MemTag::APPLICATION);
+  *wnd = ns::construct<Wnd, MemTag::APPLICATION>();
   Wnd &w = **wnd;
 
   w.window = SDL_CreateWindow(name, SDL_WINDOWPOS_UNDEFINED,
@@ -51,7 +51,7 @@ bool wnd_init(Wnd **wnd, char const *name, unsigned int width,
   if (!w.glContext) {
     NS_ERROR("Failed to create GL context!");
     SDL_DestroyWindow(w.window);
-    ns::destroy(*wnd, MemTag::APPLICATION);
+    ns::destroy<MemTag::APPLICATION>(*wnd);
     *wnd = nullptr;
     return false;
   }

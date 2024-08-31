@@ -14,38 +14,38 @@ TEST("alloc-dealloc raw") {
 }
 
 TEST("alloc-dealloc one") {
-  int *pointer = ns::alloc<int>(MEMTAG);
+  int *pointer = ns::alloc<int, MEMTAG>();
   TEST_NE(pointer, nullptr);
   *pointer = 12345;
-  ns::free(pointer, MEMTAG);
+  ns::free<MEMTAG>(pointer);
   TEST_OK;
 }
 
 TEST("alloc-dealloc n") {
-  int *pointer = ns::alloc_n<int>(3, MEMTAG);
+  int *pointer = ns::alloc_n<int, MEMTAG>(3);
   TEST_NE(pointer, nullptr);
   pointer[0] = 123;
   pointer[1] = 456;
   pointer[2] = 789;
-  ns::free_n(pointer, 3, MEMTAG);
+  ns::free_n<MEMTAG>(pointer, 3);
   TEST_OK;
 }
 
 TEST("construct-destroy") {
-  int *pointer = ns::construct<int>(MEMTAG, 12345);
+  int *pointer = ns::construct<int, MEMTAG>(12345);
   TEST_NE(pointer, nullptr);
   TEST_EQ(*pointer, 12345);
-  ns::destroy(pointer, MEMTAG);
+  ns::destroy<MEMTAG>(pointer);
   TEST_OK;
 }
 
 TEST("construct-destroy n") {
-  int *pointer = ns::construct_n<int>(3, MEMTAG);
+  int *pointer = ns::construct_n<int, MEMTAG>(3);
   TEST_NE(pointer, nullptr);
   pointer[0] = 123;
   pointer[1] = 456;
   pointer[2] = 789;
-  ns::destroy_n(pointer, 3, MEMTAG);
+  ns::destroy_n<MEMTAG>(pointer, 3);
   TEST_OK;
 }
 
