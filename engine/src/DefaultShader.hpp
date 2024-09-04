@@ -20,8 +20,8 @@ private:
   static const char * const VERTEX_SHADER_PATH;
   static const char * const FRAGMENT_SHADER_PATH;
 
-  GLuint m_location_projectionMatrix;
-  GLuint m_location_viewMatrix;
+  u32 m_location_projectionMatrix;
+  u32 m_location_viewMatrix;
   
 };
 

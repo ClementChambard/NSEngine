@@ -3,7 +3,7 @@
 
 #include "./defines.h"
 #include "./logger.h"
-#include "SpriteBatch.h"
+#include "Texture.hpp"
 #include "Window.hpp"
 
 namespace ns {
@@ -70,8 +70,6 @@ public:
 
   void set_game_speed(f32 gs) { m_gameSpeed = gs; }
 
-  i32 add_game_layer();
-
 private:
   void on_create_engine();
   void on_update_engine();
@@ -99,11 +97,6 @@ private:
 
   Texture *m_defaultTexture = nullptr;
 
-  // Camera3D *m_cam3d = nullptr;
-
-  std::vector<SpriteBatch> m_layers;
-
-  friend std::vector<SpriteBatch> &get_game_layers();
   friend Window *get_main_window();
   friend Texture *get_default_texture();
 };
@@ -113,10 +106,6 @@ inline IEngine *get_instance() { return IEngine::instance; }
 inline Window *get_main_window() { return &IEngine::instance->m_mainWindow; }
 
 inline Texture *get_default_texture() { return IEngine::instance->m_defaultTexture;}
-
-std::vector<SpriteBatch> &get_game_layers();
-
-extern i32 DEBUG_LAYER_ID;
 
 } // namespace ns
 

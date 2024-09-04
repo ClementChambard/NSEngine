@@ -9,6 +9,8 @@ DrawBatch::DrawBatch() {
     glBindVertexArray(m_vao);
     glGenBuffers(1, &m_vbo);
     glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+    glGenBuffers(1, &m_ibo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
 
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
@@ -30,56 +32,99 @@ void DrawBatch::begin() { clear(); }
 void DrawBatch::end(bool staticdraw) { glBindVertexArray(m_vao); create_batch(staticdraw); }
 
 void DrawBatch::clear() {
-    m_quads.clear();
+    m_vertices.clear();
+    m_indices.clear();
 }
 
-bool DrawBatch::is_empty() {
-    return m_quads.size() == 0;
+bool DrawBatch::is_empty() const {
+    return m_indices.size() == 0;
 }
 
-void DrawBatch::draw(Vertex tl, Vertex tr, Vertex br, Vertex bl) 
-{
-    m_quads.push_back({tl, tr, br, bl});
+u32 DrawBatch::add_vertex(Vertex v) {
+    u32 idx = m_vertices.size();
+    m_vertices.push_back(v);
+    return idx;
 }
 
-void DrawBatch::render_batch() {
+u32 DrawBatch::draw_tri(Vertex v1, Vertex v2, Vertex v3) {
+    u32 fst_idx = add_vertex(v1);
+    add_vertex(v2);
+    add_vertex(v3);
+    draw_tri(fst_idx, fst_idx + 1, fst_idx + 2);
+    return fst_idx;
+}
 
+u32 DrawBatch::draw_quad(Vertex tl, Vertex tr, Vertex br, Vertex bl) {
+    u32 fst_idx = add_vertex(tl);
+    add_vertex(tr);
+    add_vertex(br);
+    add_vertex(bl);
+    draw_quad(fst_idx, fst_idx + 1, fst_idx + 2, fst_idx + 3);
+    return fst_idx;
+}
+
+u32 DrawBatch::draw_tri_strip(Vertex v) {
+    u32 idx = add_vertex(v);
+    draw_tri_strip(idx);
+    return idx;
+}
+
+u32 DrawBatch::draw_quad_strip(Vertex v1, Vertex v2) {
+    u32 fst_idx = add_vertex(v1);
+    add_vertex(v2);
+    draw_quad_strip(fst_idx, fst_idx + 1);
+    return fst_idx;
+}
+
+void DrawBatch::draw_tri(u32 v1, u32 v2, u32 v3) {
+    m_indices.push_back(v1);
+    m_indices.push_back(v2);
+    m_indices.push_back(v3);
+}
+
+void DrawBatch::draw_quad(u32 tl, u32 tr, u32 br, u32 bl) {
+    draw_tri(tl, tr, br);
+    draw_tri(tl, br, bl);
+}
+
+void DrawBatch::draw_tri_strip(u32 v) {
+    draw_tri(v - 2, v - 1, v);
+}
+
+void DrawBatch::draw_quad_strip(u32 v1, u32 v2) {
+    draw_quad(v1 - 2, v2 - 2, v1, v2);
+}
+
+u32 DrawBatch::get_next_vid() const {
+    return m_vertices.size();
+}
+
+void DrawBatch::render_batch() const {
     glBindVertexArray(m_vao);
 
-    glDrawArrays(GL_TRIANGLES, 0, m_quads.size() * 6);
+    glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, 0);
 }
 
 void DrawBatch::submit(bool clear_glyphs) {
     glBindVertexArray(m_vao);
 
-    create_batch(false);
+    create_batch();
 
-    glDrawArrays(GL_TRIANGLES, 0, m_quads.size() * 6);
+    glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, 0);
 
     if (clear_glyphs) clear();
 }
 
-void DrawBatch::create_batch(bool)
+void DrawBatch::create_batch(bool staticdraw)
 {
-    if (m_quads.empty()) return;
+    if (m_vertices.empty() || m_indices.empty()) return;
 
-    usize n_vtx = m_quads.size() * 6;
-    Vertex* vertices = new Vertex[n_vtx];
-
-    i32 cv = 0; //current vertex
-    for (auto& q : m_quads) {
-        vertices[cv++] = q.data[0];
-        vertices[cv++] = q.data[1];
-        vertices[cv++] = q.data[3];
-        vertices[cv++] = q.data[3];
-        vertices[cv++] = q.data[1];
-        vertices[cv++] = q.data[2];
-    }
+    auto dt = staticdraw ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW;
 
     glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-    glBufferData(GL_ARRAY_BUFFER, n_vtx * sizeof(Vertex), vertices, GL_DYNAMIC_DRAW);
-
-    delete[] vertices;
+    glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * sizeof(Vertex), m_vertices.data(), dt);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indices.size() * sizeof(Index), m_indices.data(), dt);
 }
 
 }

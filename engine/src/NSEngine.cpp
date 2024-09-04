@@ -11,8 +11,6 @@
 
 namespace ns {
 
-i32 DEBUG_LAYER_ID = 0;
-
 IEngine* IEngine::instance = nullptr;
 
 static usize log_req = 0;
@@ -121,7 +119,6 @@ i32 IEngine::run()
 void IEngine::on_create_engine()
 {
     on_create();
-    DEBUG_LAYER_ID = add_game_layer();
 }
 
 void IEngine::on_update_engine()
@@ -151,18 +148,6 @@ void IEngine::on_render_engine()
 void IEngine::on_destroy_engine()
 {
     on_destroy();
-    m_layers.clear();
-}
-
-i32 IEngine::add_game_layer() {
-  i32 id = m_layers.size();
-  m_layers.emplace_back();
-  NS_INFO("added new graphics layer %d", id);
-  return id;
-}
-
-std::vector<SpriteBatch>& get_game_layers() {
-    return IEngine::instance->m_layers;
 }
 
 }

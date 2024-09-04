@@ -93,10 +93,6 @@ inline auto operator<=>(Timer_t const &t1, i32 t2) { return t1.current<=>t2; }
 inline auto operator<=>(i32 t1, Timer_t const &t2) { return t1<=>t2.current; }
 inline auto operator<=>(Timer_t const &t1, u32 t2) { return t1.current<=>static_cast<i32>(t2); }
 inline auto operator<=>(u32 t1, Timer_t const &t2) { return static_cast<i32>(t1)<=>t2.current; }
-// inline auto operator==(Timer_t const &t1, i32 t2) { return t1.current==t2; }
-// inline auto operator==(i32 t1, Timer_t const &t2) { return t1==t2.current; }
-// inline auto operator==(Timer_t const &t1, u32 t2) { return t1.current==static_cast<i32>(t2); }
-// inline auto operator==(u32 t1, Timer_t const &t2) { return static_cast<i32>(t1)==t2.current; }
 inline bool operator!(Timer_t const &t) { return !t.current; }
 
 } // namespace ns
