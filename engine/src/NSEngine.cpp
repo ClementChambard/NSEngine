@@ -19,6 +19,8 @@ static usize im_req = 0;
 static ptr im_mem = 0;
 
 extern void NSMOD_initModules();
+extern void NSMOD_shutdownModules();
+extern void NSMOD_updateModules();
 
 IEngine::IEngine(u32 w, u32 h, cstr name)
 {
@@ -58,9 +60,6 @@ IEngine::IEngine(u32 w, u32 h, cstr name)
 
 IEngine::~IEngine()
 {
-#ifdef NS_USE_IMGUI
-    delete ImGuiContext::getInstance();
-#endif
 
     if (m_mainWindow.is_open()) m_mainWindow.close();
 
@@ -136,6 +135,8 @@ void IEngine::on_update_engine()
     if (keyboard::pressed(Key::F4)) m_gameflags.freecam = !m_gameflags.freecam;
     if (m_gameflags.framebyframe && !keyboard::pressed(Key::BACKSPACE) && !keyboard::down(Key::NUMPAD_EQUAL)) return;
 
+    NSMOD_updateModules();
+
     on_update();
 }
 
@@ -148,6 +149,8 @@ void IEngine::on_render_engine()
 void IEngine::on_destroy_engine()
 {
     on_destroy();
+
+    NSMOD_shutdownModules();
 }
 
 }

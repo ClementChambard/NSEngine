@@ -10,9 +10,14 @@ if(NS_USE_IMGUI OR NS_USE_ALL_SUBMODULES)
   target_compile_definitions(NSEngine PRIVATE -DNSMOD_USE_IMGUI=1)
 endif()
 
+if (NS_USE_AUDIO_PROTO OR NS_USE_ALL_SUBMODULES)
+  add_subdirectory(audio_engine)
+  target_compile_definitions(NSEngine PRIVATE -DNSMOD_USE_AUDIO_PROTO=1)
+endif()
+
 # ...
 
 
 # Add the source files specific to submodule management
 
-target_sources(NSEngine PRIVATE shared_src/modules_init.cpp)
+target_sources(NSEngine PRIVATE shared_src/modules_init.cpp shared_src/modules_run.cpp)

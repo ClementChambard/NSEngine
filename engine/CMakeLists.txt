@@ -18,6 +18,9 @@ add_library(NSEngine ${SRCS} ${HEADERS})
 
 set(NS_PLATFORM_WND "X11")
 
+# TEST: AudioEngine
+set(NS_USE_AUDIO_PROTO ON CACHE BOOL "enable audio engine prototype" FORCE)
+
 # nsengine submodules
 add_subdirectory(modules)
 
