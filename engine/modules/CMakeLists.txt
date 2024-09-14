@@ -15,6 +15,16 @@ if (NS_USE_AUDIO_PROTO OR NS_USE_ALL_SUBMODULES)
   target_compile_definitions(NSEngine PRIVATE -DNSMOD_USE_AUDIO_PROTO=1)
 endif()
 
+if (NS_USE_N3D OR NS_USE_ALL_SUBMODULES)
+  add_subdirectory(n3d)
+  target_compile_definitions(NSEngine PRIVATE -DNSMOD_USE_N3D=1)
+endif()
+
+if (NS_USE_POSTPROC_PROTO OR NS_USE_ALL_SUBMODULES)
+  add_subdirectory(postprocessing)
+  target_compile_definitions(NSEngine PRIVATE -DNSMOD_USE_POSTPROC_PROTO=1)
+endif()
+
 # ...
 
 

@@ -14,6 +14,8 @@ f32 acos(f32 x) { return acosf(x); }
 f32 atan(f32 x) { return atanf(x); }
 f32 sqrt(f32 x) { return sqrtf(x); }
 f32 abs(f32 x) { return fabsf(x); }
+f32 mod(f32 x, f32 y) { return fmodf(x, y); }
+i32 floor(f32 x) { return floorf(x); }
 
 i32 rand() {
     if (!g_rand_seeded) {

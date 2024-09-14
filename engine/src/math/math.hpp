@@ -13,6 +13,8 @@ NS_API f32 tan(f32 x);
 NS_API f32 acos(f32 x);
 NS_API f32 sqrt(f32 x);
 NS_API f32 abs(f32 x);
+NS_API f32 mod(f32 x, f32 y);
+NS_API i32 floor(f32 x);
 
 NS_INLINE bool is_power_of_2(u64 value) {
     return (value != 0) && ((value & (value - 1)) == 0);
