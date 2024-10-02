@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.20)
 
 message("Using Audio engine prototype")
 
-file(GLOB AUDIOSRCS src/*.h src/*.cpp include/NSAudio.h)
+file(GLOB_RECURSE AUDIOSRCS src/*.h src/*.cpp include/NSAudio.h)
 
 target_sources(NSEngine PRIVATE ${AUDIOSRCS})
 
