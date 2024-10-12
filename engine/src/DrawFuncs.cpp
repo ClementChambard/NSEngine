@@ -1,56 +1,27 @@
 #include "DrawFuncs.h"
-
 #include "math/math.hpp"
-#include "logger.h"
-
-
-#include <vector>
-
-std::vector<ns::DrawBatch> batches;
-
-std::vector<ns::DrawBatch>& get_game_layers() { return batches; }
-
-
-
 
 namespace ns {
 
 static Color defaultDrawColor = c_white;
-static i32 targetLayer = 0;
 
-void draw_set_color(Color c)
-{
+void draw_set_color(Color c) {
     defaultDrawColor = c;
 }
 
-void draw_set_color(u8 r, u8 g, u8 b, u8 a)
-{
+void draw_set_color(u8 r, u8 g, u8 b, u8 a) {
     defaultDrawColor = Color(r, g, b, a);
 }
 
-void draw_set_color(u8 r, u8 g, u8 b)
-{
+void draw_set_color(u8 r, u8 g, u8 b) {
     defaultDrawColor.r = r; defaultDrawColor.g = g; defaultDrawColor.b = b;
 }
 
-void draw_set_alpha(u8 a)
-{
+void draw_set_alpha(u8 a) {
     defaultDrawColor.a = a;
 }
 
-void draw_set_layer(usize layerID) {
-  if (layerID >= get_game_layers().size()) {
-    NS_ERROR("no such graphics layer");
-    return;
-  }
-  targetLayer = layerID;
-}
-
-void draw_line(i32 x1, i32 y1, i32 x2, i32 y2, i32 width)
-{ batch_draw_line(&get_game_layers()[targetLayer], x1, y1, x2, y2, width); }
-
-void batch_draw_line(DrawBatch* batch, i32 x1, i32 y1, i32 x2, i32 y2, i32 width)
-{
+void batch_draw_line(DrawBatch* batch, i32 x1, i32 y1, i32 x2, i32 y2, i32 width) {
     f32 angle = math::point_direction(x1,y1,x2,y2);
     f32 dirx = math::lengthdir_x((f32)width / 2.f, angle + ns::PI<f32> / 2.f);
     f32 diry = math::lengthdir_y((f32)width / 2.f, angle + ns::PI<f32> / 2.f);
@@ -61,11 +32,7 @@ void batch_draw_line(DrawBatch* batch, i32 x1, i32 y1, i32 x2, i32 y2, i32 width
     batch->draw_quad(g1,d1,d2,g2);
 }
 
-void draw_line_color(i32 x1, i32 y1, i32 x2, i32 y2, i32 width, Color c1, Color c2)
-{ batch_draw_line_color(&get_game_layers()[targetLayer], x1, y1, x2, y2, width, c1, c2); }
-
-void batch_draw_line_color(DrawBatch* batch, i32 x1, i32 y1, i32 x2, i32 y2, i32 width, Color c1, Color c2)
-{
+void batch_draw_line_color(DrawBatch* batch, i32 x1, i32 y1, i32 x2, i32 y2, i32 width, Color c1, Color c2) {
     f32 angle = math::point_direction(x1,y1,x2,y2);
     f32 dirx = math::lengthdir_x((f32)width / 2.f, angle + 90);
     f32 diry = math::lengthdir_y((f32)width / 2.f, angle + 90);
@@ -76,22 +43,16 @@ void batch_draw_line_color(DrawBatch* batch, i32 x1, i32 y1, i32 x2, i32 y2, i32
     batch->draw_quad(g1,d1,d2,g2);
 }
 
-void draw_rectangle(f32 x1, f32 y1, f32 x2, f32 y2, bool outline)
-{ batch_draw_rectangle(&get_game_layers()[targetLayer], x1, y1, x2, y2, outline); }
+void batch_draw_rectangle(DrawBatch* batch, f32 x1, f32 y1, f32 x2, f32 y2, bool outline) {
+    batch_draw_rectangle_color(batch, x1, y1, x2, y2, defaultDrawColor, defaultDrawColor, defaultDrawColor, defaultDrawColor, outline);
+}
 
-void batch_draw_rectangle(DrawBatch* batch, f32 x1, f32 y1, f32 x2, f32 y2, bool outline)
-{ batch_draw_rectangle_color(batch, x1, y1, x2, y2, defaultDrawColor, defaultDrawColor, defaultDrawColor, defaultDrawColor, outline); }
-void draw_rectangle_color(f32 x1, f32 y1, f32 x2, f32 y2, Color ctl, Color ctr, Color cbr, Color cbl, bool outline)
-{ batch_draw_rectangle_color(&get_game_layers()[targetLayer], x1, y1, x2, y2, ctl, ctr, cbr, cbl, outline); }
-
-void batch_draw_rectangle_color(DrawBatch* batch, f32 x1, f32 y1, f32 x2, f32 y2, Color ctl, Color ctr, Color cbr, Color cbl, bool outline)
-{
-    if (outline)
-    {
-        draw_line_color(x1,y1,x1,y2,1,ctl,cbl);
-        draw_line_color(x1,y1,x2,y1,1,ctl,ctr);
-        draw_line_color(x1,y2,x2,y2,1,cbl,cbr);
-        draw_line_color(x2,y1,x2,y2,1,ctr,cbr);
+void batch_draw_rectangle_color(DrawBatch* batch, f32 x1, f32 y1, f32 x2, f32 y2, Color ctl, Color ctr, Color cbr, Color cbl, bool outline) {
+    if (outline) {
+        batch_draw_line_color(batch, x1, y1, x1, y2, 1, ctl, cbl);
+        batch_draw_line_color(batch, x1, y1, x2, y1, 1, ctl, ctr);
+        batch_draw_line_color(batch, x1, y2, x2, y2, 1, cbl, cbr);
+        batch_draw_line_color(batch, x2, y1, x2, y2, 1, ctr, cbr);
         return;
     }
     Vertex tl = {{(f32)x1,(f32)y1,0.f}, ctl, {0,0}};
@@ -101,18 +62,11 @@ void batch_draw_rectangle_color(DrawBatch* batch, f32 x1, f32 y1, f32 x2, f32 y2
     batch->draw_quad(tl,tr,br,bl);
 }
 
+void batch_draw_rectangle_rotated(DrawBatch* batch, f32 cx, f32 cy, f32 w, f32 h, f32 rotation, bool outline) {
+    batch_draw_rectangle_rotated_color(batch, cx, cy, w, h, rotation, defaultDrawColor, defaultDrawColor, defaultDrawColor, defaultDrawColor, outline);
+}
 
-void draw_rectangle_rotated(f32 cx, f32 cy, f32 w, f32 h, f32 rotation, bool outline)
-{ batch_draw_rectangle_rotated(&get_game_layers()[targetLayer], cx, cy, w,  h, rotation, outline); }
-
-void batch_draw_rectangle_rotated(DrawBatch* batch, f32 cx, f32 cy, f32 w, f32 h, f32 rotation, bool outline)
-{ batch_draw_rectangle_rotated_color(batch, cx, cy, w, h, rotation, defaultDrawColor, defaultDrawColor, defaultDrawColor, defaultDrawColor, outline); }
-
-void draw_rectangle_rotated_color(f32 cx, f32 cy, f32 w, f32 h, f32 rotation, Color ctl, Color ctr, Color cbr, Color cbl, bool outline)
-{ batch_draw_rectangle_rotated_color(&get_game_layers()[targetLayer], cx, cy, w,  h, rotation, ctl, ctr, cbr, cbl, outline); }
-
-void batch_draw_rectangle_rotated_color(DrawBatch* batch, f32 cx, f32 cy, f32 w, f32 h, f32 rotation, Color ctl, Color ctr, Color cbr, Color cbl, bool outline)
-{
+void batch_draw_rectangle_rotated_color(DrawBatch* batch, f32 cx, f32 cy, f32 w, f32 h, f32 rotation, Color ctl, Color ctr, Color cbr, Color cbl, bool outline) {
     mat4 rot = mat4::mk_rotate_z(rotation);
     vec2 tl = (vec2)(vec4(cx, cy, 0, 0) + (rot * vec4(-w/2.f, h/2.f, 0, 0)));
     vec2 tr = (vec2)(vec4(cx, cy, 0, 0) + (rot * vec4( w/2.f, h/2.f, 0, 0)));
@@ -121,17 +75,11 @@ void batch_draw_rectangle_rotated_color(DrawBatch* batch, f32 cx, f32 cy, f32 w,
     batch_draw_quad_color_2d(batch, tl, tr, br, bl, ctl, ctr, cbr, cbl, outline);
 }
 
-void draw_quad(vec3 tl, vec3 tr, vec3 br, vec3 bl, bool)
-{ batch_draw_quad(&get_game_layers()[targetLayer], tl, tr, br, bl); }
+void batch_draw_quad(DrawBatch* batch, vec3 tl, vec3 tr, vec3 br, vec3 bl) {
+    batch_draw_quad_color(batch, tl, tr, br, bl, defaultDrawColor, defaultDrawColor, defaultDrawColor, defaultDrawColor);
+}
 
-void batch_draw_quad(DrawBatch* batch, vec3 tl, vec3 tr, vec3 br, vec3 bl, bool)
-{ batch_draw_quad_color(batch, tl, tr, br, bl, defaultDrawColor, defaultDrawColor, defaultDrawColor, defaultDrawColor); }
-
-void draw_quad_color(vec3 tl, vec3 tr, vec3 br, vec3 bl, Color ctl, Color ctr, Color cbr, Color cbl, bool)
-{ batch_draw_quad_color(&get_game_layers()[targetLayer], tl, tr, br, bl, ctl, ctr, cbr, cbl); }
-
-void batch_draw_quad_color(DrawBatch* batch, vec3 tl, vec3 tr, vec3 br, vec3 bl, Color ctl, Color ctr, Color cbr, Color cbl, bool)
-{
+void batch_draw_quad_color(DrawBatch* batch, vec3 tl, vec3 tr, vec3 br, vec3 bl, Color ctl, Color ctr, Color cbr, Color cbl) {
     Vertex vtl = {tl, ctl, {0,0}};
     Vertex vtr = {tr, ctr, {1,0}};
     Vertex vbr = {br, cbr, {1,1}};
@@ -139,19 +87,12 @@ void batch_draw_quad_color(DrawBatch* batch, vec3 tl, vec3 tr, vec3 br, vec3 bl,
     batch->draw_quad(vtl,vtr,vbr,vbl);
 }
 
-void draw_quad_2d(vec2 tl, vec2 tr, vec2 br, vec2 bl, bool outline)
-{ batch_draw_quad_2d(&get_game_layers()[targetLayer], tl, tr, br, bl, outline); }
+void batch_draw_quad_2d(DrawBatch* batch, vec2 tl, vec2 tr, vec2 br, vec2 bl, bool outline) {
+    batch_draw_quad_color_2d(batch, tl, tr, br, bl, defaultDrawColor, defaultDrawColor, defaultDrawColor, defaultDrawColor, outline);
+}
 
-void batch_draw_quad_2d(DrawBatch* batch, vec2 tl, vec2 tr, vec2 br, vec2 bl, bool outline)
-{ batch_draw_quad_color_2d(batch, tl, tr, br, bl, defaultDrawColor, defaultDrawColor, defaultDrawColor, defaultDrawColor, outline); }
-
-void draw_quad_color_2d(vec2 tl, vec2 tr, vec2 br, vec2 bl, Color ctl, Color ctr, Color cbr, Color cbl, bool outline)
-{ batch_draw_quad_color_2d(&get_game_layers()[targetLayer], tl, tr, br, bl, ctl, ctr, cbr, cbl, outline); }
-
-void batch_draw_quad_color_2d(DrawBatch* batch, vec2 tl, vec2 tr, vec2 br, vec2 bl, Color ctl, Color ctr, Color cbr, Color cbl, bool outline)
-{
-    if (outline)
-    {
+void batch_draw_quad_color_2d(DrawBatch* batch, vec2 tl, vec2 tr, vec2 br, vec2 bl, Color ctl, Color ctr, Color cbr, Color cbl, bool outline) {
+    if (outline) {
         batch_draw_line_color(batch,tl.x,tl.y,tr.x,tr.y,1,ctl,ctr);
         batch_draw_line_color(batch,tl.x,tl.y,bl.x,bl.y,1,ctl,cbl);
         batch_draw_line_color(batch,tr.x,tr.y,br.x,br.y,1,ctr,cbr);
@@ -165,23 +106,19 @@ void batch_draw_quad_color_2d(DrawBatch* batch, vec2 tl, vec2 tr, vec2 br, vec2 
     batch->draw_quad(vtl,vtr,vbr,vbl);
 }
 
-void draw_triangle(vec3 t1, vec3 t2, vec3 t3, bool outline)
-{ batch_draw_triangle(&get_game_layers()[targetLayer], t1, t2, t3, outline); }
+void batch_draw_triangle(DrawBatch* batch, vec3 t1, vec3 t2, vec3 t3) {
+    batch_draw_triangle_color(batch, t1, t2, t3, defaultDrawColor, defaultDrawColor, defaultDrawColor);
+}
 
-void batch_draw_triangle(DrawBatch* batch, vec3 t1, vec3 t2, vec3 t3, bool outline)
-{ batch_draw_triangle_color(batch, t1, t2, t3, defaultDrawColor, defaultDrawColor, defaultDrawColor, outline); }
+void batch_draw_triangle_color(DrawBatch* batch, vec3 t1, vec3 t2, vec3 t3, Color ct1, Color ct2, Color ct3) {
+    batch->draw_tri(
+        {t1, ct1, {}},
+        {t2, ct2, {}},
+        {t3, ct3, {}}
+    );
+}
 
-void draw_triangle_color(vec3 t1, vec3 t2, vec3 t3, Color ct1, Color ct2, Color ct3, bool outline)
-{ batch_draw_triangle_color(&get_game_layers()[targetLayer], t1, t2, t3, ct1, ct2, ct3, outline); }
-
-void batch_draw_triangle_color(DrawBatch* batch, vec3 t1, vec3 t2, vec3 t3, Color ct1, Color ct2, Color ct3, bool outline)
-{ batch_draw_quad_color(batch, t1,t1,t2,t3,ct1,ct1,ct2,ct3,outline); }
-
-
-void draw_aa_box(vec3 p1, vec3 p2, Color c, bool, bool shade)
-{ batch_draw_aa_box(&get_game_layers()[targetLayer], p1, p2, c, false, shade); }
-
-void batch_draw_aa_box(DrawBatch* batch, vec3 p1, vec3 p2, Color c, bool, bool shade)
+void batch_draw_aa_box(DrawBatch* batch, vec3 p1, vec3 p2, Color c, bool shade)
 {
     f32 x1 = p1.x;
     f32 y1 = p1.y;
@@ -197,12 +134,12 @@ void batch_draw_aa_box(DrawBatch* batch, vec3 p1, vec3 p2, Color c, bool, bool s
         c2 /= 2;
         c2.a = c.a;
     }
-    batch_draw_quad_color(batch, {x1,y1,z1},{x1,y2,z1},{x2,y2,z1},{x2,y1,z1},c1,c1,c1,c1,false);
-    batch_draw_quad_color(batch, {x1,y1,z2},{x1,y2,z2},{x2,y2,z2},{x2,y1,z2},c1,c1,c1,c1,false);
-    batch_draw_quad_color(batch, {x1,y1,z1},{x1,y2,z1},{x1,y2,z2},{x1,y1,z2},c2,c2,c2,c2,false);
-    batch_draw_quad_color(batch, {x2,y1,z1},{x2,y2,z1},{x2,y2,z2},{x2,y1,z2},c2,c2,c2,c2,false);
-    batch_draw_quad_color(batch, {x1,y1,z1},{x1,y1,z2},{x2,y1,z2},{x2,y1,z1},c,c,c,c,false);
-    batch_draw_quad_color(batch, {x1,y2,z1},{x1,y2,z2},{x2,y2,z2},{x2,y2,z1},c,c,c,c,false);
+    batch_draw_quad_color(batch, {x1,y1,z1},{x1,y2,z1},{x2,y2,z1},{x2,y1,z1},c1,c1,c1,c1);
+    batch_draw_quad_color(batch, {x1,y1,z2},{x1,y2,z2},{x2,y2,z2},{x2,y1,z2},c1,c1,c1,c1);
+    batch_draw_quad_color(batch, {x1,y1,z1},{x1,y2,z1},{x1,y2,z2},{x1,y1,z2},c2,c2,c2,c2);
+    batch_draw_quad_color(batch, {x2,y1,z1},{x2,y2,z1},{x2,y2,z2},{x2,y1,z2},c2,c2,c2,c2);
+    batch_draw_quad_color(batch, {x1,y1,z1},{x1,y1,z2},{x2,y1,z2},{x2,y1,z1},c,c,c,c);
+    batch_draw_quad_color(batch, {x1,y2,z1},{x1,y2,z2},{x2,y2,z2},{x2,y2,z1},c,c,c,c);
 }
 
 static i32 circleverteces = 90;
@@ -212,51 +149,37 @@ void draw_set_circle_vertex_count(i32 verteces)
     circleverteces = verteces+verteces%2;
 }
 
-void draw_circle(i32 x, i32 y, f32 r, bool outline)
-{ batch_draw_circle(&get_game_layers()[targetLayer], x, y, r, outline); }
+void batch_draw_circle(DrawBatch* batch, i32 x, i32 y, f32 r, bool outline) {
+    batch_draw_circle_color(batch, x, y, r, defaultDrawColor, defaultDrawColor, outline);
+}
 
-void batch_draw_circle(DrawBatch* batch, i32 x, i32 y, f32 r, bool outline)
-{ batch_draw_circle_color(batch, x, y, r, defaultDrawColor, defaultDrawColor, outline); }
-
-void draw_circle_color(i32 x, i32 y, f32 r, Color c_in, Color c_out, bool outline)
-{ batch_draw_circle_color(&get_game_layers()[targetLayer], x, y, r, c_in, c_out, outline); }
-
-void batch_draw_circle_color(DrawBatch* batch, i32 x, i32 y, f32 r, Color c_in, Color c_out, bool outline)
-{
+void batch_draw_circle_color(DrawBatch* batch, i32 x, i32 y, f32 r, Color c_in, Color c_out, bool outline) {
     Vertex c = {{(f32)x, (f32)y, 0.f}, c_in, {0,0}};
     Vertex v1 = {{}, c_out, {1,0}}, v2 = {{}, c_out, {1,1}}, v3 = {{}, c_out, {0,1}};
     double circleStep = ns::PI_2<f32>/(f32)circleverteces;
-    for (i32 i = 0; i < circleverteces/2; i++)
-    {
+    for (i32 i = 0; i < circleverteces/2; i++) {
         f32 a = 2*i*circleStep;
         v1.position = {x + math::lengthdir_x(r,a),y + math::lengthdir_y(r,a),0.f};
         v2.position = {x + math::lengthdir_x(r,a+circleStep),y + math::lengthdir_y(r,a+circleStep),0.f};
         v3.position = {x + math::lengthdir_x(r,a+2*circleStep),y + math::lengthdir_y(r,a+2*circleStep),0.f};
         if (outline)
         {
-            draw_line_color(v1.position.x,v1.position.y,v2.position.x,v2.position.y,1,c_out,c_out);
-            draw_line_color(v3.position.x,v3.position.y,v2.position.x,v2.position.y,1,c_out,c_out);
+            batch_draw_line_color(batch, v1.position.x,v1.position.y,v2.position.x,v2.position.y,1,c_out,c_out);
+            batch_draw_line_color(batch, v3.position.x,v3.position.y,v2.position.x,v2.position.y,1,c_out,c_out);
             continue;
         }
         batch->draw_quad(c,v1,v2,v3);
     }
 }
 
-void draw_circle_arc(i32 x, i32 y, f32 r1, f32 r2, f32 a1, f32 a2)
-{ batch_draw_circle_arc(&get_game_layers()[targetLayer], x, y, r1, r2, a1, a2); }
+void batch_draw_circle_arc(DrawBatch* batch, i32 x, i32 y, f32 r1, f32 r2, f32 a1, f32 a2) {
+    batch_draw_circle_arc_color(batch, x, y, r1, r2, a1, a2, defaultDrawColor, defaultDrawColor);
+}
 
-void batch_draw_circle_arc(DrawBatch* batch, i32 x, i32 y, f32 r1, f32 r2, f32 a1, f32 a2)
-{ batch_draw_circle_arc_color(batch, x, y, r1, r2, a1, a2, defaultDrawColor, defaultDrawColor); }
-
-void draw_circle_arc_color(i32 x, i32 y, f32 r1, f32 r2, f32 a1, f32 a2, Color c_in, Color c_out)
-{ batch_draw_circle_arc_color(&get_game_layers()[targetLayer], x, y, r1, r2, a1, a2, c_in, c_out); }
-
-void batch_draw_circle_arc_color(DrawBatch* batch, i32 x, i32 y, f32 r1, f32 r2, f32 a1, f32 a2, Color c_in, Color c_out)
-{
+void batch_draw_circle_arc_color(DrawBatch* batch, i32 x, i32 y, f32 r1, f32 r2, f32 a1, f32 a2, Color c_in, Color c_out) {
     Vertex v0 = {{}, c_out, {0,0}}, v1 = {{}, c_in, {1,0}}, v2 = {{}, c_in, {1,1}}, v3 = {{}, c_out, {0,1}};
     double circleStep = ns::PI_2<f32>/(f32)circleverteces;
-    for (double a = a1; a < a2; a += circleStep)
-    {
+    for (double a = a1; a < a2; a += circleStep) {
         v0.position = {x + math::lengthdir_x(r2, a), y + math::lengthdir_y(r2, a), 0.f};
         v1.position = {x + math::lengthdir_x(r1, a), y + math::lengthdir_y(r1, a), 0.f};
         v2.position = {x + math::lengthdir_x(r1, math::min(a2,(f32)(a+circleStep))), y + math::lengthdir_y(r1, math::min(a2,(f32)(a+circleStep))), 0.f};
@@ -265,8 +188,7 @@ void batch_draw_circle_arc_color(DrawBatch* batch, i32 x, i32 y, f32 r1, f32 r2,
     }
 }
 
-vec3 getCylPos(f32 r, f32 h, f32 a)
-{
+static vec3 getCylPos(f32 r, f32 h, f32 a) {
     vec3 pos;
     pos.x = r * cos(a);
     pos.y = h;
@@ -274,11 +196,7 @@ vec3 getCylPos(f32 r, f32 h, f32 a)
     return pos;
 }
 
-void draw_cylinder(vec3 pos, vec3 rot, f32 r, f32 h, f32 a1, f32 a2, f32 u1, f32 u2, i32 repetitions)
-{ batch_draw_cylinder(&get_game_layers()[targetLayer], pos, rot, r, h, a1, a2, u1, u2, repetitions); }
-
-void batch_draw_cylinder(DrawBatch* batch, vec3 pos, vec3 rot, f32 r, f32 h, f32 a1, f32 a2, f32 u1, f32 u2, i32 repetitions)
-{
+void batch_draw_cylinder(DrawBatch* batch, vec3 pos, vec3 rot, f32 r, f32 h, f32 a1, f32 a2, f32 u1, f32 u2, i32 repetitions) {
     double circleStep = abs(a2-a1)/(f32)circleverteces;
     f32 vStep = repetitions / (f32)circleverteces;
     Vertex v0 = {{}, defaultDrawColor, {u1,0}}, v1 = {{}, defaultDrawColor, {u2,0}},
@@ -290,6 +208,7 @@ void batch_draw_cylinder(DrawBatch* batch, vec3 pos, vec3 rot, f32 r, f32 h, f32
     if (rot.z != 0.0) rotation = rotation * mat4::mk_rotate_z(rot.z);
     if (rot.y != 0.0) rotation = rotation * mat4::mk_rotate_y(rot.y);
     if (rot.x != 0.0) rotation = rotation * mat4::mk_rotate_z(rot.x);
+
     for (double a = a1; a < a2; a += circleStep)
     {
         f32 aa2 = math::min(a2,f32(a+circleStep));

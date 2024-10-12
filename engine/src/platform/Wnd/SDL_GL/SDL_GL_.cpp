@@ -1,10 +1,10 @@
 #ifdef NS_WND_BACKEND_SDL2
 
-#include "logger.h"
+#include "./SDL_GL_.h"
 #include "../../../key.hpp"
 #include "../../../memory.h"
 #include "../Wnd.h"
-#include "./SDL_GL_.h"
+#include "logger.h"
 #include <SDL2/SDL_events.h>
 #include <cstdio>
 
@@ -33,7 +33,7 @@ bool wnd_init(Wnd **wnd, char const *name, unsigned int width,
 
   wnd_cnt++;
 
-  *wnd = ns::construct<Wnd, MemTag::APPLICATION>();
+  *wnd = ns::construct<Wnd>();
   Wnd &w = **wnd;
 
   w.window = SDL_CreateWindow(name, SDL_WINDOWPOS_UNDEFINED,
@@ -69,7 +69,7 @@ void wnd_destroy(Wnd *wnd) {
   SDL_DestroyWindow(wnd->window);
   if (--wnd_cnt == 0)
     SDL_Quit();
-  ns::destroy(wnd, MemTag::APPLICATION);
+  ns::destroy(wnd);
 }
 
 void wnd_swap(Wnd *wnd) { SDL_GL_SwapWindow(wnd->window); }
@@ -377,22 +377,22 @@ void wnd_handle_events(Wnd *pWnd) {
       switch (e.evt.type) {
       case SDL_KEYUP:
         if (n->eh->on_key(InputEvent::RELEASE,
-                             translate_keycode(e.evt.key.keysym.sym)))
+                          translate_keycode(e.evt.key.keysym.sym)))
           goto end;
         break;
       case SDL_KEYDOWN:
         if (n->eh->on_key(InputEvent::PRESS,
-                             translate_keycode(e.evt.key.keysym.sym)))
+                          translate_keycode(e.evt.key.keysym.sym)))
           goto end;
         break;
       case SDL_MOUSEBUTTONUP:
         if (n->eh->on_mouse_button(InputEvent::RELEASE,
-                                     translate_button(e.evt.button.button)))
+                                   translate_button(e.evt.button.button)))
           goto end;
         break;
       case SDL_MOUSEBUTTONDOWN:
         if (n->eh->on_mouse_button(InputEvent::PRESS,
-                                     translate_button(e.evt.button.button)))
+                                   translate_button(e.evt.button.button)))
           goto end;
         break;
       case SDL_MOUSEMOTION:
