@@ -80,10 +80,10 @@ u32 Colorf::to_rgba32() const {
 }
 
 f32 Colorf::get_h() const {
-    f32 min_ = math::min(r, g);
-    min_ = math::min(min_, b);
-    f32 max_ = math::max(r, g);
-    max_ = math::max(max_, b);
+    f32 min_ = ns::min(r, g);
+    min_ = ns::min(min_, b);
+    f32 max_ = ns::max(r, g);
+    max_ = ns::max(max_, b);
 
     f32 delta = max_ - min_;
 
@@ -107,10 +107,10 @@ f32 Colorf::get_h() const {
 }
 
 f32 Colorf::get_s() const {
-    f32 min_ = math::min(r, g);
-    min_ = math::min(min_, b);
-    f32 max_ = math::max(r, g);
-    max_ = math::max(max_, b);
+    f32 min_ = ns::min(r, g);
+    min_ = ns::min(min_, b);
+    f32 max_ = ns::max(r, g);
+    max_ = ns::max(max_, b);
 
     f32 delta = max_ - min_;
 
@@ -118,8 +118,8 @@ f32 Colorf::get_s() const {
 }
 
 f32 Colorf::get_v() const {
-    f32 max_ = math::max(r, g);
-    return math::max(max_, b);
+    f32 max_ = ns::max(r, g);
+    return ns::max(max_, b);
 }
 
 Colorf& Colorf::set_hsv(f32 hh, f32 ss, f32 vv, f32 aa) {

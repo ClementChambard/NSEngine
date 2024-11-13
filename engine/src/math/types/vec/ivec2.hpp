@@ -1,13 +1,11 @@
 #ifndef IVEC2_HEADER_INCLUDED
 #define IVEC2_HEADER_INCLUDED
 
-#include "../../../defines.h"
+#include <glm/glm.hpp>
 
 namespace ns {
 
-struct ivec2 {
-  i32 x, y;
-};
+using glm::ivec2;
 
 } // namespace ns
 

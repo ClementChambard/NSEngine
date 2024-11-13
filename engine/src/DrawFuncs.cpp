@@ -22,9 +22,9 @@ void draw_set_alpha(u8 a) {
 }
 
 void batch_draw_line(DrawBatch* batch, i32 x1, i32 y1, i32 x2, i32 y2, i32 width) {
-    f32 angle = math::point_direction(x1,y1,x2,y2);
-    f32 dirx = math::lengthdir_x((f32)width / 2.f, angle + ns::PI<f32> / 2.f);
-    f32 diry = math::lengthdir_y((f32)width / 2.f, angle + ns::PI<f32> / 2.f);
+    f32 angle = ns::point_direction(x1,y1,x2,y2);
+    f32 dirx = ns::lengthdir_x((f32)width / 2.f, angle + ns::PI<f32> / 2.f);
+    f32 diry = ns::lengthdir_y((f32)width / 2.f, angle + ns::PI<f32> / 2.f);
     Vertex g1 = {{(f32)x1 - dirx,(f32)y1 - diry,0.f}, defaultDrawColor, {0,0}};
     Vertex d1 = {{(f32)x1 + dirx,(f32)y1 + diry,0.f}, defaultDrawColor, {1,0}};
     Vertex d2 = {{(f32)x2 + dirx,(f32)y2 + diry,0.f}, defaultDrawColor, {1,1}};
@@ -33,9 +33,9 @@ void batch_draw_line(DrawBatch* batch, i32 x1, i32 y1, i32 x2, i32 y2, i32 width
 }
 
 void batch_draw_line_color(DrawBatch* batch, i32 x1, i32 y1, i32 x2, i32 y2, i32 width, Color c1, Color c2) {
-    f32 angle = math::point_direction(x1,y1,x2,y2);
-    f32 dirx = math::lengthdir_x((f32)width / 2.f, angle + 90);
-    f32 diry = math::lengthdir_y((f32)width / 2.f, angle + 90);
+    f32 angle = ns::point_direction(x1,y1,x2,y2);
+    f32 dirx = ns::lengthdir_x((f32)width / 2.f, angle + 90);
+    f32 diry = ns::lengthdir_y((f32)width / 2.f, angle + 90);
     Vertex g1 = {{(f32)x1 - dirx,(f32)y1 - diry,0.f}, c1, {0,0}};
     Vertex d1 = {{(f32)x1 + dirx,(f32)y1 + diry,0.f}, c1, {1,0}};
     Vertex d2 = {{(f32)x2 + dirx,(f32)y2 + diry,0.f}, c2, {1,1}};
@@ -67,7 +67,7 @@ void batch_draw_rectangle_rotated(DrawBatch* batch, f32 cx, f32 cy, f32 w, f32 h
 }
 
 void batch_draw_rectangle_rotated_color(DrawBatch* batch, f32 cx, f32 cy, f32 w, f32 h, f32 rotation, Color ctl, Color ctr, Color cbr, Color cbl, bool outline) {
-    mat4 rot = mat4::mk_rotate_z(rotation);
+    mat4 rot = mat::mk4_rotate_z(rotation);
     vec2 tl = (vec2)(vec4(cx, cy, 0, 0) + (rot * vec4(-w/2.f, h/2.f, 0, 0)));
     vec2 tr = (vec2)(vec4(cx, cy, 0, 0) + (rot * vec4( w/2.f, h/2.f, 0, 0)));
     vec2 br = (vec2)(vec4(cx, cy, 0, 0) + (rot * vec4( w/2.f,-h/2.f, 0, 0)));
@@ -159,9 +159,9 @@ void batch_draw_circle_color(DrawBatch* batch, i32 x, i32 y, f32 r, Color c_in, 
     double circleStep = ns::PI_2<f32>/(f32)circleverteces;
     for (i32 i = 0; i < circleverteces/2; i++) {
         f32 a = 2*i*circleStep;
-        v1.position = {x + math::lengthdir_x(r,a),y + math::lengthdir_y(r,a),0.f};
-        v2.position = {x + math::lengthdir_x(r,a+circleStep),y + math::lengthdir_y(r,a+circleStep),0.f};
-        v3.position = {x + math::lengthdir_x(r,a+2*circleStep),y + math::lengthdir_y(r,a+2*circleStep),0.f};
+        v1.position = {x + ns::lengthdir_x(r,a),y + ns::lengthdir_y(r,a),0.f};
+        v2.position = {x + ns::lengthdir_x(r,a+circleStep),y + ns::lengthdir_y(r,a+circleStep),0.f};
+        v3.position = {x + ns::lengthdir_x(r,a+2*circleStep),y + ns::lengthdir_y(r,a+2*circleStep),0.f};
         if (outline)
         {
             batch_draw_line_color(batch, v1.position.x,v1.position.y,v2.position.x,v2.position.y,1,c_out,c_out);
@@ -180,10 +180,10 @@ void batch_draw_circle_arc_color(DrawBatch* batch, i32 x, i32 y, f32 r1, f32 r2,
     Vertex v0 = {{}, c_out, {0,0}}, v1 = {{}, c_in, {1,0}}, v2 = {{}, c_in, {1,1}}, v3 = {{}, c_out, {0,1}};
     double circleStep = ns::PI_2<f32>/(f32)circleverteces;
     for (double a = a1; a < a2; a += circleStep) {
-        v0.position = {x + math::lengthdir_x(r2, a), y + math::lengthdir_y(r2, a), 0.f};
-        v1.position = {x + math::lengthdir_x(r1, a), y + math::lengthdir_y(r1, a), 0.f};
-        v2.position = {x + math::lengthdir_x(r1, math::min(a2,(f32)(a+circleStep))), y + math::lengthdir_y(r1, math::min(a2,(f32)(a+circleStep))), 0.f};
-        v3.position = {x + math::lengthdir_x(r2, math::min(a2,(f32)(a+circleStep))), y + math::lengthdir_y(r2, math::min(a2,(f32)(a+circleStep))), 0.f};
+        v0.position = {x + ns::lengthdir_x(r2, a), y + ns::lengthdir_y(r2, a), 0.f};
+        v1.position = {x + ns::lengthdir_x(r1, a), y + ns::lengthdir_y(r1, a), 0.f};
+        v2.position = {x + ns::lengthdir_x(r1, ns::min(a2,(f32)(a+circleStep))), y + ns::lengthdir_y(r1, ns::min(a2,(f32)(a+circleStep))), 0.f};
+        v3.position = {x + ns::lengthdir_x(r2, ns::min(a2,(f32)(a+circleStep))), y + ns::lengthdir_y(r2, ns::min(a2,(f32)(a+circleStep))), 0.f};
         batch->draw_quad(v0,v1,v2,v3);
     }
 }
@@ -205,13 +205,13 @@ void batch_draw_cylinder(DrawBatch* batch, vec3 pos, vec3 rot, f32 r, f32 h, f32
     vec4 pos4 = vec4(pos, 0);
 
     mat4 rotation(1.f);
-    if (rot.z != 0.0) rotation = rotation * mat4::mk_rotate_z(rot.z);
-    if (rot.y != 0.0) rotation = rotation * mat4::mk_rotate_y(rot.y);
-    if (rot.x != 0.0) rotation = rotation * mat4::mk_rotate_z(rot.x);
+    if (rot.z != 0.0) rotation = rotation * mat::mk4_rotate_z(rot.z);
+    if (rot.y != 0.0) rotation = rotation * mat::mk4_rotate_y(rot.y);
+    if (rot.x != 0.0) rotation = rotation * mat::mk4_rotate_z(rot.x);
 
     for (double a = a1; a < a2; a += circleStep)
     {
-        f32 aa2 = math::min(a2,f32(a+circleStep));
+        f32 aa2 = ns::min(a2,f32(a+circleStep));
         v0.position = pos4 + rotation * vec4(getCylPos(r, -h/2.f, a),1);
         v0.uv.y = i * vStep;
         v1.position = pos4 + rotation * vec4(getCylPos(r, h/2.f, a),1);

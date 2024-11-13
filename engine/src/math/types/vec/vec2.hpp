@@ -1,127 +1,22 @@
 #ifndef VEC2_HEADER_INCLUDED
 #define VEC2_HEADER_INCLUDED
 
-#include "../../../defines.h"
-#include "../../cstes.hpp"
+#include <glm/glm.hpp>
 
 namespace ns {
 
-struct vec2;
-struct vec3;
-struct vec4;
-f32 sqrt(f32);
-f32 abs(f32);
+using glm::vec2;
 
-struct vec2 {
-  union {
-    f32 elements[2];
-    struct {
-      union {
-        f32 x, r, s, u;
-      };
-      union {
-        f32 y, g, t, v;
-      };
-    };
-  };
+namespace vec {
 
-  vec2() : x(0.0f), y(0.0f) {}
-  vec2(vec2 const &other) : x(other.x), y(other.y) {}
-  vec2(vec2 &&other) : x(other.x), y(other.y) {}
-  explicit vec2(vec3 const &other);
-  explicit vec2(vec3 &&other);
-  explicit vec2(vec4 const &other);
-  explicit vec2(vec4 &&other);
-  vec2(f32 x, f32 y) : x(x), y(y) {}
-  explicit vec2(f32 v) : x(v), y(v) {}
+inline vec2 zero2() { return {0.0f, 0.0f}; }
+inline vec2 one2() { return {1.0f, 1.0f}; }
+inline vec2 up2() { return {0.0f, 1.0f}; }
+inline vec2 down2() { return {0.0f, -1.0f}; }
+inline vec2 left2() { return {-1.0f, 0.0f}; }
+inline vec2 right2() { return {1.0f, 0.0f}; }
 
-  vec2 &operator=(vec2 const &other) {
-    x = other.x;
-    y = other.y;
-    return *this;
-  }
-  vec2 &operator=(vec2 &&other) {
-    x = other.x;
-    y = other.y;
-    return *this;
-  }
-  vec2 &operator=(vec3 const& other);
-  vec2 &operator=(vec4 const& other);
-  vec2 operator+(vec2 const &other) const { return {x + other.x, y + other.y}; }
-  vec2 operator+() const { return *this; }
-  vec2 operator-(vec2 const &other) const { return {x - other.x, y - other.y}; }
-  vec2 operator-() const { return {-x, -y}; }
-  vec2 operator*(vec2 const &other) const { return {x * other.x, y * other.y}; }
-  vec2 operator*(f32 f) const { return {x * f, y * f}; }
-  vec2 operator/(vec2 const &other) const { return {x / other.x, y / other.y}; }
-  vec2 operator/(f32 f) const { return {x / f, y / f}; }
-  vec2 &operator+=(vec2 const &other) {
-    x += other.x;
-    y += other.y;
-    return *this;
-  }
-  vec2 &operator-=(vec2 const &other) {
-    x -= other.x;
-    y -= other.y;
-    return *this;
-  }
-  vec2 &operator*=(vec2 const &other) {
-    x *= other.x;
-    y *= other.y;
-    return *this;
-  }
-  vec2 &operator/=(vec2 const &other) {
-    x /= other.x;
-    y /= other.y;
-    return *this;
-  }
-  vec2 &operator*=(f32 f) {
-    x *= f;
-    y *= f;
-    return *this;
-  }
-  vec2 &operator/=(f32 f) {
-    x /= f;
-    y /= f;
-    return *this;
-  }
-  f32 operator[](usize i) const { return elements[i]; }
-  f32 &operator[](usize i) { return elements[i]; }
-
-  bool operator==(vec2 const &other) const {
-    if (abs(x - other.x) > NS_FEPSILON)
-      return false;
-    if (abs(y - other.y) > NS_FEPSILON)
-      return false;
-    return true;
-  }
-  bool operator!=(vec2 const &other) const { return !(*this == other); }
-
-  f32 length_sq() const { return x * x + y * y; }
-  f32 length() const { return sqrt(length_sq()); }
-  void normalize() {
-    const f32 len_unsafe = length();
-    const f32 len = len_unsafe == 0 ? 1 : len_unsafe;
-    x /= len;
-    y /= len;
-  }
-  vec2 normalized() const {
-    vec2 o = *this;
-    o.normalize();
-    return o;
-  }
-  f32 dist_sq(vec2 const &other) const { return (*this - other).length_sq(); }
-  f32 dist(vec2 const &other) const { return (*this - other).length(); }
-  f32 dot(vec2 const &other) const { return x * other.x + y * other.y; }
-
-  static vec2 zero() { return {0.0f, 0.0f}; }
-  static vec2 one() { return {1.0f, 1.0f}; }
-  static vec2 up() { return {0.0f, 1.0f}; }
-  static vec2 down() { return {0.0f, -1.0f}; }
-  static vec2 left() { return {-1.0f, 0.0f}; }
-  static vec2 right() { return {1.0f, 0.0f}; }
-
-};
+}
 
 } // namespace ns
 

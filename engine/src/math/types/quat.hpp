@@ -1,3 +1,4 @@
+#if 0
 #ifndef QUAT_HEADER_INCLUDED
 #define QUAT_HEADER_INCLUDED
 
@@ -204,3 +205,4 @@ struct quat {
 } // namespace ns
 
 #endif // NS_QUAT_HEADER_INCLUDED
+#endif
