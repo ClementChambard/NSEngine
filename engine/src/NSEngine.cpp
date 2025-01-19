@@ -22,6 +22,48 @@ extern void NSMOD_initModules();
 extern void NSMOD_shutdownModules();
 extern void NSMOD_updateModules();
 
+
+void opengl_debug_callback(unsigned int source, unsigned int type, unsigned int id, unsigned int severity, int, const char* message, const void*) {
+
+    const char* src_str;
+    switch (source) {
+        case GL_DEBUG_SOURCE_API: src_str = " [API]"; break;
+        case GL_DEBUG_SOURCE_WINDOW_SYSTEM: src_str = " [WINDOW SYSTEM]"; break;
+        case GL_DEBUG_SOURCE_SHADER_COMPILER: src_str = " [SHADER COMPILER]"; break;
+        case GL_DEBUG_SOURCE_THIRD_PARTY: src_str = " [THIRD PARTY]"; break;
+        case GL_DEBUG_SOURCE_APPLICATION: src_str = " [APPLICATION]"; break;
+        case GL_DEBUG_SOURCE_OTHER: src_str = ""; break;
+        default: std::printf("INVALID SOURCE: %d\n", source); return;
+    }
+
+    const char* type_str;
+    switch (type) {
+    case GL_DEBUG_TYPE_ERROR: type_str = " [ERROR]"; break;
+    case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: type_str = " [DEPRECATED BEHAVIOR]"; break;
+    case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR: type_str = " [UNDEFINED BEHAVIOR]"; break;
+    case GL_DEBUG_TYPE_PORTABILITY: type_str = " [PORTABILITY]"; break;
+    case GL_DEBUG_TYPE_PERFORMANCE: type_str = " [PERFORMANCE]"; break;
+    case GL_DEBUG_TYPE_MARKER: type_str = " [MARKER]"; break;
+    case GL_DEBUG_TYPE_PUSH_GROUP: type_str = " [PUSH GROUP]"; break;
+    case GL_DEBUG_TYPE_POP_GROUP: type_str = " [POP GROUP]"; break;
+    case GL_DEBUG_TYPE_OTHER: type_str = ""; break;
+    default: std::printf("INVALID TYPE: %d\n", type); return;
+    }
+
+    const char* sev_str;
+    switch (severity) {
+    case GL_DEBUG_SEVERITY_HIGH: sev_str = "\x1b[31m"; break;
+    case GL_DEBUG_SEVERITY_MEDIUM: sev_str = ""; break;
+    case GL_DEBUG_SEVERITY_LOW: sev_str = ""; break;
+    case GL_DEBUG_SEVERITY_NOTIFICATION: return; // sev_str = ""; break;
+    default: std::printf("INVALID SEVERITY: %d\n", severity); return;
+    }
+
+    std::printf("\x1b[1m[OPENGL: %d]\x1b[0m%s%s%s: %s\x1b[0m\n", id, src_str, sev_str, type_str, message);
+}
+
+
+
 IEngine::IEngine(u32 w, u32 h, cstr name)
 {
     if (instance) {
@@ -48,6 +90,9 @@ IEngine::IEngine(u32 w, u32 h, cstr name)
       NS_FATAL("Failed to initialize GLEW: %s", glewGetErrorString(Error));
       exit(1);
     }
+
+    glEnable(GL_DEBUG_OUTPUT);
+    glDebugMessageCallback(opengl_debug_callback, nullptr);
 
     NSMOD_initModules();
 
