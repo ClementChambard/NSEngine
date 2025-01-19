@@ -12,14 +12,13 @@ u32 PostProcessing::vao_id = 0;
 std::vector<PPEffect*> PostProcessing::effects_queue;
 
 void PostProcessing::init() {
-    glGenVertexArrays(1, &vao_id);
-    glBindVertexArray(vao_id);
-    glGenBuffers(1, &vbo_id);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
-    glBufferData(GL_ARRAY_BUFFER, 8 * sizeof(f32), POSITIONS, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
+    glCreateVertexArrays(1, &vao_id);
+    glCreateBuffers(1, &vbo_id);
+    glNamedBufferData(vbo_id, 8 * sizeof(f32), POSITIONS, GL_STATIC_DRAW);
+    glEnableVertexArrayAttrib(vao_id, 0);
+    glVertexArrayAttribBinding(vao_id, 0, 0);
+    glVertexArrayAttribFormat(vao_id, 0, 2, GL_FLOAT, GL_FALSE, 0);
+    glVertexArrayVertexBuffer(vao_id, 0, vbo_id, 0, 2 * sizeof(f32));
 }
 
 void PostProcessing::do_post_processing(u32 color_texture) {
@@ -44,13 +43,11 @@ void PostProcessing::add_step(PPEffect* eff) {
 
 void PostProcessing::start() {
     glBindVertexArray(vao_id);
-    glEnableVertexAttribArray(0);
     glDisable(GL_DEPTH_TEST);
 }
 
 void PostProcessing::end() {
     glEnable(GL_DEPTH_TEST);
-    glDisableVertexAttribArray(0);
     glBindVertexArray(0);
 }
 

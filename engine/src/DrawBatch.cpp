@@ -5,31 +5,37 @@
 namespace ns {
 
 DrawBatch::DrawBatch() {
-    glGenVertexArrays(1, &m_vao);
-    glBindVertexArray(m_vao);
-    glGenBuffers(1, &m_vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-    glGenBuffers(1, &m_ibo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
+    glCreateVertexArrays(1, &m_vao);
+    glCreateBuffers(1, &m_vbo);
+    glCreateBuffers(1, &m_ibo);
 
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
-    glEnableVertexAttribArray(2);
+    glVertexArrayElementBuffer(m_vao, m_ibo);
+    glVertexArrayVertexBuffer(m_vao, 0, m_vbo, 0, sizeof(Vertex));
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
-    glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex), (void*)offsetof(Vertex, color));
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, uv));
+    glEnableVertexArrayAttrib(m_vao, 0);
+    glEnableVertexArrayAttrib(m_vao, 1);
+    glEnableVertexArrayAttrib(m_vao, 2);
+
+    glVertexArrayAttribBinding(m_vao, 0, 0);
+    glVertexArrayAttribBinding(m_vao, 1, 0);
+    glVertexArrayAttribBinding(m_vao, 2, 0);
+
+    glVertexArrayAttribFormat(m_vao, 0, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, position));
+    glVertexArrayAttribFormat(m_vao, 1, 4, GL_UNSIGNED_BYTE, GL_TRUE, offsetof(Vertex, color));
+    glVertexArrayAttribFormat(m_vao, 2, 2, GL_FLOAT, GL_FALSE, offsetof(Vertex, uv));
 }
+
 DrawBatch::~DrawBatch() {
     glBindVertexArray(0);
 
-    if (m_vbo != 0) glDeleteBuffers(1, &m_vbo);
     if (m_vao != 0) glDeleteVertexArrays(1, &m_vao);
+    if (m_vbo != 0) glDeleteBuffers(1, &m_vbo);
+    if (m_ibo != 0) glDeleteBuffers(1, &m_ibo);
 }
 
 void DrawBatch::begin() { clear(); }
 
-void DrawBatch::end(bool staticdraw) { glBindVertexArray(m_vao); create_batch(staticdraw); }
+void DrawBatch::end(bool staticdraw) { create_batch(staticdraw); }
 
 void DrawBatch::clear() {
     m_vertices.clear();
@@ -106,11 +112,9 @@ void DrawBatch::render_batch() const {
 }
 
 void DrawBatch::submit(bool clear_glyphs) {
-    glBindVertexArray(m_vao);
-
     create_batch();
 
-    glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, 0);
+    render_batch();
 
     if (clear_glyphs) clear();
 }
@@ -121,10 +125,8 @@ void DrawBatch::create_batch(bool staticdraw)
 
     auto dt = staticdraw ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW;
 
-    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-    glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * sizeof(Vertex), m_vertices.data(), dt);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indices.size() * sizeof(Index), m_indices.data(), dt);
+    glNamedBufferData(m_vbo, m_vertices.size() * sizeof(Vertex), m_vertices.data(), dt);
+    glNamedBufferData(m_ibo, m_indices.size() * sizeof(Index), m_indices.data(), dt);
 }
 
 }

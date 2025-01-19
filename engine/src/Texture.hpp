@@ -42,12 +42,15 @@ public:
     void set_min_mag_filter(Filter min_filter, Filter mag_filter);
     void set_min_mag_filter(Filter filter_both);
 
+    void set_data(bytes data) { set_data(0, 0, m_width, m_height, data); }
+    void set_data(u32 offset_x, u32 offset_y, u32 width, u32 height, bytes data);
+
     static Texture* from_opengl(u32 id, u32 w, u32 h);
     static Texture* as_framebuffer(u32 w, u32 h);
 
-    void use();
-    void unuse();
-    static void unuse_texture();
+    void use(u32 unit = 0);
+    [[deprecated("Don't unuse texture")]] void unuse();
+    [[deprecated("Don't unuse texture")]] static void unuse_texture();
 
     vec2 get_size() const { return vec2(m_width, m_height); }
     u32 get_width() const { return m_width; }
