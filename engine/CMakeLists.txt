@@ -16,7 +16,7 @@ add_compile_options(-DNS_EXPORT -fPIC)
 
 add_library(NSEngine ${SRCS} ${HEADERS})
 
-set(NS_PLATFORM_WND "X11")
+set(NS_PLATFORM_WND "SDL2")
 
 # MODULES TESTS
 set(NS_USE_AUDIO_PROTO ON CACHE BOOL "enable audio engine prototype" FORCE)
